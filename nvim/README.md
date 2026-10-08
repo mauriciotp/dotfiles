@@ -9,7 +9,7 @@ Faz parte dos [dotfiles](../README.md): o `install.sh` da raiz liga esta pasta e
 Depois é só abrir o `nvim`; o lazy.nvim instala os plugins na primeira abertura.
 
 Requisitos: Neovim ≥ 0.11, git, ripgrep, fd, [Claude Code](https://docs.claude.com/en/docs/claude-code)
-(`claude` no `PATH`), tmux ≥ 3.0 e `ss` (iproute2) para a integração com o Claude. Fora do tmux a
+(`claude` no `PATH`), tmux ≥ 3.3 e `ss` (iproute2) para a integração com o Claude. Fora do tmux a
 integração cai no terminal embutido do snacks.
 
 As versões dos plugins ficam travadas no `lazy-lock.json`. Se um `:Lazy update` quebrar algo,

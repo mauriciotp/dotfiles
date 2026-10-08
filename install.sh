@@ -46,6 +46,33 @@ copy_once() {
   run cp "$src" "$dst"
 }
 
+# Contas de domínio/LDAP não aparecem no /etc/passwd e não podem usar chsh: o login
+# continua no bash, que troca para o zsh no ~/.bashrc. Só acrescenta se ainda não houver.
+ensure_bash_execs_zsh() {
+  local login_shell
+  login_shell="$(getent passwd "$USER" | cut -d: -f7)"
+  case "$login_shell" in
+  */zsh)
+    echo "ok       login shell já é zsh"
+    return
+    ;;
+  esac
+  if grep -qE 'exec .*zsh|^# dotfiles: o login shell' ~/.bashrc 2>/dev/null; then
+    echo "ok       ~/.bashrc já troca para o zsh"
+    return
+  fi
+  echo "bashrc   ~/.bashrc passa a trocar para o zsh (login shell: ${login_shell:-?})"
+  [ "$DRY_RUN" = 1 ] && return
+  cat >>~/.bashrc <<'BASH'
+
+# dotfiles: o login shell não pode ser trocado (chsh); abre o zsh a partir do bash interativo
+if command -v zsh >/dev/null; then
+  export SHELL="$(command -v zsh)"
+  exec "$SHELL"
+fi
+BASH
+}
+
 # clone <repo> <destino>
 clone() {
   if [ -d "$2" ]; then
@@ -73,6 +100,11 @@ done
 echo "== cópias"
 # o Claude Code reescreve o settings.json pelo /config; um link seria trocado por arquivo
 copy_once claude/settings.json ~/.claude/settings.json
+# o htop reescreve o htoprc ao sair
+copy_once htop/htoprc ~/.config/htop/htoprc
+
+echo "== shell"
+ensure_bash_execs_zsh
 
 echo "== gerenciadores de plugins"
 clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
