@@ -234,6 +234,8 @@ local tmux_provider = {
 
 -- Digita `text` no prompt do Claude e envia; cria o Claude se não existir
 local function send_text(text)
+  -- cada \n viraria Enter no prompt do Claude, tanto no tmux quanto no terminal do snacks
+  text = text:gsub("\n", " ")
   if not vim.env.TMUX then
     -- terminal do snacks: abre o Claude se preciso, como no tmux
     local terminal = require("claudecode.terminal")
@@ -245,7 +247,6 @@ local function send_text(text)
     end, 20000)
     return
   end
-  text = text:gsub("\n", " ")
 
   local function type_into(claude)
     tmux({ "send-keys", "-t", claude.id, "-l", text })
@@ -386,11 +387,29 @@ return {
       {
         "<leader>ae",
         function()
+          local file = current_file()
+          if file == "" then
+            return vim.notify("Buffer sem arquivo", vim.log.levels.WARN)
+          end
+          -- o Claude lê do disco: salva para a linha bater com o buffer
+          if vim.bo.modified then
+            vim.cmd("silent update")
+          end
           local lnum = vim.api.nvim_win_get_cursor(0)[1]
-          local msgs = vim.tbl_map(function(d)
-            return d.message
-          end, vim.diagnostic.get(0, { lnum = lnum - 1 }))
-          local where = current_file() .. ":" .. lnum
+          -- hints/info não contam como erro: sem WARN+ cai no /explicar
+          local diags = vim.diagnostic.get(0, {
+            lnum = lnum - 1,
+            severity = { min = vim.diagnostic.severity.WARN },
+          })
+          local seen, msgs = {}, {}
+          for _, d in ipairs(diags) do
+            local msg = (d.source and ("[" .. d.source .. "] ") or "") .. (d.message:gsub("%s*\n%s*", " "))
+            if not seen[msg] then
+              seen[msg] = true
+              table.insert(msgs, msg)
+            end
+          end
+          local where = file .. ":" .. lnum
           if #msgs > 0 then
             send_text("/corrigir " .. where .. " " .. table.concat(msgs, " | "))
           else
