@@ -100,8 +100,6 @@ done
 echo "== cópias"
 # o Claude Code reescreve o settings.json pelo /config; um link seria trocado por arquivo
 copy_once claude/settings.json ~/.claude/settings.json
-# o htop reescreve o htoprc ao sair
-copy_once htop/htoprc ~/.config/htop/htoprc
 
 echo "== shell"
 ensure_bash_execs_zsh

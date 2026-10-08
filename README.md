@@ -1,7 +1,7 @@
 # dotfiles
 
-Minhas configurações de terminal e editor: Neovim (LazyVim), tmux, zsh, Ghostty, starship, git,
-htop e Claude Code, integrado ao Neovim e ao tmux. Um `install.sh` liga tudo nos lugares certos, então a mesma
+Minhas configurações de terminal e editor: Neovim (LazyVim), tmux, zsh, Ghostty, starship, git
+e Claude Code, integrado ao Neovim e ao tmux. Um `install.sh` liga tudo nos lugares certos, então a mesma
 configuração sobe em qualquer máquina.
 
 | Pasta       | Vai para                                   | O que tem                                                   |
@@ -13,7 +13,6 @@ configuração sobe em qualquer máquina.
 | `starship/` | `~/.config/starship.toml`                  | símbolos Nerd Font do prompt                                |
 | `git/`      | `~/.gitconfig`                             | nome, e-mail e assinatura de commits com chave SSH          |
 | `claude/`   | `~/.claude/commands/`, `~/.claude/settings.json` | slash commands `/testar`, `/corrigir`, `/explicar`; preferências |
-| `htop/`     | `~/.config/htop/htoprc` (cópia)            | colunas, ordenação e medidores                              |
 
 O tema é Catppuccin Mocha em todo lugar (Ghostty, tmux-powerkit, Neovim).
 
@@ -24,7 +23,7 @@ O tema é Catppuccin Mocha em todo lugar (Ghostty, tmux-powerkit, Neovim).
 Exemplo para Ubuntu/Debian; em outras distros os nomes dos pacotes mudam pouco.
 
 ```sh
-sudo apt install zsh git curl unzip build-essential ripgrep fd-find bat iproute2 htop
+sudo apt install zsh git curl unzip build-essential ripgrep fd-find bat iproute2
 chsh -s "$(command -v zsh)"   # em conta de domínio/LDAP isso falha; veja abaixo
 ```
 
@@ -67,9 +66,9 @@ O `install.sh`:
 
 - cria os links da tabela acima. Um arquivo que já existia vai para
   `~/.dotfiles-backup/<data>/`, nada é apagado;
-- copia o `claude/settings.json` e o `htop/htoprc` só se ainda não existirem: os próprios programas
-  reescrevem esses arquivos (o Claude pelo `/config`, o htop ao sair), e um link viraria arquivo
-  comum. Para levar uma mudança deles ao repositório, copie de volta à mão;
+- copia o `claude/settings.json` só se ainda não existir: o Claude Code reescreve esse arquivo
+  pelo `/config`, e um link viraria arquivo comum. Para levar uma mudança dele ao repositório,
+  copie de volta à mão;
 - se o login shell ainda não for zsh, faz o `~/.bashrc` abrir o zsh (rode o `chsh` antes, se
   ele funcionar na máquina, e o bloco não é acrescentado);
 - clona o [tpm](https://github.com/tmux-plugins/tpm) e o [zap](https://github.com/zap-zsh/zap).
