@@ -26,7 +26,7 @@ zsh são os mesmos. O que muda:
 | --------------------- | ------------------------------------------ | -------------------------------------------------------- |
 | E-mail do git         | `mauricio.tp_@outlook.com`, no repositório (`git/pessoal.gitconfig`) | perguntado na instalação e gravado em `~/.gitconfig.local`, **nunca** no repositório (ele é público) |
 | Commit sem e-mail     | —                                          | recusado (`user.useConfigOnly`), em vez de sair com e-mail errado |
-| Trecho extra do zsh   | `zsh/perfil/pessoal.zsh` (vazio por enquanto) | `zsh/perfil/empresa.zsh`: autocomplete da Oracle Cloud CLI |
+| Trecho extra do zsh   | `zsh/perfil/pessoal.zsh` (vazio por enquanto) | `zsh/perfil/empresa.zsh` (vazio por enquanto)            |
 | Login shell           | conta local: `chsh` para zsh               | conta de domínio/LDAP costuma não aceitar `chsh`: o `~/.bashrc` abre o zsh |
 | Segredos              | `~/.zshrc.local`                           | `~/.zshrc.local` (tokens, URLs internas, proxy)          |
 
@@ -44,6 +44,13 @@ Como o perfil é aplicado:
 O login shell não depende do perfil, e sim do tipo de conta, que o `install.sh` detecta.
 Numa conta local, ele só avisa para rodar `chsh`. Numa conta de domínio, ele acrescenta ao
 `~/.bashrc` o bloco que troca para o zsh.
+
+Por que não `chsh` na conta de domínio: a conta vem do AD/LDAP via `sssd` (`getent passwd`
+mostra o usuário, mas o `/etc/passwd` não), e o `chsh` só edita o `/etc/passwd`. Ele pede a senha
+e então falha com `user '...' does not exist in /etc/passwd`. Com `sudo`, o `sssd` aceita
+sobrescrever o shell localmente (`sudo sss_override user-add "$USER" -s /usr/bin/zsh` e reiniciar
+o `sssd`), mas isso mexe na configuração do sistema da empresa. O `~/.bashrc` resolve sem
+privilégio nenhum.
 
 Para trocar o perfil de uma máquina: `./install.sh pessoal` (ou `empresa`) de novo.
 
@@ -143,8 +150,6 @@ indicam algo que você precisa fazer à mão.
   travaria os atalhos padrão da versão de hoje; só vale guardar se você customizar algo.
 - **`~/.ssh/config`**: tem os hosts das máquinas que você acessa; fica fora de um repositório público.
 - **VS Code**: usa o Settings Sync da própria conta, que já leva configurações e extensões.
-- **`~/bin/oci`** e a Oracle CLI: instalação específica desta máquina (o zshrc só carrega o
-  autocomplete se ela existir).
 
 ## Como manter
 
