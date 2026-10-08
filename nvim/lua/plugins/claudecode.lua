@@ -150,6 +150,27 @@ local function create_pane(cmd_string, env, focus, where)
   return id
 end
 
+-- Espera o Claude conectar (até `timeout` ms) e chama `fn`
+local function when_connected(fn, timeout)
+  local was_connected = is_connected()
+  local waited = 0
+  local timer = vim.uv.new_timer()
+  timer:start(
+    0,
+    250,
+    vim.schedule_wrap(function()
+      waited = waited + 250
+      if is_connected() or waited >= timeout then
+        timer:stop()
+        timer:close()
+        -- Claude acabou de conectar: margem para a TUI ficar pronta e as menções
+        -- na fila caírem no prompt antes do texto. Já conectado: envia na hora.
+        vim.defer_fn(fn, (is_connected() and not was_connected) and 1000 or 0)
+      end
+    end)
+  )
+end
+
 -- Onde o próximo Claude criado vai abrir; <leader>aw troca para "window" por uma chamada
 local next_where = "split"
 
@@ -170,8 +191,11 @@ local function open(cmd_string, env, _, focus)
   local model = cmd_string:match("%-%-model[= ](%S+)")
   if model then
     -- ClaudeCodeSelectModel com Claude já aberto: troca o modelo na sessão atual
-    tmux({ "send-keys", "-t", claude.id, "-l", "/model " .. model })
-    tmux({ "send-keys", "-t", claude.id, "Enter" })
+    -- (espera conectar: num pane recém-criado a TUI ainda não leria o comando)
+    when_connected(function()
+      tmux({ "send-keys", "-t", claude.id, "-l", "/model " .. model })
+      tmux({ "send-keys", "-t", claude.id, "Enter" })
+    end, (claude.ours and not claude.connected) and 20000 or 0)
   elseif cmd_string:find("%-%-") then
     vim.notify("Já existe um Claude para este nvim; use /resume dentro dele", vim.log.levels.INFO)
   elseif not claude.connected and not claude.ours then
@@ -208,31 +232,17 @@ local tmux_provider = {
   end,
 }
 
--- Espera o Claude conectar (até `timeout` ms) e chama `fn`
-local function when_connected(fn, timeout)
-  local was_connected = is_connected()
-  local waited = 0
-  local timer = vim.uv.new_timer()
-  timer:start(
-    0,
-    250,
-    vim.schedule_wrap(function()
-      waited = waited + 250
-      if is_connected() or waited >= timeout then
-        timer:stop()
-        timer:close()
-        -- Claude acabou de conectar: margem para a TUI ficar pronta e as menções
-        -- na fila caírem no prompt antes do texto. Já conectado: envia na hora.
-        vim.defer_fn(fn, (is_connected() and not was_connected) and 1000 or 0)
-      end
-    end)
-  )
-end
-
 -- Digita `text` no prompt do Claude e envia; cria o Claude se não existir
 local function send_text(text)
   if not vim.env.TMUX then
-    require("claudecode.terminal").send_to_terminal(text)
+    -- terminal do snacks: abre o Claude se preciso, como no tmux
+    local terminal = require("claudecode.terminal")
+    if not terminal.get_active_terminal_bufnr() then
+      vim.cmd("ClaudeCodeFocus")
+    end
+    when_connected(function()
+      terminal.send_to_terminal(text, { focus = true })
+    end, 20000)
     return
   end
   text = text:gsub("\n", " ")
@@ -298,12 +308,13 @@ return {
         end,
       })
       -- Depois de aceitar/rejeitar, devolve o foco ao Claude para seguir a conversa.
-      -- "replaced"/"setup failed" não contam: outro diff está abrindo ou nada abriu.
+      -- Só esses motivos contam ("diff tab closed after save/reject", "diff rejected
+      -- (keep_empty)"): <leader>aD, :ClaudeCodeStop e o Claude fechando as abas não.
       vim.api.nvim_create_autocmd("User", {
         pattern = "ClaudeCodeDiffClosed",
         callback = function(ev)
           local reason = (ev.data or {}).reason or ""
-          if not vim.env.TMUX or reason:find("replaced") or reason:find("setup failed") then
+          if not vim.env.TMUX or not (reason:find("after save") or reason:find("reject")) then
             return
           end
           -- espera o plugin fechar a aba do diff antes de trocar de pane
@@ -317,10 +328,10 @@ return {
       })
     end,
     keys = {
-      { "<leader>a", "", desc = "+ai (claude)", mode = { "n", "v" } },
+      { "<leader>a", "", desc = "+ai", mode = { "n", "v" } },
       { "<leader>ac", false }, -- remove o mapeamento do extra do LazyVim
-      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Claude: abrir/focar" },
-      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Claude: escolher modelo" },
+      { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Focus Claude" },
+      { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Select Claude Model" },
       -- remove os do extra do LazyVim: com um Claude aberto, use /resume dentro dele
       { "<leader>ar", false },
       { "<leader>aC", false },
@@ -338,20 +349,20 @@ return {
           next_where = "window"
           vim.cmd("ClaudeCodeOpen")
         end,
-        desc = "Claude: abrir em janela tmux própria",
+        desc = "Open Claude in tmux Window",
       },
-      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Claude: adicionar buffer" },
-      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Claude: enviar seleção" },
+      { "<leader>ab", "<cmd>ClaudeCodeAdd %<cr>", desc = "Add Current Buffer" },
+      { "<leader>as", "<cmd>ClaudeCodeSend<cr>", mode = "v", desc = "Send Selection to Claude" },
       {
         "<leader>as",
         "<cmd>ClaudeCodeTreeAdd<cr>",
-        desc = "Claude: adicionar arquivo",
+        desc = "Add File to Claude",
         ft = { "NvimTree", "neo-tree", "oil", "minifiles", "netrw", "snacks_picker_list" },
       },
-      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Claude: aceitar diff" },
-      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Claude: rejeitar diff" },
-      { "<leader>aD", "<cmd>ClaudeCodeCloseAllDiffs<cr>", desc = "Claude: fechar diffs pendentes" },
-      { "<leader>ai", "<cmd>ClaudeCodeStatus<cr>", desc = "Claude: status" },
+      { "<leader>aa", "<cmd>ClaudeCodeDiffAccept<cr>", desc = "Accept Diff" },
+      { "<leader>ad", "<cmd>ClaudeCodeDiffDeny<cr>", desc = "Deny Diff" },
+      { "<leader>aD", "<cmd>ClaudeCodeCloseAllDiffs<cr>", desc = "Close Pending Diffs" },
+      { "<leader>ai", "<cmd>ClaudeCodeStatus<cr>", desc = "Claude Status" },
       {
         "<leader>ap",
         function()
@@ -361,7 +372,7 @@ return {
             end
           end)
         end,
-        desc = "Claude: prompt livre",
+        desc = "Prompt Claude",
       },
       -- Os prompts ficam em slash commands do Claude (claude/commands/ dos dotfiles,
       -- linkados em ~/.claude/commands/): o atalho só manda o comando com o arquivo.
@@ -370,7 +381,7 @@ return {
         function()
           send_text(vim.trim("/testar " .. current_file()))
         end,
-        desc = "Claude: testar e corrigir pacote",
+        desc = "Test and Fix Package",
       },
       {
         "<leader>ae",
@@ -386,7 +397,7 @@ return {
             send_text("/explicar " .. where)
           end
         end,
-        desc = "Claude: explicar/corrigir diagnóstico da linha",
+        desc = "Explain/Fix Line Diagnostic",
       },
     },
   },
@@ -410,7 +421,7 @@ return {
         win = {
           input = {
             keys = {
-              ["<a-a>"] = { "claude_send", mode = { "n", "i" }, desc = "Enviar ao Claude" },
+              ["<a-a>"] = { "claude_send", mode = { "n", "i" }, desc = "Send to Claude" },
             },
           },
         },
