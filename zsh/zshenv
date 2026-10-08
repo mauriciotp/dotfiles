@@ -1,0 +1,4 @@
+# Lido por todo zsh (inclusive não interativo): só PATH de toolchains.
+
+[ -d "$HOME/.foundry/bin" ] && export PATH="$PATH:$HOME/.foundry/bin"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

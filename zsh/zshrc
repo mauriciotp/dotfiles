@@ -1,0 +1,83 @@
+### ---- ZSH HOME -----------------------------------
+export ZSH=$HOME
+# starship lê ~/.config/starship.toml (linkado de ~/dotfiles/starship/)
+
+### ---- autocompletions -----------------------------------
+fpath=(~/.zsh/site-functions $fpath)
+autoload -Uz compinit && compinit
+
+### ---- Completion options and styling -----------------------------------
+zstyle ':completion:*' menu select # selectable menu
+
+### ---- Aliases -----------------------------------
+# eza é o sucessor do exa (que não é mais mantido); usa o que estiver instalado
+if command -v eza >/dev/null; then _ls=eza; elif command -v exa >/dev/null; then _ls=exa; fi
+if [ -n "$_ls" ]; then
+  alias ls="$_ls --icons --group-directories-first -l"
+  alias ll="$_ls --icons --group-directories-first -la"
+  alias lt="$_ls --icons --group-directories-first -T -L=2"
+fi
+unset _ls
+# no Debian/Ubuntu o bat pode vir como batcat
+if command -v bat >/dev/null; then alias cat="bat --paging=never"
+elif command -v batcat >/dev/null; then alias cat="batcat --paging=never"; fi
+
+### ---- History Configuration -----------------------------------
+HISTSIZE=10000000               #How many lines of history to keep in memory
+HISTFILE=$ZSH/.zsh_history      #Where to save history to disk
+SAVEHIST=10000000               #Number of history entries to save to disk
+setopt appendhistory
+setopt share_history
+setopt hist_ignore_all_dups
+setopt hist_ignore_space #ignores all commands starting with a blank space! Usefull for passwords
+
+### ---- Load nvm ----------------------------------------
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+### ---- Load Starship -----------------------------------
+command -v starship >/dev/null && eval "$(starship init zsh)"
+
+### ---- Zap (plugins do zsh; o install.sh instala) --------------------------------
+if [ -f "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh" ]; then
+  source "${XDG_DATA_HOME:-$HOME/.local/share}/zap/zap.zsh"
+  plug "zsh-users/zsh-autosuggestions"
+  plug "agkozak/zsh-z"
+  plug "zsh-users/zsh-syntax-highlighting"
+fi
+
+### ---- fzf: key bindings e fuzzy completion -----------------------------------
+[ -d "$HOME/.fzf/bin" ] && [[ ":$PATH:" != *":$HOME/.fzf/bin:"* ]] && PATH="$PATH:$HOME/.fzf/bin"
+command -v fzf >/dev/null && source <(fzf --zsh)
+
+### ---- PATH de ferramentas (só entra o que existir na máquina) -----------------
+[ -d "$HOME/.console-ninja/.bin" ] && PATH="$HOME/.console-ninja/.bin:$PATH"
+
+# bun
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+export BUN_INSTALL="$HOME/.bun"
+[ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
+
+# neovim instalado pelo tarball oficial
+[ -d /opt/nvim-linux-x86_64/bin ] && export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+
+# go
+[ -d /usr/local/go/bin ] && export PATH="$PATH:/usr/local/go/bin"
+command -v go >/dev/null && export PATH="$PATH:$(go env GOPATH)/bin"
+
+# opencode
+[ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
+
+[ -d "$HOME/bin" ] && export PATH="$HOME/bin:$PATH"
+
+# oracle cli
+_oci="$HOME/lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh"
+[[ -e "$_oci" ]] && source "$_oci"
+unset _oci
+
+# ~/.local/bin por último: fica na frente (claude, tmux-claude-focus)
+export PATH="$HOME/.local/bin:$PATH"
+
+### ---- Específico desta máquina (fora do git: segredos, aliases locais) --------
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local

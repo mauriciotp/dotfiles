@@ -363,7 +363,7 @@ return {
         end,
         desc = "Claude: prompt livre",
       },
-      -- Os prompts ficam em slash commands do Claude (claude/commands/ neste repo,
+      -- Os prompts ficam em slash commands do Claude (claude/commands/ dos dotfiles,
       -- linkados em ~/.claude/commands/): o atalho só manda o comando com o arquivo.
       {
         "<leader>at",

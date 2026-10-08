@@ -1,0 +1,8 @@
+[user]
+	email = mauricio.tp_@outlook.com
+	name = mauricio
+	signingkey = ~/.ssh/id_ed25519_sign.pub
+[gpg]
+	format = ssh
+[commit]
+	gpgsign = true

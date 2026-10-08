@@ -1,122 +1,94 @@
-# nvim
+# dotfiles
 
-Minha configuração do Neovim, baseada no [LazyVim](https://github.com/LazyVim/LazyVim), com o
-[Claude Code](https://claude.com/claude-code) integrado ao tmux.
+Minhas configurações de terminal e editor: Neovim (LazyVim + Claude Code), tmux, zsh, Ghostty,
+starship, git e Claude Code. Um `install.sh` liga tudo nos lugares certos, então a mesma
+configuração sobe em qualquer máquina.
 
-## Instalação
+| Pasta       | Vai para                                   | O que tem                                                   |
+| ----------- | ------------------------------------------ | ----------------------------------------------------------- |
+| `nvim/`     | `~/.config/nvim`                           | LazyVim + Claude Code no tmux ([README](nvim/README.md))    |
+| `tmux/`     | `~/.tmux.conf`, `~/.local/bin/`            | prefix `C-a`, tpm, resurrect/continuum, atalhos do Claude   |
+| `zsh/`      | `~/.zshrc`, `~/.zshenv`                    | zap (autosuggestions, z, syntax highlighting), fzf, nvm     |
+| `ghostty/`  | `~/.config/ghostty/config.ghostty`         | JetBrains Mono Nerd Font, Catppuccin Mocha                  |
+| `starship/` | `~/.config/starship.toml`                  | símbolos Nerd Font do prompt                                |
+| `git/`      | `~/.gitconfig`                             | nome, e-mail e assinatura de commits com chave SSH          |
+| `claude/`   | `~/.claude/commands/`, `~/.claude/settings.json` | slash commands `/testar`, `/corrigir`, `/explicar`; preferências |
+
+O tema é Catppuccin Mocha em todo lugar (Ghostty, tmux-powerkit, Neovim).
+
+## Máquina nova
+
+### 1. Dependências
+
+Exemplo para Ubuntu/Debian; em outras distros os nomes dos pacotes mudam pouco.
 
 ```sh
-git clone git@github.com:mauriciotp/nvim-config.git ~/.config/nvim
-
-# slash commands do Claude usados pelos atalhos <leader>at / <leader>ae
-mkdir -p ~/.claude/commands
-for f in ~/.config/nvim/claude/commands/*.md; do ln -sfn "$f" ~/.claude/commands/; done
-
-# script do tmux usado pelo `prefix + a` (veja "tmux" abaixo)
-mkdir -p ~/.local/bin
-ln -sfn ~/.config/nvim/tmux/tmux-claude-focus ~/.local/bin/tmux-claude-focus
-
-nvim   # o lazy.nvim instala os plugins na primeira abertura
+sudo apt install zsh git curl unzip build-essential ripgrep fd-find bat iproute2
+chsh -s "$(command -v zsh)"
 ```
 
-Requisitos: Neovim ≥ 0.11, git, [Claude Code](https://docs.claude.com/en/docs/claude-code) (`claude`
-no `PATH`), tmux ≥ 3.0 e `ss` (iproute2) para a integração com o Claude. Fora do tmux a integração cai
-no terminal embutido do snacks.
+O resto vem dos instaladores oficiais, porque o apt costuma ter versões velhas:
 
-As versões dos plugins ficam travadas no `lazy-lock.json`. Se um `:Lazy update` quebrar algo,
-`:Lazy restore` volta para as versões commitadas.
+| Ferramenta                 | Como instalar                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------ |
+| Neovim ≥ 0.11              | tarball de [releases](https://github.com/neovim/neovim/releases) em `/opt` ou `/usr/local` |
+| tmux ≥ 3.0                 | apt (se for ≥ 3.0) ou [código-fonte](https://github.com/tmux/tmux/releases)     |
+| Ghostty                    | [ghostty.org/download](https://ghostty.org/download) (aqui: snap)               |
+| JetBrains Mono Nerd Font   | [nerdfonts.com](https://www.nerdfonts.com/font-downloads) → `~/.local/share/fonts`, depois `fc-cache -f` |
+| starship                   | `curl -sS https://starship.rs/install.sh \| sh`                                 |
+| fzf                        | `git clone --depth 1 https://github.com/junegunn/fzf ~/.fzf && ~/.fzf/install --bin` |
+| eza (ou exa)               | [eza](https://github.com/eza-community/eza/blob/main/INSTALL.md); o zshrc usa o que achar |
+| nvm + Node                 | [nvm](https://github.com/nvm-sh/nvm#installing-and-updating), depois `nvm install --lts` |
+| Claude Code                | `curl -fsSL https://claude.ai/install.sh \| bash`                               |
+| lazygit, gh                | opcionais: [lazygit](https://github.com/jesseduffield/lazygit#installation), [gh](https://cli.github.com) |
 
-## Estrutura
+Go, bun, cargo, foundry etc. são opcionais: o zshrc só coloca no `PATH` o que existir.
 
-| Caminho                            | O que tem                                                      |
-| ---------------------------------- | -------------------------------------------------------------- |
-| `lua/config/`                      | bootstrap do lazy.nvim, opções, keymaps e autocmds             |
-| `lua/plugins/claudecode.lua`       | integração Claude Code ↔ tmux (detalhes abaixo)                |
-| `lua/plugins/lsp.lua`, `sql.lua`   | `sqls`, inlay hints desligados, sqlfluff lendo o `.sqlfluff`   |
-| `lua/plugins/colorscheme.lua`      | catppuccin-mocha                                               |
-| `lua/plugins/vim-tmux-navigator.lua` | `<C-h/j/k/l>` navegam entre splits do nvim e panes do tmux   |
-| `claude/commands/`                 | slash commands do Claude (`/testar`, `/corrigir`, `/explicar`) |
-| `tmux/tmux-claude-focus`           | script do `prefix + a`: pula para o pane do Claude             |
-| `lazyvim.json`                     | extras do LazyVim habilitados (linguagens, yanky, dial…)       |
+### 2. Clonar e instalar
 
-## Claude Code no tmux
-
-O [claudecode.nvim](https://github.com/coder/claudecode.nvim) abre um servidor WebSocket no nvim
-para o Claude ver seleções, receber `@menções` e propor alterações como diffs. Aqui ele usa um
-*terminal provider* próprio: em vez de um terminal dentro do nvim, o Claude roda num **pane do tmux**.
-
-Como o Claude é encontrado, em ordem:
-
-1. o processo `claude` **conectado** à porta deste nvim, em qualquer janela ou sessão do tmux
-   (descoberto via `ss` e a árvore de processos; vale também para um Claude aberto à mão que rodou
-   `/ide`);
-2. um pane desta janela criado por este nvim que ainda está subindo;
-3. nenhum: cria um split ao lado (38% da largura) ou, com `<leader>aw`, uma janela nova.
-
-Qualquer envio (`<leader>as`, `<leader>ab`, `<a-a>` no picker…) sem Claude aberto cria o pane e
-entrega a menção quando ele conectar.
-
-O ciclo de alteração não exige trocar de pane: quando o Claude propõe um diff, o foco vem para o
-nvim (o diff abre numa aba própria); depois de `<leader>aa`/`<leader>ad`, o foco volta ao Claude.
-
-### Atalhos
-
-| Atalho                  | Ação                                                                      |
-| ----------------------- | ------------------------------------------------------------------------- |
-| `<leader>af`            | abrir/focar o Claude (cria um split se não houver)                        |
-| `<leader>aw`            | abrir o Claude numa janela tmux própria                                   |
-| `<leader>am`            | escolher modelo (com Claude aberto, manda `/model` na sessão atual)       |
-| `<leader>ab`            | adicionar o buffer atual como `@menção`                                   |
-| `<leader>as` (visual)   | enviar a seleção                                                          |
-| `<leader>as` (árvore)   | adicionar o arquivo sob o cursor (neo-tree, oil, snacks explorer…)        |
-| `<a-a>` (picker snacks) | adicionar os itens selecionados do picker                                 |
-| `<leader>ap`            | digitar um prompt livre e enviar                                          |
-| `<leader>at`            | `/testar <arquivo>`: roda os testes do pacote e corrige falhas            |
-| `<leader>ae`            | `/corrigir <arquivo:linha> <diagnóstico>` ou `/explicar <arquivo:linha>`  |
-| `<leader>aa` / `<leader>ad` | aceitar / rejeitar o diff                                             |
-| `<leader>aD`            | fechar diffs pendentes                                                    |
-| `<leader>ai`            | status da conexão                                                         |
-
-`<leader>ap`, `<leader>at`, `<leader>ae` e `<leader>am` digitam no prompt do Claude via
-`tmux send-keys`: se houver um rascunho escrito lá, o texto é colado no fim dele.
-
-### Slash commands
-
-Os prompts dos atalhos ficam em `claude/commands/*.md`, não no Lua. Assim funcionam também no Claude
-fora do nvim e podem ser editados sem mexer na config. O `/testar` descobre sozinho o comando de
-teste do projeto (Makefile, package.json, go.mod, Cargo.toml…).
-
-### tmux
-
-A integração funciona com um tmux padrão, mas o `~/.tmux.conf` (que não está neste repositório)
-tem um bloco que completa o workflow:
-
-```tmux
-# --- Claude Code ---
-set -g focus-events on                 # nvim recebe FocusGained -> recarrega arquivos editados pelo Claude
-set -g allow-passthrough on            # notificações/OSC do Claude chegam ao terminal
-set -s extended-keys on                # Shift+Enter = nova linha no prompt do Claude
-set -as terminal-features 'xterm*:extkeys'
-set -g history-limit 50000
-# prefix + C : abre o Claude ao lado (fora do nvim) e marca o pane
-bind C split-window -h -l 38% -c "#{pane_current_path}" "claude" \; set -p @claude 1
-# prefix + a : pula para o pane do Claude (janela atual, senão outra janela da sessão)
-bind a run-shell "~/.local/bin/tmux-claude-focus '#{pane_id}'"
-# tmux-resurrect: ao restaurar a sessão, reabre os panes do Claude com --continue
-set -g @resurrect-processes '"~claude->claude --continue"'
+```sh
+git clone git@github.com:mauriciotp/dotfiles.git ~/dotfiles
+~/dotfiles/install.sh --dry-run   # mostra o que vai fazer
+~/dotfiles/install.sh
 ```
 
-- `prefix + a` usa o `tmux/tmux-claude-focus`: procura um pane marcado com `@claude=1` (criado pelo
-  nvim ou pelo `prefix + C`) ou rodando `claude`, primeiro na janela atual e depois na sessão.
-- Um Claude aberto pelo `prefix + C` não nasce conectado a nenhum nvim: rode `/ide` nele para
-  conectar. O nvim também o encontra se estiver na mesma janela.
-- O mesmo vale depois de um restore do tmux-resurrect: o nvim reabre numa porta nova, então o
-  Claude restaurado com `--continue` precisa de `/ide` para reconectar.
+O `install.sh`:
 
-### Ajustes
+- cria os links da tabela acima. Um arquivo que já existia vai para
+  `~/.dotfiles-backup/<data>/`, nada é apagado;
+- copia o `claude/settings.json` só se ainda não houver um (o Claude Code reescreve esse arquivo
+  pelo `/config`, e um link seria trocado por arquivo comum);
+- clona o [tpm](https://github.com/tmux-plugins/tpm) e o [zap](https://github.com/zap-zsh/zap).
 
-No topo de `lua/plugins/claudecode.lua`:
+Pode rodar de novo sempre que quiser: o que já está certo aparece como `ok`.
 
-- `AUTO_START_ARGS`: flags de um Claude criado sem flags explícitas (`""` = sessão nova,
-  `"--continue"` = retoma a última conversa do projeto);
-- `SPLIT_SIZE`: largura do split (padrão `38%`).
+### 3. Primeira abertura
+
+- **zsh**: abra um terminal novo; o zap baixa os plugins.
+- **tmux**: abra o tmux e aperte `C-a I` para o tpm instalar os plugins.
+- **Neovim**: abra o `nvim`; o lazy.nvim instala os plugins nas versões do `lazy-lock.json`.
+- **git**: a assinatura de commits espera a chave `~/.ssh/id_ed25519_sign.pub`. Copie a chave
+  da máquina antiga ou gere uma nova (`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_sign`) e
+  cadastre em *GitHub → Settings → SSH and GPG keys* como **Signing key**.
+- **Claude Code**: `claude` e faça login.
+
+## Fora do repositório (de propósito)
+
+- **Segredos e coisas desta máquina**: vão em `~/.zshrc.local`, que o zshrc carrega no fim se existir.
+  Tokens, aliases para caminhos locais, variáveis de trabalho.
+- **Chaves SSH, login do gh (`~/.config/gh/hosts.yml`), credenciais do Claude**: cada máquina tem as
+  suas.
+- **`~/.claude/keybindings.json`**: o arquivo atual é a lista padrão inteira do Claude Code. Commitar
+  travaria os atalhos padrão da versão de hoje; só vale guardar se você customizar algo.
+
+## Como manter
+
+A regra é: **toda mudança de configuração passa por este repositório**.
+
+- Os arquivos são links, então editar `~/.zshrc`, `~/.tmux.conf` etc. já edita o repositório.
+  Depois é `cd ~/dotfiles && git add -p && git commit`.
+- Para guardar uma configuração nova: mova o arquivo para uma pasta aqui, acrescente uma linha
+  `link` no `install.sh`, rode `./install.sh` e adicione a linha na tabela do topo.
+- Se a mudança exige um passo manual (instalar algo, gerar uma chave), escreva o passo em
+  "Máquina nova" no mesmo commit. É isso que garante que a próxima instalação funcione.
+- O `git log` é o histórico das mudanças; mensagens de commit descritivas valem como diário.

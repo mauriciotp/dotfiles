@@ -1,0 +1,9 @@
+{
+  "language": "Português do Brasil",
+  "voice": {
+    "enabled": true,
+    "mode": "hold"
+  },
+  "theme": "dark",
+  "voiceEnabled": true
+}
