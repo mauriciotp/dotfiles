@@ -234,10 +234,9 @@ local tmux_provider = {
 
 -- Digita `text` no prompt do Claude e envia; cria o Claude se não existir
 local function send_text(text)
-  -- cada \n viraria Enter no prompt do Claude, tanto no tmux quanto no terminal do snacks
-  text = text:gsub("\n", " ")
   if not vim.env.TMUX then
-    -- terminal do snacks: abre o Claude se preciso, como no tmux
+    -- terminal do snacks: abre o Claude se preciso, como no tmux. send_to_terminal manda
+    -- texto multilinha como bracketed paste, então as quebras de linha são preservadas.
     local terminal = require("claudecode.terminal")
     if not terminal.get_active_terminal_bufnr() then
       vim.cmd("ClaudeCodeFocus")
@@ -247,6 +246,8 @@ local function send_text(text)
     end, 20000)
     return
   end
+  -- no tmux, send-keys digitaria cada \n como Enter e enviaria o prompt pela metade
+  text = text:gsub("\n", " ")
 
   local function type_into(claude)
     tmux({ "send-keys", "-t", claude.id, "-l", text })
