@@ -1,0 +1,18 @@
+#!/bin/sh
+# Foca o pane do Claude: primeiro na janela atual, depois em qualquer janela da sessão.
+# Reconhece panes marcados com @claude=1 (abertos pelo nvim / prefix C)
+# ou que estejam rodando o processo "claude" (abertos à mão).
+# Uso (tmux.conf): bind a run-shell "tmux-claude-focus '#{pane_id}'"
+
+target="${1:-$TMUX_PANE}"
+fmt='#{pane_id} #{@claude} #{pane_current_command}'
+pick() { awk '$2 == "1" || $NF == "claude" { print $1; exit }'; }
+
+id=$(tmux list-panes -t "$target" -F "$fmt" | pick)
+[ -z "$id" ] && id=$(tmux list-panes -s -t "$target" -F "$fmt" | pick)
+
+if [ -n "$id" ]; then
+  tmux select-window -t "$id" && tmux select-pane -t "$id"
+else
+  tmux display-message "Nenhum pane do Claude nesta sessão (abra com prefix C ou <leader>af)"
+fi

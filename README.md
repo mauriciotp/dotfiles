@@ -12,6 +12,10 @@ git clone git@github.com:mauriciotp/nvim-config.git ~/.config/nvim
 mkdir -p ~/.claude/commands
 for f in ~/.config/nvim/claude/commands/*.md; do ln -sfn "$f" ~/.claude/commands/; done
 
+# script do tmux usado pelo `prefix + a` (veja "tmux" abaixo)
+mkdir -p ~/.local/bin
+ln -sfn ~/.config/nvim/tmux/tmux-claude-focus ~/.local/bin/tmux-claude-focus
+
 nvim   # o lazy.nvim instala os plugins na primeira abertura
 ```
 
@@ -32,6 +36,7 @@ As versões dos plugins ficam travadas no `lazy-lock.json`. Se um `:Lazy update`
 | `lua/plugins/colorscheme.lua`      | catppuccin-mocha                                               |
 | `lua/plugins/vim-tmux-navigator.lua` | `<C-h/j/k/l>` navegam entre splits do nvim e panes do tmux   |
 | `claude/commands/`                 | slash commands do Claude (`/testar`, `/corrigir`, `/explicar`) |
+| `tmux/tmux-claude-focus`           | script do `prefix + a`: pula para o pane do Claude             |
 | `lazyvim.json`                     | extras do LazyVim habilitados (linguagens, yanky, dial…)       |
 
 ## Claude Code no tmux
@@ -61,7 +66,6 @@ nvim (o diff abre numa aba própria); depois de `<leader>aa`/`<leader>ad`, o foc
 | `<leader>af`            | abrir/focar o Claude (cria um split se não houver)                        |
 | `<leader>aw`            | abrir o Claude numa janela tmux própria                                   |
 | `<leader>am`            | escolher modelo (com Claude aberto, manda `/model` na sessão atual)       |
-| `<leader>ar` / `<leader>aC` | novo Claude com `--resume` / `--continue` (com um aberto, use `/resume` nele) |
 | `<leader>ab`            | adicionar o buffer atual como `@menção`                                   |
 | `<leader>as` (visual)   | enviar a seleção                                                          |
 | `<leader>as` (árvore)   | adicionar o arquivo sob o cursor (neo-tree, oil, snacks explorer…)        |
@@ -81,6 +85,33 @@ nvim (o diff abre numa aba própria); depois de `<leader>aa`/`<leader>ad`, o foc
 Os prompts dos atalhos ficam em `claude/commands/*.md`, não no Lua. Assim funcionam também no Claude
 fora do nvim e podem ser editados sem mexer na config. O `/testar` descobre sozinho o comando de
 teste do projeto (Makefile, package.json, go.mod, Cargo.toml…).
+
+### tmux
+
+A integração funciona com um tmux padrão, mas o `~/.tmux.conf` (que não está neste repositório)
+tem um bloco que completa o workflow:
+
+```tmux
+# --- Claude Code ---
+set -g focus-events on                 # nvim recebe FocusGained -> recarrega arquivos editados pelo Claude
+set -g allow-passthrough on            # notificações/OSC do Claude chegam ao terminal
+set -s extended-keys on                # Shift+Enter = nova linha no prompt do Claude
+set -as terminal-features 'xterm*:extkeys'
+set -g history-limit 50000
+# prefix + C : abre o Claude ao lado (fora do nvim) e marca o pane
+bind C split-window -h -l 38% -c "#{pane_current_path}" "claude" \; set -p @claude 1
+# prefix + a : pula para o pane do Claude (janela atual, senão outra janela da sessão)
+bind a run-shell "~/.local/bin/tmux-claude-focus '#{pane_id}'"
+# tmux-resurrect: ao restaurar a sessão, reabre os panes do Claude com --continue
+set -g @resurrect-processes '"~claude->claude --continue"'
+```
+
+- `prefix + a` usa o `tmux/tmux-claude-focus`: procura um pane marcado com `@claude=1` (criado pelo
+  nvim ou pelo `prefix + C`) ou rodando `claude`, primeiro na janela atual e depois na sessão.
+- Um Claude aberto pelo `prefix + C` não nasce conectado a nenhum nvim: rode `/ide` nele para
+  conectar. O nvim também o encontra se estiver na mesma janela.
+- O mesmo vale depois de um restore do tmux-resurrect: o nvim reabre numa porta nova, então o
+  Claude restaurado com `--continue` precisa de `/ide` para reconectar.
 
 ### Ajustes
 

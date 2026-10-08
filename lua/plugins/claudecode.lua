@@ -42,7 +42,8 @@ local function parent_pid(pid)
   return tonumber(stat:match("^.*%)%s+%S+%s+(%d+)"))
 end
 
--- Pane cujo processo `claude` está conectado ao servidor WebSocket deste nvim
+-- Pane cujo processo `claude` está conectado ao servidor WebSocket deste nvim.
+-- Retorna o id e se o pane foi criado por este nvim (@claude_port igual à nossa porta).
 local function connected_pane()
   local port = server_port()
   if not port then
@@ -54,9 +55,13 @@ local function connected_pane()
   end
 
   local panes = {}
-  for line in (tmux({ "list-panes", "-a", "-F", "#{pane_pid} #{pane_id}" }) or ""):gmatch("[^\n]+") do
-    local ppid, id = line:match("^(%d+) (%S+)$")
-    panes[tonumber(ppid)] = id
+  -- @claude_port no meio: vazio no fim da última linha seria comido pelo trim do tmux()
+  local fmt = "#{pane_pid}\t#{@claude_port}\t#{pane_id}"
+  for line in (tmux({ "list-panes", "-a", "-F", fmt }) or ""):gmatch("[^\n]+") do
+    local ppid, pane_port, id = line:match("^(%d+)\t([^\t]*)\t([^\t]+)$")
+    if ppid then
+      panes[tonumber(ppid)] = { id = id, ours = pane_port == tostring(port) }
+    end
   end
 
   for pid in out:gmatch("pid=(%d+)") do
@@ -64,7 +69,7 @@ local function connected_pane()
     -- sobe na árvore de processos até achar o processo raiz de algum pane
     while pid and pid > 1 do
       if panes[pid] then
-        return panes[pid]
+        return panes[pid].id, panes[pid].ours
       end
       pid = parent_pid(pid)
     end
@@ -90,11 +95,13 @@ local function window_pane()
   return other
 end
 
--- Resolve o Claude a usar: { id, connected, ours } ou nil
+-- Resolve o Claude a usar: { id, connected, ours } ou nil.
+-- ours = pane criado por este nvim; connected = conectado ao servidor deste nvim.
+-- Um Claude aberto à mão que rodou /ide é connected mas não ours.
 local function find_claude()
-  local id = connected_pane()
+  local id, ours = connected_pane()
   if id then
-    return { id = id, connected = true, ours = true }
+    return { id = id, connected = true, ours = ours }
   end
   local pane = window_pane()
   if pane then
@@ -167,7 +174,7 @@ local function open(cmd_string, env, _, focus)
     tmux({ "send-keys", "-t", claude.id, "Enter" })
   elseif cmd_string:find("%-%-") then
     vim.notify("Já existe um Claude para este nvim; use /resume dentro dele", vim.log.levels.INFO)
-  elseif not claude.ours then
+  elseif not claude.connected and not claude.ours then
     vim.notify("O Claude deste pane não está conectado ao nvim: rode /ide nele", vim.log.levels.WARN)
   end
   if focus ~= false then
@@ -188,7 +195,7 @@ local tmux_provider = {
   focus_toggle = function(cmd_string, env, config)
     open(cmd_string, env, config, true)
   end,
-  -- só fecha panes criados por este nvim; um Claude em outra janela é seu
+  -- só fecha panes criados por este nvim; um Claude aberto à mão (mesmo com /ide) é seu
   close = function()
     local claude = find_claude()
     if claude and claude.ours then
@@ -237,7 +244,7 @@ local function send_text(text)
   end
 
   local claude = find_claude()
-  if claude and not claude.ours then
+  if claude and not claude.connected and not claude.ours then
     -- Claude aberto à mão e sem /ide: nunca vai conectar, então não adianta esperar
     vim.notify("O Claude deste pane não está conectado ao nvim: rode /ide nele", vim.log.levels.WARN)
     return type_into(claude)
@@ -314,8 +321,9 @@ return {
       { "<leader>ac", false }, -- remove o mapeamento do extra do LazyVim
       { "<leader>af", "<cmd>ClaudeCodeFocus<cr>", desc = "Claude: abrir/focar" },
       { "<leader>am", "<cmd>ClaudeCodeSelectModel<cr>", desc = "Claude: escolher modelo" },
-      { "<leader>ar", "<cmd>ClaudeCode --resume<cr>", desc = "Claude: escolher conversa (novo)" },
-      { "<leader>aC", "<cmd>ClaudeCode --continue<cr>", desc = "Claude: continuar última (novo)" },
+      -- remove os do extra do LazyVim: com um Claude aberto, use /resume dentro dele
+      { "<leader>ar", false },
+      { "<leader>aC", false },
       {
         "<leader>aw",
         function()
