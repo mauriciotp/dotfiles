@@ -2,7 +2,8 @@
 
 Minhas configurações de terminal e editor: Neovim (LazyVim), tmux, zsh, Ghostty, starship, git
 e Claude Code, integrado ao Neovim e ao tmux. Um `install.sh` liga tudo nos lugares certos, então a mesma
-configuração sobe em qualquer máquina.
+configuração sobe em qualquer máquina, com dois perfis: **pessoal** e **empresa**
+(veja [Perfis](#perfis)).
 
 | Pasta       | Vai para                                   | O que tem                                                   |
 | ----------- | ------------------------------------------ | ----------------------------------------------------------- |
@@ -11,10 +12,40 @@ configuração sobe em qualquer máquina.
 | `zsh/`      | `~/.zshrc`, `~/.zshenv`                    | zap (autosuggestions, z, syntax highlighting), fzf, nvm     |
 | `ghostty/`  | `~/.config/ghostty/config.ghostty`         | JetBrains Mono Nerd Font, Catppuccin Mocha                  |
 | `starship/` | `~/.config/starship.toml`                  | símbolos Nerd Font do prompt                                |
-| `git/`      | `~/.gitconfig`                             | nome, e-mail e assinatura de commits com chave SSH          |
+| `git/`      | `~/.gitconfig`                             | nome e assinatura de commits com chave SSH; e-mail por perfil |
 | `claude/`   | `~/.claude/commands/`, `~/.claude/settings.json` | slash commands `/testar`, `/corrigir`, `/explicar`; preferências |
 
 O tema é Catppuccin Mocha em todo lugar (Ghostty, tmux-powerkit, Neovim).
+
+## Perfis
+
+Quase tudo é igual nas duas máquinas. Neovim, tmux, Ghostty, starship, Claude Code e o grosso do
+zsh são os mesmos. O que muda:
+
+|                       | Pessoal                                    | Empresa                                                  |
+| --------------------- | ------------------------------------------ | -------------------------------------------------------- |
+| E-mail do git         | `mauricio.tp_@outlook.com`, no repositório (`git/pessoal.gitconfig`) | perguntado na instalação e gravado em `~/.gitconfig.local`, **nunca** no repositório (ele é público) |
+| Commit sem e-mail     | —                                          | recusado (`user.useConfigOnly`), em vez de sair com e-mail errado |
+| Trecho extra do zsh   | `zsh/perfil/pessoal.zsh` (vazio por enquanto) | `zsh/perfil/empresa.zsh`: autocomplete da Oracle Cloud CLI |
+| Login shell           | conta local: `chsh` para zsh               | conta de domínio/LDAP costuma não aceitar `chsh`: o `~/.bashrc` abre o zsh |
+| Segredos              | `~/.zshrc.local`                           | `~/.zshrc.local` (tokens, URLs internas, proxy)          |
+
+Como o perfil é aplicado:
+
+- `./install.sh pessoal` ou `./install.sh empresa` grava a escolha em `~/.config/dotfiles/perfil`.
+  Nas próximas vezes, `./install.sh` sem argumento usa a mesma. Sem argumento e sem escolha
+  salva, ele pergunta, sugerindo **empresa** quando a conta não está no `/etc/passwd`
+  (conta de domínio).
+- Em `~/.config/dotfiles/` ficam dois links para os arquivos do perfil: `gitconfig` (incluído pelo
+  `~/.gitconfig`) e `perfil.zsh` (carregado pelo `~/.zshrc`).
+- A ordem é sempre comum → perfil → local: `~/.gitconfig.local` e `~/.zshrc.local` vêm por último
+  e vencem os anteriores. Use os dois para o que é só daquela máquina.
+
+O login shell não depende do perfil, e sim do tipo de conta, que o `install.sh` detecta.
+Numa conta local, ele só avisa para rodar `chsh`. Numa conta de domínio, ele acrescenta ao
+`~/.bashrc` o bloco que troca para o zsh.
+
+Para trocar o perfil de uma máquina: `./install.sh pessoal` (ou `empresa`) de novo.
 
 ## Máquina nova
 
@@ -24,14 +55,16 @@ Exemplo para Ubuntu/Debian; em outras distros os nomes dos pacotes mudam pouco.
 
 ```sh
 sudo apt install zsh git curl unzip build-essential ripgrep fd-find bat iproute2
-chsh -s "$(command -v zsh)"   # em conta de domínio/LDAP isso falha; veja abaixo
 ```
 
 No Ubuntu, `bat` e `fd` vêm como `batcat` e `fdfind`; o zshrc e o LazyVim já lidam com isso.
 
-**Conta sem `chsh`** (como nesta máquina: login de domínio, fora do `/etc/passwd`): o login shell
-continua `bash`. O `install.sh` detecta isso e acrescenta ao `~/.bashrc` um bloco que troca para o
-zsh em todo bash interativo.
+No computador da empresa, se não houver `sudo`, peça os pacotes do apt (e o tmux, o Ghostty e a
+fonte) ao suporte. Da tabela abaixo, dá para instalar sem `sudo`, no seu home:
+
+- fzf, nvm e Claude Code: os instaladores já usam o home;
+- Neovim: extraia o tarball em `~/.local` em vez de `/opt`;
+- starship: `curl -sS https://starship.rs/install.sh | sh -s -- -b ~/.local/bin`.
 
 O resto vem dos instaladores oficiais, porque o apt costuma ter versões velhas:
 
@@ -55,8 +88,14 @@ Go, bun, cargo, foundry etc. são opcionais: o zshrc só coloca no `PATH` o que 
 ```sh
 # por HTTPS: numa máquina nova ainda não há chave SSH cadastrada no GitHub
 git clone https://github.com/mauriciotp/dotfiles.git ~/dotfiles
-~/dotfiles/install.sh --dry-run   # mostra o que vai fazer
-~/dotfiles/install.sh
+
+# computador pessoal
+~/dotfiles/install.sh pessoal --dry-run   # mostra o que vai fazer
+~/dotfiles/install.sh pessoal
+
+# computador da empresa (pergunta o e-mail do git)
+~/dotfiles/install.sh empresa --dry-run
+~/dotfiles/install.sh empresa
 ```
 
 Para dar push dessa máquina depois, cadastre uma chave SSH e troque o remote:
@@ -64,16 +103,19 @@ Para dar push dessa máquina depois, cadastre uma chave SSH e troque o remote:
 
 O `install.sh`:
 
+- aplica o perfil (veja [Perfis](#perfis)) e, no da empresa, pergunta o e-mail do git se o
+  `~/.gitconfig.local` ainda não tiver um;
 - cria os links da tabela acima. Um arquivo que já existia vai para
   `~/.dotfiles-backup/<data>/`, nada é apagado;
 - copia o `claude/settings.json` só se ainda não existir: o Claude Code reescreve esse arquivo
   pelo `/config`, e um link viraria arquivo comum. Para levar uma mudança dele ao repositório,
   copie de volta à mão;
-- se o login shell ainda não for zsh, faz o `~/.bashrc` abrir o zsh (rode o `chsh` antes, se
-  ele funcionar na máquina, e o bloco não é acrescentado);
+- cuida do login shell: avisa para rodar `chsh` numa conta local, ou faz o `~/.bashrc` abrir o
+  zsh numa conta de domínio;
 - clona o [tpm](https://github.com/tmux-plugins/tpm) e o [zap](https://github.com/zap-zsh/zap).
 
-Pode rodar de novo sempre que quiser: o que já está certo aparece como `ok`.
+Pode rodar de novo sempre que quiser: o que já está certo aparece como `ok`, e linhas `AÇÃO`
+indicam algo que você precisa fazer à mão.
 
 ### 3. Primeira abertura
 
@@ -85,12 +127,16 @@ Pode rodar de novo sempre que quiser: o que já está certo aparece como `ok`.
   da máquina antiga ou gere uma nova (`ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_sign`) e
   cadastre em *GitHub → Settings → SSH and GPG keys* como **Signing key**. Sem a chave, todo
   `git commit` falha (o `gitconfig` assina sempre).
+  - **Empresa**: se a empresa usa outro GitHub/GitLab, gere uma chave só para ela, cadastre lá e
+    aponte no `~/.gitconfig.local`: `git config --file ~/.gitconfig.local user.signingkey ~/.ssh/<chave>.pub`.
+    Se os commits de lá não devem ser assinados: `git config --file ~/.gitconfig.local commit.gpgsign false`.
+  - Confira com `git config --show-origin user.email` de onde vem o e-mail.
 - **Claude Code**: `claude` e faça login.
 
 ## Fora do repositório (de propósito)
 
-- **Segredos e coisas desta máquina**: vão em `~/.zshrc.local`, que o zshrc carrega no fim se existir.
-  Tokens, aliases para caminhos locais, variáveis de trabalho.
+- **Segredos e coisas de uma máquina só**: `~/.zshrc.local` e `~/.gitconfig.local`, carregados por
+  último se existirem. Tokens, e-mail e URLs da empresa, aliases para caminhos locais.
 - **Chaves SSH, login do gh (`~/.config/gh/hosts.yml`), credenciais do Claude**: cada máquina tem as
   suas.
 - **`~/.claude/keybindings.json`**: o arquivo atual é a lista padrão inteira do Claude Code. Commitar
@@ -108,6 +154,10 @@ A regra é: **toda mudança de configuração passa por este repositório**.
   Depois é `cd ~/dotfiles && git add -p && git commit`.
 - Para guardar uma configuração nova: mova o arquivo para uma pasta aqui, acrescente uma linha
   `link` no `install.sh`, rode `./install.sh` e adicione a linha na tabela do topo.
+- Antes de commitar, pergunte **onde a mudança deve morar**:
+  - vale nas duas máquinas → arquivo comum (`zsh/zshrc`, `git/gitconfig`…);
+  - vale num perfil só → `zsh/perfil/<perfil>.zsh` ou `git/<perfil>.gitconfig`;
+  - é segredo, ou é da empresa e não pode ser público → `~/.zshrc.local` / `~/.gitconfig.local`, fora do git.
 - Se a mudança exige um passo manual (instalar algo, gerar uma chave), escreva o passo em
   "Máquina nova" no mesmo commit. É isso que garante que a próxima instalação funcione.
 - O `git log` é o histórico das mudanças; mensagens de commit descritivas valem como diário.

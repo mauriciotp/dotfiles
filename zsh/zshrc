@@ -59,8 +59,9 @@ command -v fzf >/dev/null && source <(fzf --zsh)
 export BUN_INSTALL="$HOME/.bun"
 [ -d "$BUN_INSTALL/bin" ] && export PATH="$BUN_INSTALL/bin:$PATH"
 
-# neovim instalado pelo tarball oficial
+# neovim instalado pelo tarball oficial (em /opt, ou em ~/.local quando não há sudo)
 [ -d /opt/nvim-linux-x86_64/bin ] && export PATH="$PATH:/opt/nvim-linux-x86_64/bin"
+[ -d "$HOME/.local/nvim-linux-x86_64/bin" ] && export PATH="$PATH:$HOME/.local/nvim-linux-x86_64/bin"
 
 # go
 [ -d /usr/local/go/bin ] && export PATH="$PATH:/usr/local/go/bin"
@@ -71,13 +72,11 @@ command -v go >/dev/null && export PATH="$PATH:$(go env GOPATH)/bin"
 
 [ -d "$HOME/bin" ] && export PATH="$HOME/bin:$PATH"
 
-# oracle cli
-_oci="$HOME/lib/oracle-cli/lib/python3.10/site-packages/oci_cli/bin/oci_autocomplete.sh"
-[[ -e "$_oci" ]] && source "$_oci"
-unset _oci
-
 # ~/.local/bin por último: fica na frente (claude, tmux-claude-focus)
 export PATH="$HOME/.local/bin:$PATH"
+
+### ---- Perfil (pessoal/empresa, escolhido no install.sh) ----------------------
+[ -f ~/.config/dotfiles/perfil.zsh ] && source ~/.config/dotfiles/perfil.zsh
 
 ### ---- Específico desta máquina (fora do git: segredos, aliases locais) --------
 [ -f ~/.zshrc.local ] && source ~/.zshrc.local

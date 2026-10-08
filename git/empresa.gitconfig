@@ -1,0 +1,4 @@
+# Perfil empresa: o e-mail fica no ~/.gitconfig.local (o install.sh pergunta), para não ir
+# para um repositório público. Sem ele, o git recusa o commit em vez de usar um e-mail adivinhado.
+[user]
+	useConfigOnly = true

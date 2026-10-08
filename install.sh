@@ -4,14 +4,31 @@
 # Idempotente: pode rodar de novo a qualquer momento. Um arquivo que já existe e não é
 # o link certo vai para ~/.dotfiles-backup/<data>/ antes de ser substituído.
 #
-# Uso: ~/dotfiles/install.sh [--dry-run]
+# Uso: ~/dotfiles/install.sh [pessoal|empresa] [--dry-run]
+#
+# O perfil fica salvo em ~/.config/dotfiles/perfil; nas próximas vezes não precisa repetir.
 
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+STATE="$HOME/.config/dotfiles"
 BACKUP="$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)"
 DRY_RUN=0
-[ "${1:-}" = "--dry-run" ] && DRY_RUN=1
+PERFIL=""
+for arg in "$@"; do
+  case "$arg" in
+  --dry-run) DRY_RUN=1 ;;
+  pessoal | empresa) PERFIL="$arg" ;;
+  -h | --help)
+    sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+    ;;
+  *)
+    echo "argumento desconhecido: $arg (use pessoal, empresa ou --dry-run)" >&2
+    exit 1
+    ;;
+  esac
+done
 
 run() {
   if [ "$DRY_RUN" = 1 ]; then echo "  [dry-run] $*"; else "$@"; fi
@@ -46,9 +63,10 @@ copy_once() {
   run cp "$src" "$dst"
 }
 
-# Contas de domínio/LDAP não aparecem no /etc/passwd e não podem usar chsh: o login
-# continua no bash, que troca para o zsh no ~/.bashrc. Só acrescenta se ainda não houver.
-ensure_bash_execs_zsh() {
+# Conta local (no /etc/passwd) pode trocar o login shell com chsh. Conta de domínio/LDAP
+# (comum no computador da empresa) não pode: o login continua no bash, que troca para o
+# zsh no ~/.bashrc. Só acrescenta se ainda não houver.
+ensure_zsh_shell() {
   local login_shell
   login_shell="$(getent passwd "$USER" | cut -d: -f7)"
   case "$login_shell" in
@@ -57,6 +75,10 @@ ensure_bash_execs_zsh() {
     return
     ;;
   esac
+  if grep -q "^$USER:" /etc/passwd; then
+    echo "AÇÃO     login shell é ${login_shell:-?}; rode: chsh -s \"\$(command -v zsh)\""
+    return
+  fi
   if grep -qE 'exec .*zsh|^# dotfiles: o login shell' ~/.bashrc 2>/dev/null; then
     echo "ok       ~/.bashrc já troca para o zsh"
     return
@@ -73,6 +95,60 @@ fi
 BASH
 }
 
+# No perfil empresa o e-mail do git fica no ~/.gitconfig.local, fora do repositório público
+ensure_git_email() {
+  local email
+  email="$(git config --file ~/.gitconfig.local user.email 2>/dev/null || true)"
+  if [ -n "$email" ]; then
+    echo "ok       e-mail do git: $email (~/.gitconfig.local)"
+    return
+  fi
+  if [ "$DRY_RUN" = 1 ]; then
+    echo "  [dry-run] perguntaria o e-mail do git e gravaria em ~/.gitconfig.local"
+    return
+  fi
+  if [ ! -t 0 ]; then
+    echo "AÇÃO     defina o e-mail: git config --file ~/.gitconfig.local user.email voce@empresa.com"
+    return
+  fi
+  read -rp "E-mail do git neste computador (fica em ~/.gitconfig.local): " email
+  if [ -n "$email" ]; then
+    git config --file ~/.gitconfig.local user.email "$email"
+    echo "gravado  ~/.gitconfig.local"
+  else
+    echo "AÇÃO     sem e-mail o git recusa commits: git config --file ~/.gitconfig.local user.email ..."
+  fi
+}
+
+# Perfil: argumento > o salvo da última instalação > pergunta (sugerindo pelo tipo de conta)
+choose_profile() {
+  if [ -z "$PERFIL" ] && [ -f "$STATE/perfil" ]; then
+    PERFIL="$(cat "$STATE/perfil")"
+  fi
+  if [ -z "$PERFIL" ]; then
+    local sugestao=pessoal
+    grep -q "^$USER:" /etc/passwd || sugestao=empresa
+    if [ ! -t 0 ]; then
+      echo "informe o perfil: $0 pessoal|empresa" >&2
+      exit 1
+    fi
+    read -rp "Perfil desta máquina (pessoal/empresa) [$sugestao]: " PERFIL
+    PERFIL="${PERFIL:-$sugestao}"
+  fi
+  case "$PERFIL" in
+  pessoal | empresa) ;;
+  *)
+    echo "perfil inválido: $PERFIL" >&2
+    exit 1
+    ;;
+  esac
+  echo "perfil   $PERFIL"
+  if [ "$(cat "$STATE/perfil" 2>/dev/null)" != "$PERFIL" ]; then
+    run mkdir -p "$STATE"
+    [ "$DRY_RUN" = 1 ] || echo "$PERFIL" >"$STATE/perfil"
+  fi
+}
+
 # clone <repo> <destino>
 clone() {
   if [ -d "$2" ]; then
@@ -83,6 +159,9 @@ clone() {
   run git clone --depth 1 "$1" "$2"
 }
 
+echo "== perfil"
+choose_profile
+
 echo "== links"
 link nvim ~/.config/nvim
 link tmux/tmux.conf ~/.tmux.conf
@@ -92,6 +171,8 @@ link zsh/zshenv ~/.zshenv
 link ghostty/config.ghostty ~/.config/ghostty/config.ghostty
 link starship/starship.toml ~/.config/starship.toml
 link git/gitconfig ~/.gitconfig
+link "git/$PERFIL.gitconfig" "$STATE/gitconfig"
+link "zsh/perfil/$PERFIL.zsh" "$STATE/perfil.zsh"
 # um link por arquivo: ~/.claude/commands pode ter comandos que não são deste repo
 for f in "$DOTFILES"/claude/commands/*.md; do
   link "claude/commands/$(basename "$f")" ~/.claude/commands/"$(basename "$f")"
@@ -102,7 +183,12 @@ echo "== cópias"
 copy_once claude/settings.json ~/.claude/settings.json
 
 echo "== shell"
-ensure_bash_execs_zsh
+ensure_zsh_shell
+
+if [ "$PERFIL" = empresa ]; then
+  echo "== git"
+  ensure_git_email
+fi
 
 echo "== gerenciadores de plugins"
 clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm

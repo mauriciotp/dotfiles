@@ -1,8 +1,15 @@
+# Comum aos dois perfis. O que muda por perfil vem dos includes no fim.
 [user]
-	email = mauricio.tp_@outlook.com
 	name = mauricio
 	signingkey = ~/.ssh/id_ed25519_sign.pub
 [gpg]
 	format = ssh
 [commit]
 	gpgsign = true
+
+# perfil escolhido no install.sh (link para git/pessoal.gitconfig ou git/empresa.gitconfig)
+[include]
+	path = ~/.config/dotfiles/gitconfig
+# desta máquina, fora do git (e-mail da empresa, outra chave de assinatura...); vence os anteriores
+[include]
+	path = ~/.gitconfig.local
