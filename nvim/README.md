@@ -20,19 +20,114 @@ As versões dos plugins ficam travadas no `lazy-lock.json`. Se um `:Lazy update`
 | Caminho                            | O que tem                                                      |
 | ---------------------------------- | -------------------------------------------------------------- |
 | `lua/config/`                      | bootstrap do lazy.nvim, opções, keymaps e autocmds             |
-| `lua/plugins/claudecode.lua`       | integração Claude Code ↔ tmux (detalhes abaixo)                |
+| `lua/plugins/claudecode.lua`       | spec do Claude Code: opções, atalhos, statusline               |
+| `lua/claude/`                      | integração com o Claude: tmux, prompts, placeholders (abaixo)  |
 | `lua/plugins/lsp.lua`, `sql.lua`   | `sqls`, inlay hints desligados, sqlfluff lendo o `.sqlfluff`   |
 | `lua/plugins/colorscheme.lua`      | catppuccin-mocha                                               |
 | `lua/plugins/vim-tmux-navigator.lua` | `<C-h/j/k/l>` navegam entre splits do nvim e panes do tmux   |
 | `lazyvim.json`                     | extras do LazyVim habilitados (linguagens, yanky, dial…)       |
 
-## Claude Code no tmux
+## Claude Code
 
 O [claudecode.nvim](https://github.com/coder/claudecode.nvim) abre um servidor WebSocket no nvim
-para o Claude ver seleções, receber `@menções` e propor alterações como diffs. Aqui ele usa um
-*terminal provider* próprio: em vez de um terminal dentro do nvim, o Claude roda num **pane do tmux**.
+para o Claude ver seleções, receber `@menções` e propor alterações como diffs. Por cima dele,
+`lua/claude/` traz os recursos do [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim)
+(Ask, Select, prompts prontos, placeholders, operador) no mesmo padrão do plugin: **toda função é
+um comando `:ClaudeCode*`** e todo atalho só chama um comando.
 
-Como o Claude é encontrado, em ordem:
+| Arquivo              | O que tem                                                              |
+| -------------------- | ---------------------------------------------------------------------- |
+| `claude/prompts.lua` | registro central dos prompts prontos: o único lugar para criar/editar um |
+| `claude/context.lua` | placeholders (`@this`, `@diagnostics`…)                                |
+| `claude/tmux.lua`    | Claude num pane do tmux: achar, focar, criar, colar texto              |
+| `claude/init.lua`    | Ask, Select, slash commands, operador `ga`; gera comandos e atalhos    |
+
+### Atalhos
+
+Todos ficam sob `<leader>a`. Os marcados com **n/x** funcionam no modo normal (sobre a linha do
+cursor; com contagem, `3<leader>ae` pega 3 linhas) e no visual (sobre a seleção). Nos prompts, a
+minúscula age sobre o código e a maiúscula é a variante.
+
+| Atalho                      | Comando                          | Ação                                              |
+| --------------------------- | -------------------------------- | ------------------------------------------------- |
+| **Interação**               |                                  |                                                   |
+| `<leader>aa` n/x            | `:ClaudeCodeAsk [texto]`         | escrever uma pergunta (input com `@this: `)       |
+| `<leader>as` n/x            | `:ClaudeCodeSelect`              | menu com todos os prompts e ações                 |
+| `<leader>a/` n/x            | `:ClaudeCodeCommand [nome]`      | escolher um slash command do Claude               |
+| **Prompts**                 |                                  |                                                   |
+| `<leader>ae` n/x            | `:ClaudeCodeExplain`             | explicar o código                                 |
+| `<leader>aE` n/x            | `:ClaudeCodeExplainDiagnostics`  | explicar os diagnósticos                          |
+| `<leader>af` n/x            | `:ClaudeCodeFix`                 | corrigir os diagnósticos                          |
+| `<leader>ar` n/x            | `:ClaudeCodeReview`              | revisar (corretude e legibilidade)                |
+| `<leader>ad` n/x            | `:ClaudeCodeDocument`            | documentar com comentários                        |
+| `<leader>ao` n/x            | `:ClaudeCodeOptimize`            | otimizar (desempenho e legibilidade)              |
+| `<leader>ai` n/x            | `:ClaudeCodeImplement`           | implementar                                       |
+| `<leader>at` n/x            | `:ClaudeCodeAddTests`            | escrever testes                                   |
+| `<leader>aT` n/x            | `:ClaudeCodeRunTests`            | rodar os testes do pacote e corrigir as falhas    |
+| **Contexto**                |                                  |                                                   |
+| `ga{motion}` / `gaa` / `ga` (visual) | `:ClaudeCodeAdd` / `:ClaudeCodeSend` | anexar um trecho como menção; `.` repete  |
+| `<leader>ab`                | `:ClaudeCodeAdd %`               | anexar o buffer (numa árvore de arquivos, o arquivo sob o cursor) |
+| `<a-a>` (picker do snacks)  | —                                | anexar os arquivos selecionados no picker         |
+| **Sessão**                  |                                  |                                                   |
+| `<leader>ac`                | `:ClaudeCodeFocus`               | abrir/focar o Claude (cria um split se não houver) |
+| `<leader>aw`                | `:ClaudeCodeOpenWindow`          | abrir o Claude numa janela tmux própria           |
+| `<leader>am`                | `:ClaudeCodeSelectModel`         | escolher o modelo (com Claude aberto, manda `/model`) |
+| **Diff**                    |                                  |                                                   |
+| `<leader>ay`                | `:ClaudeCodeDiffAccept`          | aceitar o diff (**y**es)                          |
+| `<leader>an`                | `:ClaudeCodeDiffDeny`            | rejeitar o diff (**n**o)                          |
+| `<leader>aD`                | `:ClaudeCodeCloseAllDiffs`       | fechar os diffs pendentes                         |
+
+O status da conexão fica na statusline: o ícone 󰚩 aparece colorido quando o Claude está
+conectado a este nvim (`:ClaudeCodeStatus` dá os detalhes).
+
+### Anexar × perguntar
+
+- **Anexar** (`ga`, `<leader>ab`, `<a-a>`): o trecho entra no prompt do Claude como menção e o foco
+  vai para lá; você escreve a pergunta no Claude.
+- **Perguntar** (`<leader>aa`) e **prompts** (`<leader>ae`, `af`…): o texto é montado no nvim, com
+  o contexto, e enviado de uma vez.
+
+### Placeholders
+
+No Ask, nos prompts e nos argumentos de slash commands, estes marcadores são trocados pelo
+contexto antes do envio. Exemplo com o cursor na linha 42 de `src/user.go`:
+
+| Placeholder    | Sem seleção                                | Com as linhas 10–20 selecionadas |
+| -------------- | ------------------------------------------ | -------------------------------- |
+| `@this`        | `@src/user.go#L42`                         | `@src/user.go#L10-20`            |
+| `@buffer`      | `@src/user.go`                             | igual                            |
+| `@buffers`     | `@src/user.go @src/auth.go` (abertos)      | igual                            |
+| `@visible`     | `@src/user.go#L30-75` (o que está na tela) | igual                            |
+| `@diagnostics` | erros e avisos do buffer, em texto         | só os da seleção                 |
+| `@quickfix`    | itens da lista quickfix, em texto          | igual                            |
+| `@marks`       | `@arquivo#Llinha` de cada mark global (A–Z) | igual                           |
+
+`@arquivo#L10-20` é a sintaxe de menção do Claude Code: ele lê o trecho **do disco**, por isso os
+buffers citados são salvos antes do envio. Exemplo: `<leader>aa` e
+`@this: por que está lento?` enviam `@src/user.go#L10-20: por que está lento?`.
+
+### Prompts
+
+Ficam em [`lua/claude/prompts.lua`](lua/claude/prompts.lua). Para criar um, basta acrescentar um
+item; o comando `:ClaudeCode<name>`, o atalho e a entrada no Select são gerados sozinhos:
+
+```lua
+{ name = "Explain", key = "<leader>ae", desc = "Explain Code", prompt = "Explique @this e seu contexto…" },
+```
+
+### Diffs
+
+Quando o Claude propõe uma alteração, o diff abre numa aba própria e o foco vem para o nvim.
+O lado proposto é editável: `]c`/`[c` navegam entre as mudanças, `do` desfaz um trecho, e no fim
+`<leader>ay` (ou `:w`) aceita, `<leader>an` (ou `:q`) rejeita. Depois disso o foco volta ao Claude.
+
+Arquivos que o Claude grava direto (modo auto-accept) são recarregados em tempo real enquanto ele
+estiver conectado.
+
+### Claude no tmux
+
+Em vez de um terminal dentro do nvim, o Claude roda num **pane do tmux** (`claude/tmux.lua`, um
+*terminal provider* do plugin). Como ele é encontrado, em ordem:
 
 1. o processo `claude` **conectado** à porta deste nvim, em qualquer janela ou sessão do tmux
    (descoberto via `ss` e a árvore de processos; vale também para um Claude aberto à mão que rodou
@@ -40,40 +135,12 @@ Como o Claude é encontrado, em ordem:
 2. um pane desta janela criado por este nvim que ainda está subindo;
 3. nenhum: cria um split ao lado (38% da largura) ou, com `<leader>aw`, uma janela nova.
 
-Qualquer envio (`<leader>as`, `<leader>ab`, `<a-a>` no picker…) sem Claude aberto cria o pane e
-entrega a menção quando ele conectar.
+Qualquer envio sem Claude aberto cria o pane e entrega o texto ou a menção quando ele conectar.
+O texto é colado com bracketed paste (`tmux paste-buffer -p`), então prompts com várias linhas
+chegam inteiros; se houver um rascunho no prompt do Claude, o texto é colado no fim dele.
+Fora do tmux, a integração cai no terminal embutido do snacks.
 
-O ciclo de alteração não exige trocar de pane: quando o Claude propõe um diff, o foco vem para o
-nvim (o diff abre numa aba própria); depois de `<leader>aa`/`<leader>ad`, o foco volta ao Claude.
-
-### Atalhos
-
-| Atalho                  | Ação                                                                      |
-| ----------------------- | ------------------------------------------------------------------------- |
-| `<leader>af`            | abrir/focar o Claude (cria um split se não houver)                        |
-| `<leader>aw`            | abrir o Claude numa janela tmux própria                                   |
-| `<leader>am`            | escolher modelo (com Claude aberto, manda `/model` na sessão atual)       |
-| `<leader>ab`            | adicionar o buffer atual como `@menção`                                   |
-| `<leader>as` (visual)   | enviar a seleção                                                          |
-| `<leader>as` (árvore)   | adicionar o arquivo sob o cursor (neo-tree, oil, snacks explorer…)        |
-| `<a-a>` (picker snacks) | adicionar os itens selecionados do picker                                 |
-| `<leader>ap`            | digitar um prompt livre e enviar                                          |
-| `<leader>at`            | `/testar <arquivo>`: roda os testes do pacote e corrige falhas            |
-| `<leader>ae`            | `/corrigir <arquivo:linha> <diagnóstico>` ou `/explicar <arquivo:linha>`  |
-| `<leader>aa` / `<leader>ad` | aceitar / rejeitar o diff                                             |
-| `<leader>aD`            | fechar diffs pendentes                                                    |
-| `<leader>ai`            | status da conexão                                                         |
-
-`<leader>ap`, `<leader>at`, `<leader>ae` e `<leader>am` digitam no prompt do Claude via
-`tmux send-keys`: se houver um rascunho escrito lá, o texto é colado no fim dele.
-
-### Slash commands
-
-Os prompts dos atalhos ficam em [`claude/commands/`](../claude/commands/), não no Lua. Assim funcionam também no Claude
-fora do nvim e podem ser editados sem mexer na config. O `/testar` descobre sozinho o comando de
-teste do projeto (Makefile, package.json, go.mod, Cargo.toml…).
-
-### tmux
+#### tmux.conf
 
 A integração funciona com um tmux padrão, mas o bloco "Claude Code" do
 [`tmux/tmux.conf`](../tmux/tmux.conf) completa o workflow:
@@ -102,7 +169,7 @@ set -g @resurrect-processes '"~claude->claude --continue"'
 
 ### Ajustes
 
-No topo de `lua/plugins/claudecode.lua`:
+No topo de `lua/claude/tmux.lua`:
 
 - `AUTO_START_ARGS`: flags de um Claude criado sem flags explícitas (`""` = sessão nova,
   `"--continue"` = retoma a última conversa do projeto);

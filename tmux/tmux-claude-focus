@@ -14,5 +14,5 @@ id=$(tmux list-panes -t "$target" -F "$fmt" | pick)
 if [ -n "$id" ]; then
   tmux select-window -t "$id" && tmux select-pane -t "$id"
 else
-  tmux display-message "Nenhum pane do Claude nesta sessão (abra com prefix C ou <leader>af)"
+  tmux display-message "Nenhum pane do Claude nesta sessão (abra com prefix C ou <leader>ac)"
 fi

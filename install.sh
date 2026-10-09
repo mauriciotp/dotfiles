@@ -42,9 +42,11 @@ link() {
     return
   fi
   if [ -e "$dst" ] || [ -L "$dst" ]; then
-    echo "backup   $dst -> $BACKUP/"
-    run mkdir -p "$BACKUP"
-    run mv "$dst" "$BACKUP/"
+    # mantém o caminho relativo ao home: ~/.gitconfig e ~/.config/dotfiles/gitconfig não colidem
+    local bak="$BACKUP/${dst#"$HOME"/}"
+    echo "backup   $dst -> $bak"
+    run mkdir -p "$(dirname "$bak")"
+    run mv "$dst" "$bak"
   fi
   echo "link     $dst -> $src"
   run mkdir -p "$(dirname "$dst")"
@@ -173,10 +175,6 @@ link starship/starship.toml ~/.config/starship.toml
 link git/gitconfig ~/.gitconfig
 link "git/$PERFIL.gitconfig" "$STATE/gitconfig"
 link "zsh/perfil/$PERFIL.zsh" "$STATE/perfil.zsh"
-# um link por arquivo: ~/.claude/commands pode ter comandos que não são deste repo
-for f in "$DOTFILES"/claude/commands/*.md; do
-  link "claude/commands/$(basename "$f")" ~/.claude/commands/"$(basename "$f")"
-done
 
 echo "== cópias"
 # o Claude Code reescreve o settings.json pelo /config; um link seria trocado por arquivo

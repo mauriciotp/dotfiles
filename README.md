@@ -13,7 +13,7 @@ configuração sobe em qualquer máquina, com dois perfis: **pessoal** e **empre
 | `ghostty/`  | `~/.config/ghostty/config.ghostty`         | JetBrains Mono Nerd Font, Catppuccin Mocha                  |
 | `starship/` | `~/.config/starship.toml`                  | símbolos Nerd Font do prompt                                |
 | `git/`      | `~/.gitconfig`                             | nome e assinatura de commits com chave SSH; e-mail por perfil |
-| `claude/`   | `~/.claude/commands/`, `~/.claude/settings.json` | slash commands `/testar`, `/corrigir`, `/explicar`; preferências |
+| `claude/`   | `~/.claude/settings.json`                  | preferências do Claude Code (os prompts ficam no [nvim](nvim/README.md)) |
 
 O tema é Catppuccin Mocha em todo lugar (Ghostty, tmux-powerkit, Neovim).
 
@@ -113,7 +113,7 @@ O `install.sh`:
 - aplica o perfil (veja [Perfis](#perfis)) e, no da empresa, pergunta o e-mail do git se o
   `~/.gitconfig.local` ainda não tiver um;
 - cria os links da tabela acima. Um arquivo que já existia vai para
-  `~/.dotfiles-backup/<data>/`, nada é apagado;
+  `~/.dotfiles-backup/<data>/` (no mesmo caminho relativo ao home), nada é apagado;
 - copia o `claude/settings.json` só se ainda não existir: o Claude Code reescreve esse arquivo
   pelo `/config`, e um link viraria arquivo comum. Para levar uma mudança dele ao repositório,
   copie de volta à mão;
