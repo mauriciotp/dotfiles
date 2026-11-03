@@ -99,11 +99,13 @@ for tag, def in pairs(float_tags) do
 end
 
 -- Camada 3: apps teimosos (janelas secundárias que não se marcam como modais)
--- Obsidian: tudo que não é a janela principal ("<nota> - <cofre> - Obsidian <versão>")
--- flutua centralizado, e o tamanho fica salvo por título (Configurações, plugins...)
+-- Obsidian: a janela de Configurações (onde também abrem plugins da comunidade e
+-- temas) tem o título "Settings - <cofre> - Obsidian <versão>", no mesmo formato
+-- da principal ("<nota> - <cofre> - Obsidian <versão>"); por isso o match é pelo
+-- título inicial. Flutua centralizada e o tamanho fica salvo.
 hl.window_rule({
-	name = "obsidian-secondary",
-	match = { class = "^md\\.obsidian\\.Obsidian$", title = "negative:.* - Obsidian [0-9.]+$" },
+	name = "obsidian-settings",
+	match = { class = "^md\\.obsidian\\.Obsidian$", initial_title = "^Settings - .* - Obsidian [0-9.]+$" },
 	float = true,
 	center = true,
 	size = { "monitor_w*0.6", "monitor_h*0.75" },
