@@ -164,10 +164,7 @@ for _, r in ipairs(app_workspaces) do
 end
 
 -- Spotify: workspace especial "music" (SUPER+SHIFT+M abre e fecha por cima de tudo).
--- No Wayland o Spotify às vezes nasce sem classe; o título inicial resolve.
-hl.window_rule({ name = "music-class", match = { class = "^[Ss]potify$" }, workspace = "special:music silent" })
-hl.window_rule({
-	name = "music-title",
-	match = { initial_title = "^Spotify( Free| Premium)?$" },
-	workspace = "special:music silent",
-})
+-- O spotify-launcher roda via XWayland e a janela já nasce com a classe "Spotify"
+-- (testado em 2026-11-03). Se um dia mudar para Wayland nativo e nascer sem
+-- classe, acrescente uma regra com match = { initial_title = "^Spotify" }.
+hl.window_rule({ name = "music", match = { class = "^[Ss]potify$" }, workspace = "special:music silent" })
