@@ -21,5 +21,5 @@ hl.window_rule({
 hl.config({ render = { direct_scanout = 2 } })
 
 -- Workspace 9 para o monitor ou de volta para a TV
-hl.bind("SUPER + ALT + M", hl.dsp.workspace.move({ workspace = "9", monitor = "DP-2" }))
-hl.bind("SUPER + ALT + T", hl.dsp.workspace.move({ workspace = "9", monitor = "HDMI-A-1" }))
+hl.bind("SUPER + ALT + M", hl.dsp.workspace.move({ workspace = "9", monitor = "DP-2" }), { description = "Games workspace to monitor" })
+hl.bind("SUPER + ALT + T", hl.dsp.workspace.move({ workspace = "9", monitor = "HDMI-A-1" }), { description = "Games workspace to TV" })

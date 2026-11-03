@@ -1,0 +1,31 @@
+#!/bin/bash
+# Foca a janela de um app se ele já estiver aberto; senão, abre o app.
+# Focar a janela também leva até o workspace dela.
+# Uso: launch-or-focus <regex-da-classe> <comando...>
+#   ex.: launch-or-focus '^md\.obsidian\.Obsidian$' obsidian
+# Baseado no omarchy-launch-or-focus (github.com/omacom/omarchy).
+set -euo pipefail
+
+if (($# < 2)); then
+    echo "Uso: launch-or-focus <regex-da-classe> <comando...>" >&2
+    exit 1
+fi
+
+pattern=$1
+shift
+
+# Entre várias janelas do app, foca a usada por último (menor focusHistoryID)
+address=$(hyprctl clients -j | jq -r --arg p "$pattern" '
+    [.[] | select(.class | test($p; "i"))] | sort_by(.focusHistoryID) | first | .address // empty')
+
+if [[ -n $address ]]; then
+    hyprctl dispatch "hl.dsp.focus({ window = \"address:$address\" })" >/dev/null
+    exit 0
+fi
+
+# Dentro de uma sessão uwsm, cada app vira uma unidade do systemd; fora dela, abre direto
+if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
+    exec setsid uwsm app -- "$@"
+else
+    exec setsid "$@"
+fi

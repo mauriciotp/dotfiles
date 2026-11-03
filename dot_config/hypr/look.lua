@@ -3,10 +3,7 @@ hl.config({
 		gaps_in = 5,
 		gaps_out = 10,
 		border_size = 2,
-		col = {
-			active_border = { colors = { "rgba(cba6f7ff)", "rgba(89b4faff)" }, angle = 45 }, -- mauve -> blue
-			inactive_border = "rgba(45475aaa)", -- surface1
-		},
+		-- cores das bordas: vêm do tema do Noctalia (noctalia.lua, gerado pelo template)
 		resize_on_border = false,
 		allow_tearing = true, -- chave geral; vale só com a regra immediate (11.8)
 		layout = "dwindle",
