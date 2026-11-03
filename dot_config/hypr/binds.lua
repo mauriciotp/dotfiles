@@ -6,6 +6,8 @@
 local mod = "SUPER"
 local ipc = "noctalia msg " -- IPC do Noctalia (docs.noctalia.dev → IPC)
 local home = os.getenv("HOME")
+-- Caminho absoluto: o PATH do Hyprland não inclui ~/.local/bin
+local bin = home .. "/.local/bin/"
 
 -- bind(teclas, descrição, ação, flags opcionais)
 local function bind(keys, desc, action, flags)
@@ -16,7 +18,7 @@ end
 
 -- Abre ou foca um app (~/.local/bin/launch-or-focus)
 local function app(class, cmd)
-	return hl.dsp.exec_cmd(string.format("launch-or-focus '%s' %s", class, cmd))
+	return hl.dsp.exec_cmd(string.format("%slaunch-or-focus '%s' %s", bin, class, cmd))
 end
 
 -- Abre sempre uma janela nova (dentro do uwsm vira unidade do systemd)
@@ -43,7 +45,7 @@ bind(mod .. " + SHIFT + M", "Music: Spotify (toggle)", function()
 	hl.dispatch(hl.dsp.workspace.toggle_special("music"))
 end)
 
-bind(mod .. " + F1", "Keybinds cheatsheet", hl.dsp.exec_cmd("keybinds --window"))
+bind(mod .. " + F1", "Keybinds cheatsheet", hl.dsp.exec_cmd(bin .. "keybinds --window"))
 
 -- ===== Noctalia =====
 bind(mod .. " + space", "Launcher", hl.dsp.exec_cmd(ipc .. "panel-toggle launcher"))
@@ -131,7 +133,7 @@ bind(mod .. " + SHIFT + grave", "Move window to scratchpad", hl.dsp.window.move(
 bind(mod .. " + O", "Focus other monitor", hl.dsp.focus({ monitor = "+1" }))
 bind(mod .. " + CTRL + SHIFT + O", "Move window to other monitor", hl.dsp.window.move({ monitor = "+1" }))
 bind(mod .. " + CTRL + O", "Move workspace to other monitor", hl.dsp.workspace.move({ monitor = "+1" }))
-bind(mod .. " + ALT + O", "TV on/off (takes workspace 9)", hl.dsp.exec_cmd(home .. "/.local/bin/tv-toggle"))
+bind(mod .. " + ALT + O", "TV on/off (takes workspace 9)", hl.dsp.exec_cmd(bin .. "tv-toggle"))
 
 -- ===== Sistema =====
 bind(mod .. " + CTRL + R", "Reload Hyprland config", hl.dsp.reload_config())
