@@ -1,0 +1,15 @@
+# Tema e fonte
+theme = noctalia
+font-family = JetBrainsMono Nerd Font
+font-size = 12
+
+# Janela: sem barra de título (o Hyprland desenha a borda)
+window-decoration = none
+window-padding-x = 8
+window-padding-y = 6
+
+# Comportamento
+cursor-style = block
+shell-integration-features = no-cursor
+confirm-close-surface = false
+copy-on-select = clipboard

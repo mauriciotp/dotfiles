@@ -1,0 +1,49 @@
+# --- Histórico ---
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+setopt SHARE_HISTORY HIST_IGNORE_ALL_DUPS HIST_IGNORE_SPACE
+
+# --- Opções ---
+setopt AUTO_CD INTERACTIVE_COMMENTS
+bindkey -e
+
+# --- PATH: programas do usuário e do go install ---
+export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+export EDITOR=nvim
+export VISUAL=nvim
+
+# --- Completação ---
+autoload -Uz compinit && compinit
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+
+# --- Ferramentas ---
+eval "$(starship init zsh)"
+eval "$(zoxide init zsh)"
+source <(fzf --zsh)
+command -v mise >/dev/null && eval "$(mise activate zsh)"   # seção 10.2
+
+# --- fzf: fd e Catppuccin Mocha ---
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_DEFAULT_OPTS=" \
+--color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
+--color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
+--color=marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+
+# --- bat ---
+export BAT_THEME="Catppuccin Mocha"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+# --- Aliases ---
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -l --icons --git --group-directories-first'
+alias la='eza -la --icons --git --group-directories-first'
+alias tree='eza --tree --icons'
+alias cat='bat --paging=never'
+alias v='nvim'
+
+# --- Plugins (o syntax-highlighting por último) ---
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+steam_dir=~/.steam/steam
+[[ -d "$steam_dir" ]] || { echo "Abra a Steam uma vez antes." >&2; exit 1; }
+mkdir -p "$steam_dir/compatibilitytools.d"
+
+# Informações da versão mais recente
+release_json=$(curl -s --max-time 10 \
+    https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest)
+[[ "$release_json" == *'"tag_name"'* ]] || { echo "Falha ao consultar o GitHub." >&2; exit 1; }
+
+urls=$(echo "$release_json" | grep browser_download_url | cut -d\" -f4)
+tarball_url=$(echo "$urls" | grep -E -- '-x86_64\.tar\.gz$' | head -n1 || true)
+[[ -n "$tarball_url" ]] || { echo "Não achei o pacote x86_64." >&2; exit 1; }
+
+tarball_name=$(basename "$tarball_url")
+release_name=${tarball_name%.tar.gz}
+checksum_url=$(echo "$urls" | grep "$release_name.sha512sum\$" || true)
+[[ -n "$checksum_url" ]] || { echo "Não achei o checksum." >&2; exit 1; }
+
+# Já instalado?
+if [[ -d "$steam_dir/compatibilitytools.d/$release_name" ]]; then
+    echo "$release_name já está instalado."
+    exit 0
+fi
+
+# Baixar, conferir e extrair
+tmp=$(mktemp -d)
+trap 'rm -rf "$tmp"' EXIT
+cd "$tmp"
+echo "Baixando $release_name..."
+curl -L "$tarball_url" -o "$tarball_name" --progress-bar
+curl -sL "$checksum_url" | sha512sum -c -
+tar -xf "$tarball_name" -C "$steam_dir/compatibilitytools.d/"
+echo "Instalado: $release_name. Reinicie a Steam."

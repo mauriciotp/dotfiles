@@ -1,0 +1,4 @@
+# Abre o Hyprland ao fazer login no tty1
+if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" -eq 1 ]; then
+  exec start-hyprland
+fi

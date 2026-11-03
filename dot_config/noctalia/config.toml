@@ -1,0 +1,44 @@
+# O que você muda pela janela de configurações (SUPER+vírgula) fica em
+# ~/.local/state/noctalia/settings.toml e tem prioridade sobre este arquivo.
+
+[shell]
+polkit_agent      = true    # janelinha de senha quando um app pede permissão de administrador
+clipboard_enabled = true    # histórico da área de transferência (SUPER+V)
+
+[bar.default]
+position  = "top"
+thickness = 34
+start     = ["launcher", "wallpaper", "workspaces"]
+center    = ["clock"]
+end       = ["sysmon", "media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "control-center", "session"]
+
+# Opcional: sem barra na TV (nome da conexão: hyprctl monitors all)
+# [bar.default.monitor.tv]
+# match   = "HDMI-A-1"
+# enabled = false
+
+[theme]
+builtin = "Catppuccin"
+mode = "dark"
+    [theme.templates]
+    builtin_ids = ["gtk3", "gtk4", "ghostty", "hyprland", "qt"]
+
+[notification]
+position = "top_right"
+
+# Inatividade (substitui o hypridle): bloqueia aos 10 min e apaga as telas aos 11
+[idle.behavior.lock]
+timeout = 600
+action  = "lock"
+enabled = true
+
+[idle.behavior.screen-off]
+timeout = 660
+action  = "screen_off"
+enabled = true
+
+# Nunca suspende sozinho
+[idle.behavior.suspend]
+timeout = 900
+action  = "lock_and_suspend"
+enabled = false

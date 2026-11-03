@@ -1,0 +1,18 @@
+#!/bin/sh
+# Liga ou desliga a TV no Hyprland. Uso: tv-toggle [on|off]
+# Uma TV em espera continua "conectada"; desativar a saída a tira do layout.
+TV="HDMI-A-1"
+
+tv_on() {
+    # disabled = false é obrigatório: sem ele, a regra disabled = true do monitors.lua continua valendo
+    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"3840x2160@143.98\", position = \"0x0\", scale = 2 })"
+}
+tv_off() {
+    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })"
+}
+
+case "$1" in
+    on)  tv_on ;;
+    off) tv_off ;;
+    *)   if hyprctl monitors -j | grep -q "\"name\": \"$TV\""; then tv_off; else tv_on; fi ;;
+esac
