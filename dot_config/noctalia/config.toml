@@ -4,6 +4,9 @@
 [shell]
 polkit_agent      = true    # janelinha de senha quando um app pede permissão de administrador
 clipboard_enabled = true    # histórico da área de transferência (SUPER+V)
+# apps abertos pelo launcher/dock viram unidades do systemd (sobrevivem a um
+# reinício do Noctalia). Só funciona porque o Noctalia sobe pelo uwsm (autostart.lua)
+launch_apps_as_systemd_services = true
 
 [bar.default]
 position  = "top"

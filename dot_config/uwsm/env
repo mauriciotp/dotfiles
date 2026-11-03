@@ -1,0 +1,30 @@
+# Ambiente da sessão gráfica, lido pelo uwsm antes do Hyprland e exportado para o
+# systemd/dbus: vale para o Hyprland, o Noctalia e todo app aberto por eles.
+# (Wiki do Hyprland: variáveis aqui, não no hyprland.lua.) Formato: export CHAVE=VALOR
+# Variáveis HYPR*/AQ_* ficam em env-hyprland.
+
+# Scripts próprios e binários do "go install" (atalhos e launcher encontram)
+export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+export EDITOR=nvim
+export VISUAL=nvim
+# Terminal usado pelo Noctalia para apps de terminal (Terminal=true no .desktop)
+export TERMINAL=ghostty
+
+# Cursor
+export XCURSOR_SIZE=24
+
+# NVIDIA (numa VM, comente estas três linhas)
+export LIBVA_DRIVER_NAME=nvidia
+export __GLX_VENDOR_LIBRARY_NAME=nvidia
+export NVD_BACKEND=direct
+
+# Electron (Discord, Obsidian) nativo no Wayland
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+
+# Qt: Wayland primeiro, X11 como reserva; sem barra de título própria
+# (por isso janelas Qt flutuantes, como as do OBS, se arrastam com SUPER+mouse)
+export QT_QPA_PLATFORM="wayland;xcb"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+
+# ssh-agent do systemd (ssh-agent.socket do usuário)
+export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"

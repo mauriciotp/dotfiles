@@ -1,0 +1,2 @@
+# Variáveis só do Hyprland (HYPR* e AQ_*), lidas pelo uwsm. Formato: export CHAVE=VALOR
+export HYPRCURSOR_SIZE=24
