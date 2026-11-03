@@ -54,63 +54,42 @@ hl.window_rule({
 	no_focus = true,
 })
 
--- ===== Janelas flutuantes: 3 camadas =====
--- Camada 1: diálogos que o próprio app marca como modais ("Tem certeza?", seletores)
-hl.window_rule({ name = "modal", match = { modal = true }, float = true, center = true })
+-- ===== Janelas flutuantes =====
+-- O Hyprland JÁ flutua sozinho (código: suggestsFloat, v0.57):
+--   Wayland: janela que declara uma janela-pai, ou de tamanho fixo
+--   X11:     diálogo, modal, transitória, com pai, pop-up ou tamanho fixo
+-- Ou seja: diálogos "bem-comportados" (OBS, GTK, Qt) não precisam de regra.
+-- Aqui ficam só as exceções: janelas que deveriam flutuar mas não avisam.
 
--- Camada 2: tags por tamanho (padrão do omarchy/caelestia).
--- Para fazer um app novo flutuar, basta acrescentar uma linha numa das listas.
-local float_tags = {
-	-- pequeno: senhas, confirmações, utilitários de sistema
-	["float-sm"] = {
-		size = { "monitor_w*0.4", "monitor_h*0.5" },
-		match = {
-			{ class = "^(pinentry-.*|org\\.gnupg\\.pinentry-qt)$" },
-			{ class = "^(nm-connection-editor|blueman-manager|hyprland-share-picker|org\\.gnome\\.Zenity|zenity)$" },
-			{ title = "^(Authentication Required|Confirm to replace files|File Operation Progress)$" },
-		},
-	},
-	-- médio: seletores de arquivo, preferências, configurações de apps
-	["float-md"] = {
-		size = { "monitor_w*0.6", "monitor_h*0.7" },
-		match = {
-			{ class = "^(xdg-desktop-portal-gtk|org\\.freedesktop\\.impl\\.portal\\.desktop\\..*)$" },
-			{ class = "^(org\\.pulseaudio\\.pavucontrol|pavucontrol|qt5ct|qt6ct|nwg-look)$" },
-			{ title = "^(Open File|Open Folder|Open Files|Choose Files?|Save As|Save File|Select a File|File Upload).*$" },
-			{ title = "^(.* wants to (open|save).*|Properties for .*|Preferences)$" },
-			{ class = "^steam$", title = "^(Steam Settings|Settings)$" },
-			{ class = "^com\\.mauricio\\.keybinds$" }, -- cola de atalhos (SUPER+F1)
-		},
-	},
-	-- grande: janelas de configuração com muito conteúdo
-	["float-lg"] = {
-		size = { "monitor_w*0.75", "monitor_h*0.8" },
-		match = {
-			{ class = "^dev\\.noctalia\\.Noctalia$" }, -- Configurações do Noctalia
-		},
-	},
+-- 1) Janelas avulsas, sem pai, que são diálogos na prática (só apps instalados)
+local float_windows = {
+	{ class = "^org\\.gnupg\\.pinentry-qt$" }, -- senha do GPG
+	{ class = "^(zenity|org\\.gnome\\.Zenity)$" }, -- diálogos de scripts (Steam usa)
+	{ class = "^hyprland-share-picker$" }, -- escolher tela ao compartilhar
+	{ class = "^xdg-desktop-portal-gtk$" }, -- seletor de arquivos do portal (Firefox, Obsidian...)
+	{ class = "^dev\\.noctalia\\.Noctalia$" }, -- Configurações do Noctalia (doc oficial)
+	{ class = "^com\\.mauricio\\.keybinds$" }, -- cola de atalhos (SUPER+F1)
+	{ class = "^steam$", title = "^(Steam Settings|Settings)$" },
 }
-
-for tag, def in pairs(float_tags) do
-	for i, m in ipairs(def.match) do
-		hl.window_rule({ name = tag .. "-" .. i, match = m, tag = "+" .. tag })
-	end
-	hl.window_rule({ name = tag, match = { tag = tag }, float = true, center = true, size = def.size })
+for i, m in ipairs(float_windows) do
+	hl.window_rule({
+		name = "float-" .. i,
+		match = m,
+		float = true,
+		center = true,
+		size = { "monitor_w*0.6", "monitor_h*0.75" },
+	})
 end
 
--- Camada 3: apps teimosos (janelas secundárias que não se marcam como modais)
--- Apps de "uma janela principal": a primeira janela do app fica no tiling e
--- QUALQUER janela extra (configurações, plugins, temas, propriedades...) flutua
--- centralizada. Resolve o "efeito cascata" sem listar título por título.
+-- 2) Apps que abrem janelas secundárias SEM declarar a janela-pai.
+-- A primeira janela do app fica no tiling; qualquer janela extra flutua centralizada.
 -- Ex.: Obsidian 1.15 abre Settings, Community plugins e Community themes como
--- janelas próprias, com títulos no mesmo formato da principal.
--- Para incluir um app: acrescente a classe (veja com: hyprctl clients).
+-- janelas normais (Electron), com título no mesmo formato da principal; sem isto
+-- cada uma vira um tiling novo ("efeito cascata").
+-- Só entra app que comprovadamente precisa (veja com: hyprctl clients).
 local single_main_window = {
 	["md.obsidian.Obsidian"] = true,
-	["discord"] = true,
-	["com.obsproject.Studio"] = true,
-	["heroic"] = true,
-	["steam"] = true,
+	["steam"] = true, -- Propriedades do jogo, Configurações, chat (XWayland, sem pai)
 }
 
 hl.on("window.open", function(w)
