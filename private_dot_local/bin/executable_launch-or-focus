@@ -23,9 +23,10 @@ if [[ -n $address ]]; then
     exit 0
 fi
 
-# Dentro de uma sessão uwsm, cada app vira uma unidade do systemd; fora dela, abre direto
+# Dentro de uma sessão uwsm, cada app vira uma unidade do systemd; fora dela, abre direto.
+# A saída do app vai para o journal/nada, para não prender o terminal ao rodar à mão.
 if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
-    exec setsid uwsm app -- "$@"
+    exec setsid uwsm app -- "$@" >/dev/null 2>&1 </dev/null
 else
-    exec setsid "$@"
+    exec setsid "$@" >/dev/null 2>&1 </dev/null
 fi
