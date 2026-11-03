@@ -61,24 +61,32 @@ hl.window_rule({
 -- Ou seja: diálogos "bem-comportados" (OBS, GTK, Qt) não precisam de regra.
 -- Aqui ficam só as exceções: janelas que deveriam flutuar mas não avisam.
 
--- 1) Janelas avulsas, sem pai, que são diálogos na prática (só apps instalados)
+-- Como saber se uma regra é necessária: comente a linha, recarregue (SUPER+CTRL+R),
+-- abra a janela e veja se ela ainda flutua. Se flutuar, a regra sobra.
+-- Testado em 2026-11-03 (sem regra):
+--   zenity                  → flutua sozinho (tamanho fixo): sem regra
+--   Configurações da Steam  → janela NORMAL, sem pai; quem flutua é o item 2 abaixo
+--   pinentry-gtk            → tiling em tela cheia: precisa de regra
+--   portal sem janela-pai   → tiling em tela cheia: precisa de regra
+
+-- 1) Janelas avulsas, sem pai, que são diálogos na prática
+local medium = { "monitor_w*0.6", "monitor_h*0.75" }
 local float_windows = {
-	{ class = "^org\\.gnupg\\.pinentry-qt$" }, -- senha do GPG
-	{ class = "^(zenity|org\\.gnome\\.Zenity)$" }, -- diálogos de scripts (Steam usa)
-	{ class = "^hyprland-share-picker$" }, -- escolher tela ao compartilhar
-	{ class = "^xdg-desktop-portal-gtk$" }, -- seletor de arquivos do portal (Firefox, Obsidian...)
-	{ class = "^dev\\.noctalia\\.Noctalia$" }, -- Configurações do Noctalia (doc oficial)
-	{ class = "^com\\.mauricio\\.keybinds$" }, -- cola de atalhos (SUPER+F1)
-	{ class = "^steam$", title = "^(Steam Settings|Settings)$" },
+	-- senha do GPG/SSH. O /usr/bin/pinentry do Arch escolhe o backend que
+	-- funciona (hoje: pinentry-gtk; o pinentry-qt está sem a lib kwindowsystem)
+	{ match = { class = "^pinentry-.*$" }, size = { 520, 220 } },
+	-- seletor de arquivos do portal: com janela-pai (Firefox, Electron) já flutua
+	-- sozinho via xdg-foreign; esta regra cobre apps que não informam o pai
+	{ match = { class = "^xdg-desktop-portal-gtk$" }, size = medium },
+	-- escolher tela ao compartilhar (xdg-desktop-portal-hyprland); não testado
+	{ match = { class = "^hyprland-share-picker$" }, size = { 640, 480 } },
+	-- Configurações do Noctalia (regra da doc oficial do Noctalia)
+	{ match = { class = "^dev\\.noctalia\\.Noctalia$" }, size = { 1080, 920 } },
+	-- cola de atalhos (SUPER+F1): janela comum do Ghostty
+	{ match = { class = "^com\\.mauricio\\.keybinds$" }, size = medium },
 }
-for i, m in ipairs(float_windows) do
-	hl.window_rule({
-		name = "float-" .. i,
-		match = m,
-		float = true,
-		center = true,
-		size = { "monitor_w*0.6", "monitor_h*0.75" },
-	})
+for i, w in ipairs(float_windows) do
+	hl.window_rule({ name = "float-" .. i, match = w.match, float = true, center = true, size = w.size })
 end
 
 -- 2) Apps que abrem janelas secundárias SEM declarar a janela-pai.
@@ -124,7 +132,11 @@ hl.window_rule({
 })
 
 -- pinentry (senha do GPG) não pode perder o foco
-hl.window_rule({ name = "pinentry-focus", match = { class = "^(pinentry-.*|org\\.gnupg\\.pinentry-qt)$" }, stay_focused = true })
+hl.window_rule({
+	name = "pinentry-focus",
+	match = { class = "^pinentry-.*$" },
+	stay_focused = true,
+})
 
 -- Picture-in-picture do Firefox: flutua, fixa em todos os workspaces, canto superior direito
 hl.window_rule({
@@ -154,4 +166,8 @@ end
 -- Spotify: workspace especial "music" (SUPER+SHIFT+M abre e fecha por cima de tudo).
 -- No Wayland o Spotify às vezes nasce sem classe; o título inicial resolve.
 hl.window_rule({ name = "music-class", match = { class = "^[Ss]potify$" }, workspace = "special:music silent" })
-hl.window_rule({ name = "music-title", match = { initial_title = "^Spotify( Free| Premium)?$" }, workspace = "special:music silent" })
+hl.window_rule({
+	name = "music-title",
+	match = { initial_title = "^Spotify( Free| Premium)?$" },
+	workspace = "special:music silent",
+})
