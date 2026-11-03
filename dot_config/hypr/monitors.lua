@@ -21,8 +21,9 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" 
 hl.config({
 	-- Jogos XWayland em resolução nativa na TV (sem ampliação borrada)
 	xwayland = { force_zero_scaling = true },
-	-- VRR (G-Sync) nas duas telas, só em tela cheia
-	misc = { vrr = 2 },
+	-- VRR (G-Sync) só em tela cheia com conteúdo "game" ou "video" (a regra "jogos"
+	-- do games.lua marca content = "game"); navegador em tela cheia não pisca
+	misc = { vrr = 3 },
 	-- HDR desligado: nunca trocar para HDR sozinho em tela cheia (7.7)
 	render = { cm_auto_hdr = 0 },
 })

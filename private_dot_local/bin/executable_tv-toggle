@@ -1,18 +1,36 @@
 #!/bin/sh
-# Liga ou desliga a TV no Hyprland. Uso: tv-toggle [on|off]
-# Uma TV em espera continua "conectada"; desativar a saída a tira do layout.
+# Liga ou desliga a TV (LG C4) no Hyprland e leva o workspace 9 (jogos) junto.
+# Uso: tv-toggle [on|off]   (sem argumento: alterna)
+#
+# Por que existe: a TV em espera continua "conectada" pelo HDMI (o kernel mostra
+# HDMI-A-1 connected), então o Hyprland não sabe se ela está ligada de verdade.
+# Por isso o monitors.lua começa com a TV desativada e este script a liga quando
+# você vai jogar na cama.
+#
+#   on : ativa a TV em 4K@144 (scale 2), move o workspace 9 para ela e foca nele
+#   off: devolve o workspace 9 ao monitor e desativa a TV
 TV="HDMI-A-1"
+MONITOR="DP-2"
+
+tv_ativa() { hyprctl monitors -j | grep -q "\"name\": \"$TV\""; }
 
 tv_on() {
     # disabled = false é obrigatório: sem ele, a regra disabled = true do monitors.lua continua valendo
-    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"3840x2160@143.98\", position = \"0x0\", scale = 2 })"
+    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"3840x2160@143.98\", position = \"0x0\", scale = 2 })" >/dev/null
+    # espera a TV aparecer antes de mover o workspace (até 5 s)
+    for _ in 1 2 3 4 5 6 7 8 9 10; do tv_ativa && break; sleep 0.5; done
+    hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"9\", monitor = \"$TV\" })" >/dev/null
+    hyprctl dispatch 'hl.dsp.focus({ workspace = 9 })' >/dev/null
 }
+
 tv_off() {
-    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })"
+    # primeiro tira o workspace 9 da TV, para as janelas do jogo não ficarem órfãs
+    hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"9\", monitor = \"$MONITOR\" })" >/dev/null
+    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })" >/dev/null
 }
 
 case "$1" in
     on)  tv_on ;;
     off) tv_off ;;
-    *)   if hyprctl monitors -j | grep -q "\"name\": \"$TV\""; then tv_off; else tv_on; fi ;;
+    *)   if tv_ativa; then tv_off; else tv_on; fi ;;
 esac
