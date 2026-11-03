@@ -99,18 +99,42 @@ for tag, def in pairs(float_tags) do
 end
 
 -- Camada 3: apps teimosos (janelas secundárias que não se marcam como modais)
--- Obsidian: a janela de Configurações (onde também abrem plugins da comunidade e
--- temas) tem o título "Settings - <cofre> - Obsidian <versão>", no mesmo formato
--- da principal ("<nota> - <cofre> - Obsidian <versão>"); por isso o match é pelo
--- título inicial. Flutua centralizada e o tamanho fica salvo.
-hl.window_rule({
-	name = "obsidian-settings",
-	match = { class = "^md\\.obsidian\\.Obsidian$", initial_title = "^Settings - .* - Obsidian [0-9.]+$" },
-	float = true,
-	center = true,
-	size = { "monitor_w*0.6", "monitor_h*0.75" },
-	persistent_size = true,
-})
+-- Apps de "uma janela principal": a primeira janela do app fica no tiling e
+-- QUALQUER janela extra (configurações, plugins, temas, propriedades...) flutua
+-- centralizada. Resolve o "efeito cascata" sem listar título por título.
+-- Ex.: Obsidian 1.15 abre Settings, Community plugins e Community themes como
+-- janelas próprias, com títulos no mesmo formato da principal.
+-- Para incluir um app: acrescente a classe (veja com: hyprctl clients).
+local single_main_window = {
+	["md.obsidian.Obsidian"] = true,
+	["discord"] = true,
+	["com.obsproject.Studio"] = true,
+	["heroic"] = true,
+	["steam"] = true,
+}
+
+hl.on("window.open", function(w)
+	if not single_main_window[w.class] or w.floating then
+		return
+	end
+	-- Só conta janelas do mesmo app que estão no tiling: splash screens e
+	-- janelas que já flutuam não fazem a principal virar "extra"
+	for _, other in ipairs(hl.get_windows()) do
+		if other.address ~= w.address and other.class == w.class and other.mapped and not other.floating then
+			local m = w.monitor
+			local width, height = 1152, 810 -- reserva, se o monitor não vier no evento
+			if m then
+				width = math.floor(m.width / m.scale * 0.6)
+				height = math.floor(m.height / m.scale * 0.75)
+			end
+			local sel = "address:" .. w.address
+			hl.dispatch(hl.dsp.window.float({ window = sel, action = "set" }))
+			hl.dispatch(hl.dsp.window.resize({ window = sel, x = width, y = height }))
+			hl.dispatch(hl.dsp.window.center({ window = sel }))
+			return
+		end
+	end
+end)
 
 -- Steam: lista de amigos alta e estreita
 hl.window_rule({
