@@ -30,7 +30,7 @@ zstyle ':completion:*' menu no                            # o menu agora é o fz
 source /usr/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
 zstyle ':fzf-tab:*' use-fzf-default-opts yes              # usa as cores Catppuccin do FZF_DEFAULT_OPTS
 zstyle ':fzf-tab:*' switch-group '<' '>'                  # < e > trocam de grupo
-zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza -1 --color=always --icons $realpath'
+zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza -1 --color=always --icons=always $realpath'
 # dentro do tmux, abre num popup flutuante em vez de ocupar o pane
 [[ -n $TMUX ]] && zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
@@ -53,10 +53,10 @@ export BAT_THEME="Catppuccin Mocha"
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
 # --- Aliases ---
-alias ls='eza --icons --group-directories-first'
-alias ll='eza -l --icons --git --group-directories-first'
-alias la='eza -la --icons --git --group-directories-first'
-alias tree='eza --tree --icons'
+alias ls='eza --icons=auto --group-directories-first'
+alias ll='eza -l --icons=auto --git --group-directories-first'
+alias la='eza -la --icons=auto --git --group-directories-first'
+alias tree='eza --tree --icons=auto'
 alias cat='bat --paging=never'
 alias v='nvim'
 
