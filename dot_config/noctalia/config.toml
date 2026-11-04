@@ -17,6 +17,11 @@ end       = ["sysmon", "media", "tray", "notifications", "clipboard", "network",
 
 # A barra aparece em todas as telas, inclusive na TV
 
+# Indicador de workspaces: mostra o nome, que o workspaces.lua do Hyprland põe
+# igual ao número da tecla (o 13 do segundo monitor aparece como 3)
+[widget.workspaces]
+label_source = "name"
+
 [theme]
 builtin = "Catppuccin"
 mode = "dark"
