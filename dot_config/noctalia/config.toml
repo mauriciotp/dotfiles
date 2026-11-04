@@ -15,16 +15,16 @@ start     = ["launcher", "wallpaper", "workspaces"]
 center    = ["clock"]
 end       = ["sysmon", "media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "control-center", "session"]
 
-# Opcional: sem barra na TV (nome da conexão: hyprctl monitors all)
-# [bar.default.monitor.tv]
-# match   = "HDMI-A-1"
-# enabled = false
+# A barra aparece em todas as telas, inclusive na TV
 
 [theme]
 builtin = "Catppuccin"
 mode = "dark"
     [theme.templates]
-    builtin_ids = ["gtk3", "gtk4", "ghostty", "hyprland", "qt"]
+    builtin_ids = ["gtk3", "gtk4", "ghostty", "hyprland"]
+    # comunitários: ligar aqui, não pela interface (ela grava no settings.toml, fora do chezmoi)
+    enable_community_templates = true
+    community_ids = ["obsidian", "heroiclauncher", "obs"]
 
 [notification]
 position = "top_right"
