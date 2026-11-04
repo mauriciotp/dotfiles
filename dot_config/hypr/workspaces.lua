@@ -13,18 +13,41 @@ local screens = require("monitors")
 local W = {}
 
 local GAMES = 10
-local names = { "dev", "web", "chat", "notes", "media", "tools", nil, "stores", nil, "games" }
+-- mapa por app (o nome fica só no comentário; a barra mostra o número da tecla)
+local apps = { "dev", "web", "chat", "notes", "media", "tools", nil, "stores", nil, "games" }
 -- números que vão para o secundário quando ele existe
 local secondary_slots = { [3] = true, [5] = true, [6] = true, [8] = true }
--- sempre visíveis no indicador do Noctalia, mesmo vazios. Só os que nunca mudam
--- de número: um 3 persistente voltaria a existir logo depois de virar 13.
-local persistent = { [1] = true, [2] = true, [4] = true, [GAMES] = true }
+-- Regras de nome e de "sempre visível" (persistent), um conjunto por layout:
+--   single  um monitor: os 8 do mapa fixos em 1–10
+--   dual    dois monitores: dev, web, notes e games no principal; chat, media,
+--           tools e stores em 13, 15, 16 e 18 no secundário
+-- reconcile() liga só o conjunto do layout atual. Com um só conjunto, um 3
+-- persistente voltaria a existir logo depois de virar 13.
+-- Só os números que mudam (3, 5, 6, 8 ↔ 13, 15, 16, 18) têm duas regras: duas
+-- regras para o mesmo número se sobrepõem, e a desligada anula a outra.
+local ws_rules = { single = {}, dual = {} }
+
+-- O nome do workspace é o número da tecla (13 se chama "3"), como no Omarchy:
+-- cada monitor mostra 1–10 na barra (Noctalia com label_source = "name").
+local function rule(id, slot, set)
+	local r = hl.workspace_rule({
+		workspace = tostring(id),
+		default_name = tostring(slot),
+		persistent = apps[slot] ~= nil,
+		default = id == 1,
+		enabled = set ~= "dual",
+	})
+	if set then
+		table.insert(ws_rules[set], r)
+	end
+end
 
 for slot = 1, 10 do
-	local name = names[slot]
-	hl.workspace_rule({ workspace = tostring(slot), default_name = name, persistent = persistent[slot] or false, default = slot == 1 })
-	if name then
-		hl.workspace_rule({ workspace = tostring(slot + 10), default_name = name })
+	if secondary_slots[slot] then
+		rule(slot, slot, "single")
+		rule(slot + 10, slot, "dual")
+	else
+		rule(slot, slot) -- igual nos dois layouts, sempre ligada
 	end
 end
 
@@ -121,6 +144,13 @@ function W.reconcile()
 		return
 	end
 	local has_secondary = layout.secondary ~= nil
+	-- primeiro as regras: assim o 3 deixa de ser persistente antes de virar 13
+	for _, r in ipairs(ws_rules.single) do
+		r:set_enabled(not has_secondary)
+	end
+	for _, r in ipairs(ws_rules.dual) do
+		r:set_enabled(has_secondary)
+	end
 	for _, r in ipairs(app_rules) do
 		r.single:set_enabled(not has_secondary)
 		r.dual:set_enabled(has_secondary)
