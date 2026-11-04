@@ -13,10 +13,15 @@ export TERMINAL=ghostty
 # Cursor
 export XCURSOR_SIZE=24
 
-# NVIDIA (numa VM, comente estas três linhas)
+# NVIDIA (numa VM, comente estas três linhas). Mesma lógica do nvidia.lua do Omarchy:
+# - NVD_BACKEND=direct: placas com firmware GSP (a RTX 5080, driver nvidia-open).
+#   O README do nvidia-vaapi-driver diz que direct já é o padrão e que o egl
+#   está quebrado nos drivers 525+; fica explícito, como no Omarchy
+# - LIBVA e GLX só porque a NVIDIA é quem liga as telas; num notebook em que a
+#   integrada liga a tela, forçar as duas deixa o vídeo preto no Chromium
+export NVD_BACKEND=direct
 export LIBVA_DRIVER_NAME=nvidia
 export __GLX_VENDOR_LIBRARY_NAME=nvidia
-export NVD_BACKEND=direct
 
 # Electron (Discord, Obsidian) nativo no Wayland
 export ELECTRON_OZONE_PLATFORM_HINT=auto
@@ -25,6 +30,8 @@ export ELECTRON_OZONE_PLATFORM_HINT=auto
 # (por isso janelas Qt flutuantes, como as do OBS, se arrastam com SUPER+mouse)
 export QT_QPA_PLATFORM="wayland;xcb"
 export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
+# apps Qt seguem o tema GTK, que o Noctalia colore (Omarchy); o plugin vem no qt6-base
+export QT_QPA_PLATFORMTHEME=gtk3
 
 # ssh-agent do systemd (ssh-agent.socket do usuário)
 export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
