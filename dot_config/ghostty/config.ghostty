@@ -12,13 +12,10 @@ window-padding-y = 6
 cursor-style = block
 cursor-style-blink = false
 # no-cursor: deixa o cursor em bloco mesmo no prompt (o zsh não troca para barra)
-# ssh-env: ao entrar por ssh, manda TERM/terminfo compatíveis (evita "unknown terminal")
+# ssh-env: no ssh, usa TERM=xterm-256color e repassa COLORTERM etc. (evita "unknown terminal")
+# (o Shift+Enter do Claude Code já funciona no Ghostty sem keybind: ele fala o protocolo do kitty)
 shell-integration-features = no-cursor,ssh-env
 confirm-close-surface = false
 copy-on-select = clipboard
 # sem o aviso de tamanho ao redimensionar (o tiling redimensiona o tempo todo)
 resize-overlay = never
-
-# Atalhos
-# Shift+Enter envia um código próprio (CSI u): Claude Code e outros TUIs usam para quebrar linha
-keybind = shift+enter=csi:13;2u

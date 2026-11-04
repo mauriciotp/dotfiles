@@ -28,6 +28,7 @@ zstyle ':completion:*' menu no                            # o menu agora é o fz
 # --- fzf-tab: o Tab abre as opções no fzf (busca difusa + prévia) ---
 # Precisa vir depois do compinit e antes do autosuggestions/syntax-highlighting.
 source /usr/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+# O "fzf --zsh" (mais abaixo) assume o Tab para o **<Tab> e devolve ao fzf-tab no resto.
 zstyle ':fzf-tab:*' use-fzf-default-opts yes              # usa as cores Catppuccin do FZF_DEFAULT_OPTS
 zstyle ':fzf-tab:*' switch-group '<' '>'                  # < e > trocam de grupo
 zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza -1 --color=always --icons=always $realpath'
