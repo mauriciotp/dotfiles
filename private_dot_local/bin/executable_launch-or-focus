@@ -7,7 +7,7 @@
 set -euo pipefail
 
 if (($# < 2)); then
-    echo "Uso: launch-or-focus <regex-da-classe> <comando...>" >&2
+    echo "Usage: launch-or-focus <class-regex> <command...>" >&2
     exit 1
 fi
 

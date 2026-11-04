@@ -2,26 +2,26 @@
 set -euo pipefail
 
 steam_dir=~/.steam/steam
-[[ -d "$steam_dir" ]] || { echo "Abra a Steam uma vez antes." >&2; exit 1; }
+[[ -d "$steam_dir" ]] || { echo "Open Steam once first." >&2; exit 1; }
 mkdir -p "$steam_dir/compatibilitytools.d"
 
 # Informações da versão mais recente
 release_json=$(curl -s --max-time 10 \
     https://api.github.com/repos/GloriousEggroll/proton-ge-custom/releases/latest)
-[[ "$release_json" == *'"tag_name"'* ]] || { echo "Falha ao consultar o GitHub." >&2; exit 1; }
+[[ "$release_json" == *'"tag_name"'* ]] || { echo "Failed to query GitHub." >&2; exit 1; }
 
 urls=$(echo "$release_json" | grep browser_download_url | cut -d\" -f4)
 tarball_url=$(echo "$urls" | grep -E -- '-x86_64\.tar\.gz$' | head -n1 || true)
-[[ -n "$tarball_url" ]] || { echo "Não achei o pacote x86_64." >&2; exit 1; }
+[[ -n "$tarball_url" ]] || { echo "x86_64 tarball not found." >&2; exit 1; }
 
 tarball_name=$(basename "$tarball_url")
 release_name=${tarball_name%.tar.gz}
 checksum_url=$(echo "$urls" | grep "$release_name.sha512sum\$" || true)
-[[ -n "$checksum_url" ]] || { echo "Não achei o checksum." >&2; exit 1; }
+[[ -n "$checksum_url" ]] || { echo "Checksum not found." >&2; exit 1; }
 
 # Já instalado?
 if [[ -d "$steam_dir/compatibilitytools.d/$release_name" ]]; then
-    echo "$release_name já está instalado."
+    echo "$release_name is already installed."
     exit 0
 fi
 
@@ -29,8 +29,8 @@ fi
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 cd "$tmp"
-echo "Baixando $release_name..."
+echo "Downloading $release_name..."
 curl -L "$tarball_url" -o "$tarball_name" --progress-bar
 curl -sL "$checksum_url" | sha512sum -c -
 tar -xf "$tarball_name" -C "$steam_dir/compatibilitytools.d/"
-echo "Instalado: $release_name. Reinicie a Steam."
+echo "Installed: $release_name. Restart Steam."

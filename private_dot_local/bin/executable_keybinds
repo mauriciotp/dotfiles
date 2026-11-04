@@ -1,12 +1,12 @@
 #!/bin/bash
 # Cola de atalhos do Hyprland (SUPER+F1). Lista os atalhos que têm descrição
-# (flag description no binds.lua) num fzf para buscar.
+# (flag description nos arquivos de ~/.config/hypr/binds/) num fzf para buscar.
 # Uso: keybinds          → lista no terminal atual
 #      keybinds --window → abre numa janela flutuante do Ghostty
 set -euo pipefail
 
 if [[ ${1:-} == --window ]]; then
-    exec ghostty --class=com.mauricio.keybinds --title="Atalhos" -e "$0"
+    exec ghostty --class=com.mauricio.keybinds --title="Keybinds" -e "$0"
 fi
 
 # modmask é uma máscara de bits: SHIFT=1 CAPS=2 CTRL=4 ALT=8 SUPER=64
@@ -21,6 +21,6 @@ hyprctl binds -j | jq -r '
         | ((mods(.modmask) + [.key]) | join(" + ")) as $k
         | "\($k)\t\(.description)"' |
     column -t -s $'\t' |
-    fzf --reverse --no-sort --prompt="atalho › " --header="Esc fecha" \
+    fzf --reverse --no-sort --prompt="keybind › " --header="Esc closes" \
         --color=bg+:#313244,bg:#1e1e2e,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,prompt:#cba6f7,hl+:#f38ba8 \
     >/dev/null || true
