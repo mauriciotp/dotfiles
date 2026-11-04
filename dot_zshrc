@@ -9,14 +9,30 @@ setopt AUTO_CD INTERACTIVE_COMMENTS
 bindkey -e
 
 # --- PATH: programas do usuário e do go install ---
-export PATH="$HOME/.local/bin:$HOME/go/bin:$PATH"
+# Na sessão gráfica o uwsm já define isso (~/.config/uwsm/env); aqui cobre tty e ssh.
+# typeset -U faz o array "path" (ligado ao PATH) ignorar entradas repetidas.
+typeset -U path
+path=("$HOME/.local/bin" "$HOME/go/bin" $path)
 export EDITOR=nvim
 export VISUAL=nvim
 
 # --- Completação ---
 autoload -Uz compinit && compinit
-zstyle ':completion:*' menu select
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'   # ignora maiúsculas/minúsculas
+eval "$(dircolors -b)"                                     # define LS_COLORS (cores por tipo de arquivo)
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+zstyle ':completion:*:descriptions' format '[%d]'         # nomeia os grupos (o fzf-tab usa)
+zstyle ':completion:*:git-checkout:*' sort false          # branches na ordem do git
+zstyle ':completion:*' menu no                            # o menu agora é o fzf-tab
+
+# --- fzf-tab: o Tab abre as opções no fzf (busca difusa + prévia) ---
+# Precisa vir depois do compinit e antes do autosuggestions/syntax-highlighting.
+source /usr/share/zsh/plugins/fzf-tab/fzf-tab.plugin.zsh
+zstyle ':fzf-tab:*' use-fzf-default-opts yes              # usa as cores Catppuccin do FZF_DEFAULT_OPTS
+zstyle ':fzf-tab:*' switch-group '<' '>'                  # < e > trocam de grupo
+zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza -1 --color=always --icons $realpath'
+# dentro do tmux, abre num popup flutuante em vez de ocupar o pane
+[[ -n $TMUX ]] && zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
 
 # --- Ferramentas ---
 eval "$(starship init zsh)"
