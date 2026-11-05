@@ -3,11 +3,14 @@
 # O overlay da Steam vira uma camada do gamescope, em vez de ser desenhado
 # dentro do jogo a cada quadro (lento em 4K). Atalho: SUPER+CTRL+SHIFT+G.
 #
-# 1. liga a TV, se conectada (tv-toggle); sem ela, usa o monitor do workspace 10
+# 1. liga a TV, se conectada (tv-toggle); sem ela, usa o monitor do workspace 10.
+#    Com --monitor (SUPER+CTRL+SHIFT+ALT+G), não liga a TV e, se ela estiver
+#    ligada, desliga: para jogar no monitor enquanto alguém usa os apps da TV
 # 2. fecha a Steam do desktop: só pode haver uma Steam
 # 3. abre o gamescope com o modo do monitor do workspace 10 (ArchWiki: sem
 #    -W/-H/-r ele pode abrir na resolução errada)
-# 4. quando a Steam fecha, reabre a Steam do desktop em segundo plano
+# 4. quando a Steam fecha, reabre a Steam do desktop em segundo plano e, se foi
+#    o script que ligou a TV, desliga de novo (os jogos voltam a abrir no monitor)
 #
 # Para sair, o mesmo atalho de novo. O Switch to Desktop do Big Picture não
 # funciona fora do SteamOS: ele chama o SteamOS Manager pelo D-Bus
@@ -16,6 +19,8 @@ set -euo pipefail
 
 TV="HDMI-A-1"
 GAMES=10
+on_monitor=false
+[[ ${1:-} == --monitor ]] && on_monitor=true
 
 # Já no modo console: fecha a Steam de dentro; o gamescope sai junto
 if pgrep -f '^gamescope .*-- steam -tenfoot' >/dev/null; then
@@ -23,11 +28,15 @@ if pgrep -f '^gamescope .*-- steam -tenfoot' >/dev/null; then
 fi
 
 monitors() { hyprctl monitors -j; }
+tv_active() { monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; }
 
 # A TV em espera continua conectada (aparece em "monitors all"); ativa só depois do tv-toggle
-if hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null &&
-    ! monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; then
+turned_tv_on=false
+if $on_monitor; then
+    if tv_active; then "$HOME/.local/bin/tv-toggle" off; fi
+elif hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null && ! tv_active; then
     "$HOME/.local/bin/tv-toggle" on
+    turned_tv_on=true
 fi
 hyprctl dispatch "hl.dsp.focus({ workspace = $GAMES })" >/dev/null
 
@@ -72,7 +81,10 @@ fi
 gamescope -e -f --adaptive-sync --mangoapp \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
-# De volta ao desktop: a Steam normal em segundo plano (workspace 8)
+# De volta ao desktop: a TV como estava e a Steam normal em segundo plano (workspace 8)
+if $turned_tv_on && tv_active; then
+    "$HOME/.local/bin/tv-toggle" off
+fi
 if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
     exec uwsm app -- steam -silent
 fi
