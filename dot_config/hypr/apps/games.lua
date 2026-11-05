@@ -4,9 +4,10 @@
 local W = require("workspaces")
 
 -- Emuladores: a janela inteira conta como jogo (a lista de jogos também vai
--- para o 10). Duas classes: X11 (WM_CLASS do .desktop) e Wayland (app id).
--- Emulador novo: acrescente a classe aqui (hyprctl clients mostra).
-local emulators = { "lichii", "io\\.github\\.zortos293\\.lichii" }
+-- para o 10). A regra diferencia maiúsculas: no X11 o Lichii se chama "Lichii"
+-- (visto no hyprctl clients); no Wayland, pelo app id do .desktop.
+-- Emulador novo: acrescente a classe aqui, exatamente como o hyprctl clients mostra.
+local emulators = { "[Ll]ichii", "io\\.github\\.zortos293\\.lichii" }
 
 local games = "^(steam_app_.*|gamescope|.*\\.exe|" .. table.concat(emulators, "|") .. ")$"
 
