@@ -1,0 +1,4 @@
+# Tema do Noctalia: o template "yazi" gera flavors/noctalia.yazi
+[flavor]
+dark = "noctalia"
+light = "noctalia"
