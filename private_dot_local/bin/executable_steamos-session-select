@@ -1,0 +1,6 @@
+#!/bin/bash
+# O "Switch to Desktop" do Big Picture dentro do gamescope roda este comando,
+# que só existe no SteamOS; sem ele a Steam fica carregando. Como no
+# gamescope-session da ChimeraOS, só fecha a Steam: o gamescope sai junto e o
+# steam-console reabre a Steam do desktop.
+exec steam -shutdown
