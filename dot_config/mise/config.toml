@@ -1,0 +1,9 @@
+# Versões das linguagens (Go e TypeScript são as do dia a dia)
+[tools]
+go = "latest"
+node = "lts"
+
+# go install instala em ~/go/bin (já no PATH), e não na pasta de cada versão
+# do Go, de onde os binários sumiriam a cada versão nova (doc do mise, Go)
+[settings.go]
+set_gobin = false
