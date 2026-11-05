@@ -1,0 +1,19 @@
+# Lichii (emulador de Switch, fork do Eden) pelo menu de apps.
+# O AppImage fica fora do chezmoi, em ~/Games/Emuladores/lichii.AppImage:
+# para atualizar, baixe a versão nova por cima desse arquivo.
+# - game-run: MangoHud e gamemode, como nos jogos da Steam (o emulador também
+#   pede o gamemode sozinho; os dois pedidos não brigam)
+# - QT_QPA_PLATFORM=xcb: X11 pelo XWayland, como recomenda o manual do Eden
+#   (desempenho pior e bugs no Wayland). Para testar no Wayland, tire o "env ...".
+[Desktop Entry]
+Type=Application
+Name=Lichii
+GenericName=Switch Emulator
+Comment=Nintendo Switch emulator (Eden fork)
+Icon=io.github.zortos293.lichii
+TryExec={{ .chezmoi.homeDir }}/Games/Emuladores/lichii.AppImage
+Exec=env QT_QPA_PLATFORM=xcb {{ .chezmoi.homeDir }}/.local/bin/game-run {{ .chezmoi.homeDir }}/Games/Emuladores/lichii.AppImage %f
+Categories=Game;Emulator;
+MimeType=application/x-nx-nro;application/x-nx-nso;application/x-nx-nsp;application/x-nx-xci;
+StartupWMClass=lichii
+Terminal=false
