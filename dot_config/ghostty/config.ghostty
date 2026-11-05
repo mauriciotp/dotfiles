@@ -1,7 +1,6 @@
-# Tema e fonte
+# Só o que muda o padrão do Ghostty (ghostty +show-config --default)
 theme = noctalia
 font-family = JetBrainsMono Nerd Font
-font-size = 12
 
 # Janela: sem barra de título (o Hyprland desenha a borda)
 window-decoration = none
@@ -9,9 +8,8 @@ window-padding-x = 8
 window-padding-y = 6
 
 # Comportamento
-cursor-style = block
 cursor-style-blink = false
-# no-cursor: deixa o cursor em bloco mesmo no prompt (o zsh não troca para barra)
+# no-cursor: o zsh troca o formato do cursor no modo vi; o do Ghostty brigaria com ele
 # ssh-env: no ssh, usa TERM=xterm-256color e repassa COLORTERM etc. (evita "unknown terminal")
 # (o Shift+Enter do Claude Code já funciona no Ghostty sem keybind: ele fala o protocolo do kitty)
 shell-integration-features = no-cursor,ssh-env
@@ -19,3 +17,46 @@ confirm-close-surface = false
 copy-on-select = clipboard
 # sem o aviso de tamanho ao redimensionar (o tiling redimensiona o tempo todo)
 resize-overlay = never
+
+# Abas e splits ficam só no tmux: tira os atalhos padrão do Ghostty
+# (ghostty +list-keybinds). O Alt+número fica livre para as janelas do tmux.
+keybind = ctrl+shift+t=unbind
+keybind = ctrl+shift+w=unbind
+keybind = ctrl+tab=unbind
+keybind = ctrl+shift+tab=unbind
+keybind = ctrl+page_up=unbind
+keybind = ctrl+page_down=unbind
+keybind = ctrl+shift+arrow_left=unbind
+keybind = ctrl+shift+arrow_right=unbind
+keybind = ctrl+shift+page_up=unbind
+keybind = ctrl+shift+page_down=unbind
+keybind = alt+1=unbind
+keybind = alt+2=unbind
+keybind = alt+3=unbind
+keybind = alt+4=unbind
+keybind = alt+5=unbind
+keybind = alt+6=unbind
+keybind = alt+7=unbind
+keybind = alt+8=unbind
+keybind = alt+9=unbind
+keybind = alt+digit_1=unbind
+keybind = alt+digit_2=unbind
+keybind = alt+digit_3=unbind
+keybind = alt+digit_4=unbind
+keybind = alt+digit_5=unbind
+keybind = alt+digit_6=unbind
+keybind = alt+digit_7=unbind
+keybind = alt+digit_8=unbind
+keybind = ctrl+shift+o=unbind
+keybind = ctrl+shift+e=unbind
+keybind = ctrl+shift+enter=unbind
+keybind = ctrl+alt+arrow_up=unbind
+keybind = ctrl+alt+arrow_down=unbind
+keybind = ctrl+alt+arrow_left=unbind
+keybind = ctrl+alt+arrow_right=unbind
+keybind = super+ctrl+[=unbind
+keybind = super+ctrl+]=unbind
+keybind = super+ctrl+shift+arrow_up=unbind
+keybind = super+ctrl+shift+arrow_down=unbind
+keybind = super+ctrl+shift+arrow_left=unbind
+keybind = super+ctrl+shift+arrow_right=unbind
