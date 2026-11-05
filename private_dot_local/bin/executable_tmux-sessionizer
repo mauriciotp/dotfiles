@@ -1,6 +1,6 @@
 #!/bin/bash
 # Escolhe uma pasta do zoxide no fzf e entra na sessão tmux dela (cria se faltar).
-# Uso: tmux-sessionizer [pasta]   (no tmux: Ctrl+a f)
+# Uso: tmux-sessionizer [pasta]   (no tmux: Ctrl+Space f)
 set -euo pipefail
 
 # cores do Noctalia: o popup do tmux não herda o FZF_DEFAULT_OPTS do zsh
