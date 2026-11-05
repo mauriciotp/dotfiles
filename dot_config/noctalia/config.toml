@@ -29,7 +29,7 @@ mode = "dark"
     builtin_ids = ["gtk3", "gtk4", "ghostty", "hyprland"]
     # comunitários: ligar aqui, não pela interface (ela grava no settings.toml, fora do chezmoi)
     enable_community_templates = true
-    community_ids = ["obsidian", "heroiclauncher", "obs"]
+    community_ids = ["obsidian", "heroiclauncher", "obs", "fzf", "bat", "starship"]
 
 [notification]
 position = "top_right"
