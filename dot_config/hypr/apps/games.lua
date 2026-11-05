@@ -1,10 +1,14 @@
--- Jogos: Steam (steam_app_*), gamescope e jogos do Heroic/Lutris pelo Proton (*.exe).
--- Vão para o workspace 10, que fica na TV quando ela está ligada (workspaces.lua).
--- Splash, launchers e jogos de emulador: rever no bloco 4 (regras do CachyOS
--- em inbox/Referências/CachyOS/hypr/config/windowrules.lua).
+-- Jogos: Steam (steam_app_*), gamescope, jogos do Heroic/Lutris pelo Proton
+-- (*.exe) e emuladores. Vão para o workspace 10, que fica na TV quando ela está
+-- ligada pelo SUPER+ALT+O e no monitor quando não (workspaces.lua).
 local W = require("workspaces")
 
-local games = "^(steam_app_.*|gamescope|.*\\.exe)$"
+-- Emuladores: a janela inteira conta como jogo (a lista de jogos também vai
+-- para o 10). Duas classes: X11 (WM_CLASS do .desktop) e Wayland (app id).
+-- Emulador novo: acrescente a classe aqui (hyprctl clients mostra).
+local emulators = { "lichii", "io\\.github\\.zortos293\\.lichii" }
+
+local games = "^(steam_app_.*|gamescope|.*\\.exe|" .. table.concat(emulators, "|") .. ")$"
 
 hl.window_rule({
 	name = "games",
