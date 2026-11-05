@@ -13,6 +13,7 @@ local screens = require("monitors")
 local W = {}
 
 local GAMES = 10
+W.GAMES = GAMES
 -- mapa por app (o nome fica só no comentário; a barra mostra o número da tecla)
 local apps = { "dev", "web", "chat", "notes", "media", "tools", nil, "stores", nil, "games" }
 -- números que vão para o secundário quando ele existe
@@ -34,7 +35,6 @@ local function rule(id, slot, set)
 		workspace = tostring(id),
 		default_name = tostring(slot),
 		persistent = apps[slot] ~= nil,
-		default = id == 1,
 		enabled = set ~= "dual",
 	})
 	if set then
@@ -85,8 +85,12 @@ local function owner(id, layout)
 	return layout.primary
 end
 
--- Número real de um slot (1–10) no monitor m
+-- Número real de um slot (1–10) no monitor m. O 10 é sempre o dos jogos:
+-- no secundário, SUPER+0 não vira um 20.
 local function workspace_id(slot, m, layout)
+	if slot == GAMES then
+		return GAMES
+	end
 	if layout.secondary and m and m.name == layout.secondary.name then
 		return slot + 10
 	end
@@ -100,13 +104,30 @@ local function other_monitor(m, layout)
 	return layout.primary
 end
 
+-- Quantos workspaces normais estão no monitor
+local function count_on(monitor_name)
+	local n = 0
+	for _, ws in ipairs(hl.get_workspaces()) do
+		if ws.id and ws.id > 0 and not ws.special and ws.monitor and ws.monitor.name == monitor_name then
+			n = n + 1
+		end
+	end
+	return n
+end
+
 -- Leva o workspace ao monitor dono, se estiver em outro
 local function place(id, layout)
 	local ws = hl.get_workspace(id)
 	local m = owner(id, layout)
-	if ws and ws.monitor and m and ws.monitor.name ~= m.name then
-		hl.dispatch(hl.dsp.workspace.move({ workspace = tostring(id), monitor = m.name }))
+	if not (ws and ws.monitor and m) or ws.monitor.name == m.name then
+		return
 	end
+	-- nunca tira o único workspace de uma tela: o Hyprland criaria outro nela,
+	-- que seria movido de novo, em loop (a tela pisca)
+	if count_on(ws.monitor.name) <= 1 then
+		return
+	end
+	hl.dispatch(hl.dsp.workspace.move({ workspace = tostring(id), monitor = m.name }))
 end
 
 -- Muda o número de um workspace, com as janelas (3 → 13 e volta)

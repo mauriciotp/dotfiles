@@ -4,18 +4,18 @@ local L = require("lib")
 -- Console: workspace especial com um Ghostty na sessão tmux "console".
 -- Abre na primeira vez que o workspace é criado; depois só aparece e some.
 -- (on_created_empty está obsoleto no 0.57: hyprctl deprecated-config)
+-- O workspace vem da regra da classe, não do exec: com o uwsm o app nasce numa
+-- unidade do systemd, e a regra do exec (casada pelo PID) pode não pegar.
 hl.on("workspace.created", function(ws)
 	if ws and ws.name == "special:console" and ws.is_empty then
-		hl.exec_cmd(
-			"uwsm app -- ghostty --class=com.mauricio.console -e tmux new-session -A -s console",
-			{ workspace = "special:console silent" }
-		)
+		hl.exec_cmd("uwsm app -- ghostty --class=com.mauricio.console -e tmux new-session -A -s console")
 	end
 end)
 -- metade de cima da tela, centralizado
 hl.window_rule({
 	name = "console",
 	match = { class = "^com\\.mauricio\\.console$" },
+	workspace = "special:console silent",
 	float = true,
 	size = { "monitor_w*0.7", "monitor_h*0.5" },
 	move = { "monitor_w*0.15", "monitor_h*0.05" },

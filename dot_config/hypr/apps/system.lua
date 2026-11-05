@@ -35,14 +35,18 @@ L.float("share-picker", { class = "^hyprland-share-picker$" }, { 640, 480 })
 
 -- ===== Apps que abrem janelas extras sem declarar a janela-pai =====
 -- A primeira janela do app fica no tiling; as outras flutuam centralizadas.
--- A lista L.single_main_window é preenchida nos arquivos de cada app.
+-- A lista L.single_main_window é preenchida nos arquivos de cada app: true, ou
+-- uma função que recebe a janela e diz se a regra vale para ela (e se ela
+-- conta como janela principal: o Big Picture não conta).
 hl.on("window.open", function(w)
-	if not L.single_main_window[w.class] or w.floating then
+	local entry = L.single_main_window[w.class]
+	if not entry or w.floating or (type(entry) == "function" and not entry(w)) then
 		return
 	end
 	-- só conta janelas do mesmo app no tiling: splash e janelas flutuantes não contam
 	for _, other in ipairs(hl.get_windows()) do
-		if other.address ~= w.address and other.class == w.class and other.mapped and not other.floating then
+		local counts = type(entry) ~= "function" or entry(other)
+		if counts and other.address ~= w.address and other.class == w.class and other.mapped and not other.floating then
 			local m = w.monitor
 			local width, height = 1152, 810 -- reserva, se o monitor não vier no evento
 			if m then
