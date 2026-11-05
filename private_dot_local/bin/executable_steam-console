@@ -57,6 +57,15 @@ fi
 # jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
 fps=$((refresh - 3))
 
+# HUD: sem -steamdeck a Steam não escolhe preset, e o gamescope criaria um
+# arquivo só com no_display. Com o MANGOHUD_CONFIGFILE definido, o gamescope
+# usa o arquivo dado; vai uma cópia do MangoHud.conf, para a Steam nunca
+# sobrescrever o original (gist do Steam Gamescope Session, comentário 1).
+hud="${XDG_RUNTIME_DIR:-/tmp}/steam-console-mangohud.conf"
+if cp "$HOME/.config/MangoHud/MangoHud.conf" "$hud" 2>/dev/null; then
+    export MANGOHUD_CONFIGFILE="$hud"
+fi
+
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
 # --mangoapp: o MangoHud do gamescope (o mangohud normal não funciona aqui)
