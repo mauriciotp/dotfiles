@@ -1,0 +1,2 @@
+# O zsh lê o resto da config em ~/.config/zsh (Zsh, ArchWiki: $ZDOTDIR)
+export ZDOTDIR="$HOME/.config/zsh"

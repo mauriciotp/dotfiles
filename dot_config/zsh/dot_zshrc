@@ -1,0 +1,9 @@
+# zsh interativo: os módulos de conf.d, nesta ordem. A ordem importa:
+#   completion  compinit, depois o fzf-tab (README do fzf-tab)
+#   vi-mode     antes do Starship, que preserva o zle-keymap-select daqui
+#   tools       variáveis do fzf antes do "fzf --zsh" (README do fzf)
+#   plugins     autosuggestions e syntax-highlighting por último
+for module in options history completion vi-mode tools aliases plugins; do
+	source "$ZDOTDIR/conf.d/$module.zsh"
+done
+unset module
