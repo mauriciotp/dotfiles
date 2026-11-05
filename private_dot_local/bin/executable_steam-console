@@ -7,11 +7,20 @@
 # 2. fecha a Steam do desktop: só pode haver uma Steam
 # 3. abre o gamescope com o modo do monitor do workspace 10 (ArchWiki: sem
 #    -W/-H/-r ele pode abrir na resolução errada)
-# 4. ao sair pelo menu do Big Picture, reabre a Steam do desktop em segundo plano
+# 4. quando a Steam fecha, reabre a Steam do desktop em segundo plano
+#
+# Para sair, o mesmo atalho de novo. O Switch to Desktop do Big Picture não
+# funciona fora do SteamOS: ele chama o SteamOS Manager pelo D-Bus
+# (com.steampowered.SteamOSManager1), que não existe no Arch, e fica carregando.
 set -euo pipefail
 
 TV="HDMI-A-1"
 GAMES=10
+
+# Já no modo console: fecha a Steam de dentro; o gamescope sai junto
+if pgrep -f '^gamescope .*-- steam -tenfoot' >/dev/null; then
+    exec steam -shutdown
+fi
 
 monitors() { hyprctl monitors -j; }
 
