@@ -30,8 +30,8 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  -- tema enquanto os plugins instalam; habamax (do Neovim) se o Noctalia ainda não gerou o seu
-  install = { colorscheme = { "noctalia", "habamax" } },
+  -- tema enquanto os plugins instalam; habamax (do Neovim) de reserva
+  install = { colorscheme = { "catppuccin", "habamax" } },
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
