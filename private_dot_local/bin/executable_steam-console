@@ -1,0 +1,56 @@
+#!/bin/bash
+# Modo console: a Steam no Big Picture dentro do gamescope, como no Steam Deck.
+# O overlay da Steam vira uma camada do gamescope, em vez de ser desenhado
+# dentro do jogo a cada quadro (lento em 4K). Atalho: SUPER+CTRL+SHIFT+G.
+#
+# 1. liga a TV, se conectada (tv-toggle); sem ela, usa o monitor do workspace 10
+# 2. fecha a Steam do desktop: só pode haver uma Steam
+# 3. abre o gamescope com o modo do monitor do workspace 10 (ArchWiki: sem
+#    -W/-H/-r ele pode abrir na resolução errada)
+# 4. ao sair pelo menu do Big Picture, reabre a Steam do desktop em segundo plano
+set -euo pipefail
+
+TV="HDMI-A-1"
+GAMES=10
+
+monitors() { hyprctl monitors -j; }
+
+# A TV em espera continua conectada (aparece em "monitors all"); ativa só depois do tv-toggle
+if hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null &&
+    ! monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; then
+    "$HOME/.local/bin/tv-toggle" on
+fi
+hyprctl dispatch "hl.dsp.focus({ workspace = $GAMES })" >/dev/null
+
+# Modo do monitor que está com o workspace 10 (pixels reais, sem a escala)
+output=$(hyprctl workspaces -j | jq -r --argjson id "$GAMES" '.[] | select(.id == $id) | .monitor')
+read -r width height refresh < <(monitors | jq -r --arg m "$output" \
+    '.[] | select(.name == $m) | "\(.width) \(.height) \(.refreshRate | round)"')
+if [[ -z ${width:-} ]]; then
+    echo "Monitor of workspace $GAMES not found." >&2
+    exit 1
+fi
+
+if pgrep -x steam >/dev/null; then
+    steam -shutdown >/dev/null 2>&1 || true
+    for _ in $(seq 60); do
+        pgrep -x steam >/dev/null || break
+        sleep 0.5
+    done
+    if pgrep -x steam >/dev/null; then
+        echo "Steam did not close." >&2
+        exit 1
+    fi
+fi
+
+# -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
+# -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
+# --mangoapp: o MangoHud do gamescope (o mangohud normal não funciona aqui)
+gamescope -e -f --adaptive-sync --mangoapp \
+    -W "$width" -H "$height" -r "$refresh" -- steam -tenfoot || true
+
+# De volta ao desktop: a Steam normal em segundo plano (workspace 8)
+if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
+    exec uwsm app -- steam -silent
+fi
+exec steam -silent

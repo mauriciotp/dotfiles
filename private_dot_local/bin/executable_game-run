@@ -1,0 +1,10 @@
+#!/bin/bash
+# Opção de inicialização dos jogos da Steam:  game-run %command%
+# Dentro do gamescope (modo console) o HUD vem do --mangoapp, e o mangohud
+# normal não é suportado (README do MangoHud). Fora dele, o mangohud de sempre.
+set -euo pipefail
+
+if [[ ${XDG_CURRENT_DESKTOP:-} == gamescope ]]; then
+    exec gamemoderun "$@"
+fi
+exec mangohud gamemoderun "$@"

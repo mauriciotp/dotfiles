@@ -14,6 +14,8 @@ bind(mod .. " + SHIFT + O", "Obsidian", app("^md\\.obsidian\\.Obsidian$", "obsid
 bind(mod .. " + SHIFT + D", "Discord", app("^discord$", "discord"))
 bind(mod .. " + SHIFT + G", "Games: Steam", app("^steam$", "steam"))
 bind(mod .. " + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", "heroic"))
+-- modo console: Steam no Big Picture dentro do gamescope, na TV (~/.local/bin/steam-console)
+bind(mod .. " + CTRL + SHIFT + G", "Games: Steam console mode (gamescope)", run(L.bin .. "steam-console"))
 bind(mod .. " + SHIFT + R", "Record: OBS", app("^com\\.obsproject\\.Studio$", "obs"))
 bind(mod .. " + SHIFT + P", "Pods: k9s", app("^com\\.mauricio\\.k9s$", "ghostty --class=com.mauricio.k9s -e k9s"))
 
