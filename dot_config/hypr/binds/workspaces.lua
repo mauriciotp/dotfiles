@@ -1,4 +1,4 @@
--- Atalhos de workspaces, monitores e do console (veja workspaces.lua)
+-- Atalhos de workspaces, monitores e do scratchpad (veja workspaces.lua)
 local L = require("lib")
 local W = require("workspaces")
 local mod, bind = L.mod, L.bind
@@ -27,10 +27,10 @@ bind(mod .. " + CTRL + Tab", "Last workspace", hl.dsp.focus({ workspace = "previ
 bind(mod .. " + mouse_down", "Next workspace", hl.dsp.focus({ workspace = "m+1" }))
 bind(mod .. " + mouse_up", "Previous workspace", hl.dsp.focus({ workspace = "m-1" }))
 
--- Console: terminal com tmux por cima de tudo (apps/terminals.lua)
-bind(mod .. " + grave", "Console (toggle)", hl.dsp.workspace.toggle_special("console"))
-bind(mod .. " + mouse:275", "Console (toggle)", hl.dsp.workspace.toggle_special("console"))
-bind(mod .. " + SHIFT + grave", "Move window to console", hl.dsp.window.move({ workspace = "special:console", follow = false }))
+-- Scratchpad: workspace especial vazio por cima de tudo; você manda as janelas
+bind(mod .. " + grave", "Scratchpad (toggle)", hl.dsp.workspace.toggle_special("scratch"))
+bind(mod .. " + mouse:275", "Scratchpad (toggle)", hl.dsp.workspace.toggle_special("scratch"))
+bind(mod .. " + SHIFT + grave", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratch", follow = false }))
 
 -- Monitores (O = output)
 bind(mod .. " + O", "Focus other monitor", hl.dsp.focus({ monitor = "+1" }))
