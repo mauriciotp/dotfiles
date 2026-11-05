@@ -43,11 +43,16 @@ if pgrep -x steam >/dev/null; then
     fi
 fi
 
+# Limite de FPS: 3 abaixo da taxa da tela, dentro do VRR (como o fps_limit do
+# MangoHud.conf, que não vale aqui dentro). O -r é a taxa da tela virtual do
+# jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
+fps=$((refresh - 3))
+
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
 # --mangoapp: o MangoHud do gamescope (o mangohud normal não funciona aqui)
 gamescope -e -f --adaptive-sync --mangoapp \
-    -W "$width" -H "$height" -r "$refresh" -- steam -tenfoot || true
+    -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
 # De volta ao desktop: a Steam normal em segundo plano (workspace 8)
 if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
