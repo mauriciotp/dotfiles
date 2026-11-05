@@ -233,6 +233,12 @@ end)
 hl.on("monitor.layout_changed", function()
 	later(W.reconcile)
 end)
+-- O DP-2 se desconecta por um instante ao sair do repouso. Sem tela principal,
+-- os workspaces vão para a TV, e a passada do layout_changed pode rodar antes
+-- de ele voltar. O monitor.added só vem com o monitor pronto (doc de eventos Lua).
+hl.on("monitor.added", function()
+	later(W.reconcile)
+end)
 -- workspace novo (aberto por regra de app ou atalho) vai para o monitor dono
 hl.on("workspace.created", function(ws)
 	if ws and ws.id and ws.id > 0 and not ws.special then
