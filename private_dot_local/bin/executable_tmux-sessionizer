@@ -1,0 +1,28 @@
+#!/bin/bash
+# Escolhe uma pasta do zoxide no fzf e entra na sessão tmux dela (cria se faltar).
+# Uso: tmux-sessionizer [pasta]   (no tmux: Ctrl+a f)
+set -euo pipefail
+
+# cores do Noctalia: o popup do tmux não herda o FZF_DEFAULT_OPTS do zsh
+theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
+[[ -r $theme ]] && source "$theme"
+
+if (($# > 0)); then
+    dir=$1
+else
+    dir=$(zoxide query -l | fzf --reverse --prompt="project › " \
+        --preview 'eza -1 --icons=always --color=always --group-directories-first {}') || exit 0
+fi
+
+# tmux não aceita . e : no nome da sessão
+name=$(basename "$dir" | tr '.:' '__')
+
+if ! tmux has-session -t "=$name" 2>/dev/null; then
+    tmux new-session -d -s "$name" -c "$dir"
+fi
+
+if [[ -n ${TMUX:-} ]]; then
+    tmux switch-client -t "=$name"
+else
+    tmux attach-session -t "=$name"
+fi
