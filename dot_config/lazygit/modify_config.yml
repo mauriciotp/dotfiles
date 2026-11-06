@@ -1,0 +1,10 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- $re := "(?m)^  theme:\n(?:    .*\n)+" -}}
+{{- $theme := regexFind $re .chezmoi.stdin -}}
+{{- if not $theme -}}{{- $theme = include "dot_config/lazygit/themes/create_noctalia.yml" | regexFind $re -}}{{- end -}}
+# Só o que muda o padrão (Configuração padrão do lazygit 0.66).
+# O bloco gui.theme é escrito pelo template "lazygit" do Noctalia. O chezmoi
+# mantém o que estiver no arquivo; sem ele, usa o de themes/noctalia.yml
+# (Catppuccin Mocha).
+gui:
+{{ $theme }}  nerdFontsVersion: "3" # ícones de arquivo (o Ghostty usa JetBrainsMono Nerd Font)
