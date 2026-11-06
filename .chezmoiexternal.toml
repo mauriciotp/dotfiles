@@ -1,0 +1,9 @@
+# TPM, o gerenciador de plugins do tmux: o chezmoi clona na instalação nova.
+# Os plugins (catppuccin, resurrect etc.) continuam com o TPM: Ctrl+Space I.
+# git pull no máximo a cada 4 semanas (forçar: chezmoi apply -R).
+[".config/tmux/plugins/tpm"]
+    type = "git-repo"
+    url = "https://github.com/tmux-plugins/tpm.git"
+    refreshPeriod = "672h"
+    [".config/tmux/plugins/tpm".clone]
+        args = ["--depth", "1"]
