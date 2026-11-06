@@ -16,9 +16,28 @@ GAMES=10
 
 tv_active() { hyprctl monitors -j | grep -q "\"name\": \"$TV\""; }
 
+# Modo preferido; se o driver não o oferecer, usa o 4K de maior taxa que houver.
+# Com a TV desligada no boot, o driver da NVIDIA às vezes só lista até 4K@60
+# (some o 4K@120/144 do HDMI 2.1, embora o EDID da TV os anuncie). Pedir um
+# modo fora da lista deixa a TV sem sinal.
+WANT="3840x2160@143.98"
+
+tv_mode() {
+    modes=$(hyprctl monitors all -j | jq -r --arg tv "$TV" '.[] | select(.name == $tv) | .availableModes[]' | sed 's/Hz$//')
+    if printf '%s\n' "$modes" | grep -qx "$WANT"; then
+        echo "$WANT"
+        return
+    fi
+    best=$(printf '%s\n' "$modes" | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1)
+    notify-send -a tv-toggle "TV em ${best:-preferred}" \
+        "O driver não oferece $WANT nesta sessão (a TV estava desligada no boot?)."
+    echo "${best:-preferred}"
+}
+
 tv_on() {
+    mode=$(tv_mode)
     # disabled = false é obrigatório: sem ele, a regra disabled = true do monitors.lua continua valendo
-    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"3840x2160@143.98\", position = \"0x0\", scale = 2 })" >/dev/null
+    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"$mode\", position = \"0x0\", scale = 2 })" >/dev/null
     # espera a TV aparecer antes de mover o workspace (até 5 s)
     for _ in 1 2 3 4 5 6 7 8 9 10; do tv_active && break; sleep 0.5; done
     hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"$GAMES\", monitor = \"$TV\" })" >/dev/null
