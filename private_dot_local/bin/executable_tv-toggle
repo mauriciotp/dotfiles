@@ -7,7 +7,7 @@
 # Por isso o monitors.lua começa com a TV desativada e este script a liga quando
 # você vai jogar na cama.
 #
-#   on : ativa a TV em 4K@144 (scale 2), move o workspace 10 para ela e foca nele
+#   on : ativa a TV no 4K de maior taxa, 144 Hz (scale 2), move o workspace 10 para ela e foca nele
 #   off: devolve o workspace 10 a outro monitor e desativa a TV
 # O workspaces.lua do Hyprland faz o mesmo quando as telas mudam; os movimentos
 # aqui garantem a ordem (jogo fora da TV antes de ela desligar).
@@ -16,21 +16,21 @@ GAMES=10
 
 tv_active() { hyprctl monitors -j | grep -q "\"name\": \"$TV\""; }
 
-# Modo preferido; se o driver não o oferecer, usa o 4K de maior taxa que houver.
-# Com a TV desligada no boot, o driver da NVIDIA às vezes só lista até 4K@60
-# (some o 4K@120/144 do HDMI 2.1, embora o EDID da TV os anuncie). Pedir um
-# modo fora da lista deixa a TV sem sinal.
-WANT="3840x2160@143.98"
-
+# Modo: o 4K de maior taxa que o driver oferecer (144 Hz na C4). A taxa exata
+# muda entre detecções (143.98, 143.99), então não dá para fixar o texto.
+# Com a TV desligada no boot, o driver da NVIDIA pode listar só até 4K@60
+# (some o 4K@120/144 do HDMI 2.1, embora o EDID da TV os anuncie); pedir um
+# modo fora da lista deixa a TV sem sinal. Para os 144 Hz voltarem: tirar e
+# recolocar o cabo HDMI com a TV ligada (testado em 2026-11-06).
 tv_mode() {
-    modes=$(hyprctl monitors all -j | jq -r --arg tv "$TV" '.[] | select(.name == $tv) | .availableModes[]' | sed 's/Hz$//')
-    if printf '%s\n' "$modes" | grep -qx "$WANT"; then
-        echo "$WANT"
-        return
+    best=$(hyprctl monitors all -j |
+        jq -r --arg tv "$TV" '.[] | select(.name == $tv) | .availableModes[]' |
+        sed 's/Hz$//' | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1)
+    rate=${best#*@}
+    if [ -z "$best" ] || [ "${rate%.*}" -lt 120 ]; then
+        notify-send -a tv-toggle "TV em ${best:-preferred}" \
+            "O driver não oferece 4K@144 nesta sessão. Tire e recoloque o cabo HDMI com a TV ligada."
     fi
-    best=$(printf '%s\n' "$modes" | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1)
-    notify-send -a tv-toggle "TV em ${best:-preferred}" \
-        "O driver não oferece $WANT nesta sessão (a TV estava desligada no boot?)."
     echo "${best:-preferred}"
 }
 
