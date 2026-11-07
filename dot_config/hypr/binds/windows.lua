@@ -15,6 +15,20 @@ bind(mod .. " + P", "Pop-out: float and pin", function()
 	hl.dispatch(hl.dsp.window.pin())
 end)
 
+-- Alterna o foco entre janelas em tiling e flutuantes; apertando de novo nas
+-- flutuantes, passa para a próxima (snippet da doc do Hyprland, i3 "focus mode_toggle").
+-- SUPER+Space é o launcher, por isso o ALT.
+bind(mod .. " + ALT + space", "Focus: toggle tiled/floating", function()
+	local window = hl.get_active_window()
+	if not window then
+		return
+	end
+	hl.dispatch(hl.dsp.window.cycle_next({
+		floating = not window.floating,
+		tiled = window.floating,
+	}))
+end)
+
 -- Foco, mover e trocar: hjkl e setas
 local dirs = { h = "left", j = "down", k = "up", l = "right" }
 for key, dir in pairs(dirs) do
