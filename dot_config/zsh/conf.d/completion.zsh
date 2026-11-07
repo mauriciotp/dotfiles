@@ -19,3 +19,8 @@ zstyle ':fzf-tab:*' switch-group '<' '>'                  # < e > trocam de grup
 zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' fzf-preview 'eza -1 --color=always --icons=always $realpath'
 # dentro do tmux, abre num popup flutuante em vez de ocupar o pane
 [[ -n $TMUX ]] && zstyle ':fzf-tab:*' fzf-command ftb-tmux-popup
+# Tamanho do popup: o ftb-tmux-popup mede só o nome mais longo e não conta a
+# prévia (lib/ftb-tmux-popup do fzf-tab), então a prévia saía cortada.
+# popup-min-size: mínimo de colunas e linhas; popup-pad: colunas a mais onde há prévia.
+zstyle ':fzf-tab:*' popup-min-size 80 12
+zstyle ':fzf-tab:complete:(cd|z|__zoxide_z):*' popup-pad 50 0
