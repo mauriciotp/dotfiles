@@ -105,7 +105,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `launch-or-focus` | foca a janela do app se já estiver aberta; senão, abre | usado pelos atalhos SUPER+SHIFT+letra |
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
-| `tv-toggle` | liga/desliga a TV no Hyprland e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
+| `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
 | `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**) |
 | `game-run` | prefixo para jogos: gamemode + MangoHud (ou mangoapp no gamescope) | na Steam: opções de inicialização `game-run %command%` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
@@ -159,6 +159,7 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope) |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
+| SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
 | SUPER+1…0 | workspace; com SHIFT, leva a janela junto; com CTRL, manda a janela e fica |
 | SUPER+Tab | próximo workspace do monitor |
 | SUPER+crase | scratchpad (SUPER+SHIFT+crase manda a janela para lá) |
@@ -179,7 +180,9 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | Ctrl+Space g | lazygit num popup |
 | Ctrl+Space x / k / X | fechar pane / janela / sessão |
 | Ctrl+Space R | renomear a sessão |
+| Ctrl+Space ? | lista de atalhos com busca: os com "Ctrl+Space" na frente precisam do prefixo, os outros funcionam direto |
 | Ctrl+Space r | recarregar a config |
+| Ctrl+Space Ctrl+s / Ctrl+r | salvar / restaurar as sessões (tmux-resurrect) |
 | Ctrl+Space I / U | instalar / atualizar plugins (TPM) |
 | Alt+1…9 | ir para a janela 1–9 (**sem prefixo**) |
 | Alt+←/→, Alt+↑/↓ | janela anterior/próxima; sessão anterior/próxima |
@@ -188,7 +191,11 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | Ctrl+h/j/k/l | mudar de pane (e de split do Neovim, pelo vim-tmux-navigator) |
 | Alt+s, Alt+w | árvore de sessões / janelas |
 
-**zsh**: Ctrl+R busca no histórico, Ctrl+T busca arquivos, Alt+C busca pastas (os três pelo fzf). `z pasta` pula para uma pasta pelo zoxide; `y` abre o yazi e, ao sair com `q`, o shell fica na pasta onde você estava no yazi.
+**Com prefixo e sem prefixo.** No tmux, cada atalho fica numa tabela. O `bind` comum vai para a tabela `prefix`: só vale depois do Ctrl+Space. O `bind -n` vai para a tabela `root`: vale sempre, mas toma a tecla de todos os programas do pane. Por isso, os sem prefixo usam Alt ou Ctrl+Alt, que os programas quase não usam.
+
+**Sessões que voltam depois de um kill.** O tmux-continuum restaura o último retrato salvo toda vez que o tmux abre, e só salva um retrato novo a cada 15 minutos com o tmux aberto. Uma sessão morta volta se o tmux fechar antes do próximo salvamento. Para isso não acontecer, aperte **Ctrl+Space Ctrl+s** depois de matar a sessão.
+
+**zsh**: Ctrl+R busca no histórico, Ctrl+T busca arquivos, Alt+C busca pastas (os três pelo fzf). Tab abre as opções de completação no fzf (fzf-tab); dentro do tmux, elas abrem num popup flutuante perto do cursor, com no mínimo 80×12 e espaço extra para a prévia no `cd`/`z`. `z pasta` pula para uma pasta pelo zoxide; `y` abre o yazi e, ao sair com `q`, o shell fica na pasta onde você estava no yazi.
 
 ---
 
@@ -419,7 +426,7 @@ chezmoi edit --apply ~/.config/starship.toml
 ```
 - Na fonte, o arquivo começa com 3 ou 4 linhas de template (`{{- ... -}}`), seguidas da config normal. Mexa só na config normal.
 - O bloco de cores (a paleta do Starship, o `gui.theme` do lazygit) **não** está na fonte: o chezmoi o mantém do arquivo atual. Para mudar as cores padrão, edite `.chezmoitemplates/starship-palette.toml` ou `dot_config/lazygit/themes/create_noctalia.yml`.
-- **Não use `chezmoi re-add`** nesses dois: ele não funciona com arquivos `modify_`.
+- **Não use `chezmoi re-add`** nesses dois. Na fonte, eles não são uma cópia do arquivo, e sim uma receita que monta o arquivo a cada `apply`. Copiar o arquivo por cima destruiria a receita, então o `re-add` os **pula sem avisar**. Uma edição feita direto em `~` some no próximo `apply`.
 
 #### Começar a controlar um programa novo
 ```sh
@@ -510,6 +517,9 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | O bat ignora o tema | `bat cache --build` |
 | Um app não vai para o workspace certo | `hyprctl clients`, compare a `class:` com a regra em `hypr/apps/` |
 | A TV ficou com os workspaces depois de acordar o PC | `hyprctl reload` (SUPER+CTRL+R), que leva tudo de volta ao monitor |
+| A TV liga em 4K@60 com um aviso, ou fica sem sinal | o PC ligou com a TV desligada, e o driver da NVIDIA só ofereceu até 4K@60. Com a TV ligada, tire e recoloque o cabo HDMI e aperte SUPER+ALT+O de novo. Para conferir: `hyprctl monitors all -j \| jq -r '.[] \| select(.name=="HDMI-A-1") \| .availableModes[]' \| grep 3840x2160` deve listar o 143.98 ou 143.99 |
+| Uma sessão do tmux que você matou voltou | o retrato salvo era anterior ao kill: mate de novo e aperte **Ctrl+Space Ctrl+s** |
+| O `chezmoi diff` está vazio, mas há mudanças | o `diff` só compara o repositório com os arquivos em `~`. Commits sem push aparecem em `chezmoi git -- status` (`ahead N`) |
 
 ---
 
