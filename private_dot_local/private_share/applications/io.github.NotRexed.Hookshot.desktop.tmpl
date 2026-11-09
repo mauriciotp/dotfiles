@@ -1,0 +1,22 @@
+{{- $game := joinPath .chezmoi.homeDir "Games/Recomps/Hookshot" -}}
+# Zelda: Ocarina of Time pelo Hookshot (recompilação nativa do remake de Switch 2).
+# O jogo é montado no PC pelo Hookshot Builder, a partir da sua cópia, em
+# ~/Games/Recomps/Hookshot; nada do jogo entra no chezmoi.
+# - Abre o jogo direto (bin/hookshot), sem a janela do launcher, pelo game-run
+#   (MangoHud e gamemode). O launcher, com o botão Update, é a entrada "Hookshot"
+#   que o próprio builder cria a cada build.
+# - O nome do arquivo é o app id da janela (Wayland): o Hyprland e o menu ligam
+#   a janela a esta entrada. Regra de jogo: hypr/apps/games.lua.
+# - TryExec: a entrada só aparece no menu depois que o jogo foi montado.
+[Desktop Entry]
+Type=Application
+Name=Zelda: Ocarina of Time
+GenericName=Hookshot (recomp)
+Comment=Native recompilation of the Switch 2 remake, built from your copy
+Icon={{ $game }}/hookshot.png
+TryExec={{ $game }}/bin/hookshot
+Path={{ $game }}
+Exec={{ .chezmoi.homeDir }}/.local/bin/game-run {{ $game }}/bin/hookshot
+Categories=Game;
+StartupWMClass=io.github.NotRexed.Hookshot
+Terminal=false
