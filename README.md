@@ -65,6 +65,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 ├── .chezmoitemplates/
 │   └── starship-palette.toml    paleta Catppuccin Mocha padrão do Starship
 ├── run_onchange_after_bat-cache.sh.tmpl   monta o cache de temas do bat
+├── run_onchange_after_mime-defaults.sh     apps padrão do xdg-open (pastas: yazi no Ghostty)
 ├── dot_gitconfig                ~/.gitconfig (e-mail noreply, credenciais via gh)
 ├── dot_zshenv                   ~/.zshenv: só aponta o ZDOTDIR para ~/.config/zsh
 ├── dot_config/                  ~/.config/
@@ -91,7 +92,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   └── MangoHud/                HUD de FPS nos jogos
 └── private_dot_local/
     ├── bin/                     ~/.local/bin: scripts próprios (abaixo)
-    └── private_share/applications/   atalhos de menu do Lichii e dos recomps
+    └── private_share/applications/   atalhos de menu do Lichii, dos recomps e do yazi no Ghostty
 ```
 
 **zsh por assunto** (`dot_config/zsh/conf.d/`): `options`, `history`, `completion`, `vi-mode`, `aliases`, `tools` (starship, zoxide, fzf, mise, bat como `man`) e `plugins` (autosuggestions e syntax-highlighting, sempre por último). O `.zshrc` carrega todos em ordem.
@@ -493,6 +494,18 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 #### Fazer um app abrir num workspace fixo
 Veja os arquivos em `hypr/apps/`. Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
 
+#### Trocar o app padrão de um tipo de arquivo
+O `xdg-open` (usado pelos apps em "abrir pasta", "abrir com o padrão" etc.) lê o `~/.config/mimeapps.list`. Esse arquivo fica fora do chezmoi, porque outros apps também o editam; as escolhas ficam no script `run_onchange_after_mime-defaults.sh`, uma linha `xdg-mime default <app>.desktop <tipo>` por tipo:
+
+```sh
+xdg-mime query filetype ARQUIVO            # o tipo (ex.: image/png)
+xdg-mime query default image/png           # quem abre hoje
+chezmoi edit ~/.local/share/chezmoi/run_onchange_after_mime-defaults.sh
+chezmoi apply                              # o script roda de novo porque mudou
+```
+
+Hoje ele define só as pastas (`inode/directory`): o `yazi-ghostty.desktop` abre o yazi dentro do Ghostty. Apps de terminal (`Terminal=true`, como o `yazi.desktop` do pacote) não funcionam direto no `xdg-open`: ele os roda sem terminal. O launcher do Noctalia não tem esse problema, porque põe esses apps no `$TERMINAL` sozinho.
+
 #### Parar de controlar um arquivo
 ```sh
 chezmoi forget ~/.config/programa/config.toml   # fica no disco, sai do repo
@@ -552,6 +565,7 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | O Hyprland não abre depois do login | vá para o tty2 (**Ctrl+Alt+F2**), entre e rode `journalctl --user -b -u 'wayland-wm*'` |
 | Erro de config do Hyprland (aviso vermelho no topo) | `hyprctl configerrors`; corrija com `chezmoi edit` e valide com `Hyprland --verify-config -c ~/.config/hypr/hyprland.lua` |
 | `chezmoi status` mostra algo inesperado | `chezmoi diff ARQUIVO` para ver o quê. Se a versão boa é a de `~`, `chezmoi re-add`; se é a do repositório, `chezmoi apply ARQUIVO` |
+| "Abrir pasta" de um app não faz nada | `xdg-mime query default inode/directory` tem que responder `yazi-ghostty.desktop`. Se não, rode `chezmoi apply` (o script `run_onchange_after_mime-defaults.sh` define o padrão); para ver o que o `xdg-open` escolhe: `XDG_UTILS_DEBUG_LEVEL=2 xdg-open ~` |
 | Uma edição sumiu depois de um `apply` | foi feita em `~` sem `re-add`. Recupere pelo histórico do editor; daí em diante use `chezmoi edit` |
 | O tmux abre sem cores e sem plugins | o TPM não instalou os plugins: **Ctrl+Space I**. Se nem o TPM existir: `chezmoi apply -R` |
 | O bat ignora o tema | `bat cache --build` |
