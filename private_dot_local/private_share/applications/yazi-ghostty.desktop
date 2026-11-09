@@ -1,0 +1,13 @@
+# Abrir pastas (xdg-open, "abrir pasta" dos apps) no yazi dentro do Ghostty.
+# O yazi.desktop do pacote tem Terminal=true, e o xdg-open fora de um terminal
+# o roda sem terminal: o yazi falha e nada aparece. Padrão para inode/directory
+# em run_onchange_after_mime-defaults.sh. Fora do menu: SUPER+SHIFT+F abre o yazi.
+[Desktop Entry]
+Type=Application
+Name=Yazi (Ghostty)
+Comment=Open a folder in yazi inside Ghostty
+Icon=yazi
+Exec=ghostty -e yazi %f
+MimeType=inode/directory;
+NoDisplay=true
+Terminal=false
