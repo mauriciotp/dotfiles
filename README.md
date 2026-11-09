@@ -91,7 +91,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   └── MangoHud/                HUD de FPS nos jogos
 └── private_dot_local/
     ├── bin/                     ~/.local/bin: scripts próprios (abaixo)
-    └── private_share/applications/   atalho de menu do emulador Lichii
+    └── private_share/applications/   atalhos de menu do Lichii e dos recomps
 ```
 
 **zsh por assunto** (`dot_config/zsh/conf.d/`): `options`, `history`, `completion`, `vi-mode`, `aliases`, `tools` (starship, zoxide, fzf, mise, bat como `man`) e `plugins` (autosuggestions e syntax-highlighting, sempre por último). O `.zshrc` carrega todos em ordem.
@@ -138,7 +138,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - Cada app tem um workspace fixo: 1 dev, 2 web, 3 chat, 4 notes, 5 media, 6 tools, 8 stores, **10 games**.
 - **SUPER+número** vai para o workspace no monitor em foco; a tecla 0 é o 10.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. Com **SUPER+ALT+O**, `tv-toggle` a liga e o workspace 10 vai para a TV. Com a TV desligada, o 10 fica no monitor.
-- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/apps/games.lua`: janelas `steam_app_*`, `gamescope`, `*.exe` e emuladores.
+- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/apps/games.lua`: janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores e recomps.
 - **Monitor QHD futuro:** `monitors.lua` tem o campo `qhd`. Quando ele chegar, os workspaces 3, 5, 6 e 8 passam para o monitor secundário como 13, 15, 16 e 18; `workspaces.lua` faz isso sozinho.
 
 **Numa máquina com outras telas, edite `monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
@@ -292,6 +292,46 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 ```
 
 O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland, e com `game-run`. A janela vai para o workspace 10.
+
+### 7. Recomps (opcional)
+
+Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder de cada projeto monta o jogo **a partir da sua cópia** (por exemplo, um `.nup` em `~/Games/switch2/`). Nem o builder nem o jogo ficam no repositório.
+
+```
+~/Games/
+  switch2/            suas cópias dos jogos: só leitura
+  Emuladores/         AppImages de emuladores
+  Recomps/
+    Builders/         AppImages dos builders, com o nome original (o launcher usa o arquivo para atualizar)
+    Hookshot/         Zelda: Ocarina of Time
+    <projeto>/        um por recomp
+```
+
+**Hookshot (Zelda: Ocarina of Time):**
+
+```sh
+mkdir -p ~/Games/Recomps/Builders && cd ~/Games/Recomps/Builders
+gh release download -R NotRexed/Hookshot -p '*-x86_64.AppImage'
+gh release view -R NotRexed/Hookshot --json assets --jq '.assets[] | .name + " " + .digest'
+sha256sum Hookshot-*-x86_64.AppImage       # tem que bater com o digest acima
+chmod +x Hookshot-*-x86_64.AppImage && ./Hookshot-*-x86_64.AppImage
+```
+
+No builder, em **Save the game to**, troque o padrão para `~/Games/Recomps/Hookshot` e clique em **Build** (10 a 45 minutos). Depois aparecem duas entradas no menu:
+
+| Entrada | De onde vem | Para quê |
+|---|---|---|
+| Zelda: Ocarina of Time | este repositório (`io.github.NotRexed.Hookshot.desktop`) | jogar: abre o jogo direto, com `game-run` |
+| Hookshot | criada pelo builder a cada build | o launcher, com o botão **Update** |
+
+Saves em `~/.local/share/hookshot`: copie antes de cada update.
+
+**Um recomp novo:**
+1. Baixe o builder só da página de releases do projeto e confira o `sha256`.
+2. Monte o jogo em `~/Games/Recomps/<projeto>`.
+3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista `emulators` de `hypr/apps/games.lua`.
+4. Copie o `.desktop.tmpl` do Hookshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
+5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
 ---
 
@@ -532,4 +572,4 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | temas do GTK, OBS, Heroic e Obsidian | gerados pelo Noctalia e nunca estiveram no repositório |
 | plugins do tmux e do Neovim | baixados pelo TPM e pelo lazy.nvim |
 | `/etc`, boot, lista de pacotes | fora do `~`; a lista de pacotes está documentada na [Instalação](#1-pacotes) |
-| AppImages e jogos | grandes e binários; veja a [instalação do Lichii](#6-emulador-lichii-opcional) |
+| AppImages e jogos | grandes e binários; veja a [instalação do Lichii](#6-emulador-lichii-opcional) e a dos [recomps](#7-recomps-opcional). Os jogos dos recomps são gerados da sua cópia e nunca podem ir para um repositório público |
