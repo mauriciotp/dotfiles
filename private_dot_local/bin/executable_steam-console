@@ -1,30 +1,68 @@
 #!/bin/bash
 # Modo console: a Steam no Big Picture dentro do gamescope, como no Steam Deck.
 # O overlay da Steam vira uma camada do gamescope, em vez de ser desenhado
-# dentro do jogo a cada quadro (lento em 4K). Atalho: SUPER+CTRL+SHIFT+G.
+# dentro do jogo a cada quadro (lento em 4K).
 #
+# Uso (os atalhos ficam em hypr/binds/apps.lua):
+#   steam-console            modo console na TV          SUPER+CTRL+SHIFT+G
+#   steam-console --monitor  modo console no monitor     SUPER+CTRL+SHIFT+ALT+G
+#   steam-console --desktop  Steam normal (workspace 8)  SUPER+SHIFT+G
+#
+# Fora do modo console:
 # 1. liga a TV, se conectada (tv-toggle); sem ela, usa o monitor do workspace 10.
-#    Com --monitor (SUPER+CTRL+SHIFT+ALT+G), não liga a TV e, se ela estiver
-#    ligada, desliga: para jogar no monitor enquanto alguém usa os apps da TV
+#    Com --monitor, não liga a TV e, se ela estiver ligada, desliga: para jogar
+#    no monitor enquanto alguém usa os apps da TV. Com --desktop, só abre ou
+#    foca a Steam normal (launch-or-focus)
 # 2. fecha a Steam do desktop: só pode haver uma Steam
 # 3. abre o gamescope com o modo do monitor do workspace 10 (ArchWiki: sem
 #    -W/-H/-r ele pode abrir na resolução errada)
-# 4. quando a Steam fecha, reabre a Steam do desktop em segundo plano e, se foi
-#    o script que ligou a TV, desliga de novo (os jogos voltam a abrir no monitor)
+# 4. quando a Steam fecha, faz o que foi pedido (veja abaixo) e, se foi o script
+#    que ligou a TV, desliga de novo (os jogos voltam a abrir no monitor)
 #
-# Para sair, o mesmo atalho de novo. O Switch to Desktop do Big Picture não
-# funciona fora do SteamOS: ele chama o SteamOS Manager pelo D-Bus
-# (com.steampowered.SteamOSManager1), que não existe no Arch, e fica carregando.
+# Já no modo console, o script fecha a Steam de dentro e deixa um recado para a
+# instância que está rodando o gamescope, que o lê quando a Steam fecha:
+#   o mesmo atalho         sai para o desktop, com a Steam em segundo plano
+#   o atalho do outro lugar troca de lugar (TV <-> monitor), sem passar pelo desktop
+#   SUPER+SHIFT+G          sai para o desktop com a janela da Steam no workspace 8
+#
+# O Switch to Desktop do Big Picture não funciona fora do SteamOS: ele chama o
+# SteamOS Manager pelo D-Bus (com.steampowered.SteamOSManager1), que não existe
+# no Arch, e fica carregando.
 set -euo pipefail
 
 TV="HDMI-A-1"
 GAMES=10
-on_monitor=false
-[[ ${1:-} == --monitor ]] && on_monitor=true
+STORES=8
+SELF="$HOME/.local/bin/steam-console"
 
-# Já no modo console: fecha a Steam de dentro; o gamescope sai junto
+case ${1:-} in
+    "") target=tv ;;
+    --monitor) target=monitor ;;
+    --desktop) target=desktop ;;
+    *)
+        echo "Usage: steam-console [--monitor|--desktop]" >&2
+        exit 1
+        ;;
+esac
+
+# Recados entre a instância nova e a que roda o gamescope
+state="${XDG_RUNTIME_DIR:-/tmp}/steam-console"
+mkdir -p "$state"
+
+# Já no modo console: deixa o recado e fecha a Steam de dentro; o gamescope sai junto
 if pgrep -f '^gamescope .*-- steam -tenfoot' >/dev/null; then
+    current=$(cat "$state/current" 2>/dev/null || echo tv)
+    if [[ $target == "$current" ]]; then
+        echo background >"$state/next"
+    else
+        echo "$target" >"$state/next"
+    fi
     exec steam -shutdown
+fi
+
+# Fora do modo console, --desktop é só abrir ou focar a Steam normal
+if [[ $target == desktop ]]; then
+    exec "$HOME/.local/bin/launch-or-focus" '^steam$' steam
 fi
 
 monitors() { hyprctl monitors -j; }
@@ -32,7 +70,7 @@ tv_active() { monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/nul
 
 # A TV em espera continua conectada (aparece em "monitors all"); ativa só depois do tv-toggle
 turned_tv_on=false
-if $on_monitor; then
+if [[ $target == monitor ]]; then
     if tv_active; then "$HOME/.local/bin/tv-toggle" off; fi
 elif hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null && ! tv_active; then
     "$HOME/.local/bin/tv-toggle" on
@@ -75,17 +113,35 @@ if cp "$HOME/.config/MangoHud/MangoHud.conf" "$hud" 2>/dev/null; then
     export MANGOHUD_CONFIGFILE="$hud"
 fi
 
+echo "$target" >"$state/current"
+rm -f "$state/next"
+
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
 # --mangoapp: o MangoHud do gamescope (o mangohud normal não funciona aqui)
 gamescope -e -f --adaptive-sync --mangoapp \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
-# De volta ao desktop: a TV como estava e a Steam normal em segundo plano (workspace 8)
+# A Steam fechou: o recado diz para onde ir (sem recado: saída pelo Big Picture)
+next=$(cat "$state/next" 2>/dev/null || echo background)
+rm -f "$state/current" "$state/next"
+
+# Trocar de lugar: outra instância cuida da TV (a do monitor a desliga; a da TV a liga)
+case $next in
+    tv) exec "$SELF" ;;
+    monitor) exec "$SELF" --monitor ;;
+esac
+
+# De volta ao desktop: a TV como estava e a Steam normal (workspace 8)
 if $turned_tv_on && tv_active; then
     "$HOME/.local/bin/tv-toggle" off
 fi
-if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
-    exec uwsm app -- steam -silent
+steam_args=(-silent)
+if [[ $next == desktop ]]; then
+    steam_args=()
+    hyprctl dispatch "hl.dsp.focus({ workspace = $STORES })" >/dev/null
 fi
-exec steam -silent
+if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
+    exec uwsm app -- steam "${steam_args[@]}"
+fi
+exec steam "${steam_args[@]}"

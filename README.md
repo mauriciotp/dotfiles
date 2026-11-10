@@ -108,7 +108,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
-| `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**) |
+| `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8 |
 | `game-run` | prefixo para jogos: gamemode + MangoHud (ou mangoapp no gamescope) | na Steam: opções de inicialização `game-run %command%` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
@@ -157,7 +157,7 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+ALT+Return | terminal já no tmux (sessão `main`) |
 | SUPER+Space | launcher do Noctalia |
 | SUPER+SHIFT+B / F / N / O / D | navegador / yazi / Neovim / Obsidian / Discord |
-| SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam, Heroic |
+| SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope) |
 | Shift direito+F12 (no jogo) | mostrar/esconder o HUD do MangoHud (começa escondido) |
 | Shift esquerdo+F1 (no jogo) | limite de FPS: 141 ↔ sem limite |
