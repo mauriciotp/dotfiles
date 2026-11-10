@@ -2,10 +2,13 @@
 # O AppImage fica fora do chezmoi, em ~/Games/Emulators/Apps/lichii.AppImage
 # (os jogos de Switch 2 ficam em ~/Games/Emulators/Switch2/):
 # para atualizar, baixe a versão nova por cima desse arquivo.
-# - game-run: MangoHud e gamemode, como nos jogos da Steam (o emulador também
-#   pede o gamemode sozinho; os dois pedidos não brigam)
+# - Sem o game-run: ele carrega MangoHud e gamemode pelo LD_PRELOAD em tudo o
+#   que o emulador abre (menu, pastas, Ghostty), não só no jogo.
+# - MANGOHUD=1: liga só a camada Vulkan do MangoHud. O jogo desenha com Vulkan
+#   (backend=1 no qt-config.ini); o menu em Qt e o que ele abrir ficam sem HUD.
+# - gamemode: o próprio Lichii pede (enable_gamemode=true no qt-config.ini).
 # - QT_QPA_PLATFORM=xcb: X11 pelo XWayland, como recomenda o manual do Eden
-#   (desempenho pior e bugs no Wayland). Para testar no Wayland, tire o "env ...".
+#   (desempenho pior e bugs no Wayland). Para testar no Wayland, tire essa variável.
 [Desktop Entry]
 Type=Application
 Name=Lichii
@@ -13,7 +16,7 @@ GenericName=Switch Emulator
 Comment=Nintendo Switch emulator (Eden fork)
 Icon=io.github.zortos293.lichii
 TryExec={{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage
-Exec=env QT_QPA_PLATFORM=xcb {{ .chezmoi.homeDir }}/.local/bin/game-run {{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage %f
+Exec=env QT_QPA_PLATFORM=xcb MANGOHUD=1 {{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage %f
 Categories=Game;Emulator;
 MimeType=application/x-nx-nro;application/x-nx-nso;application/x-nx-nsp;application/x-nx-xci;
 StartupWMClass=Lichii

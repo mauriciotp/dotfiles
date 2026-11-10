@@ -292,7 +292,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland, e com `game-run`. A janela vai para o workspace 10.
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele **não** usa o `game-run`: o `LD_PRELOAD` do MangoHud passaria para tudo o que o emulador abre. No lugar, `MANGOHUD=1` liga só a camada Vulkan do MangoHud, e o HUD aparece só no jogo (que desenha com Vulkan); o gamemode o próprio Lichii pede (`enable_gamemode` no `~/.config/eden/qt-config.ini`).
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 
