@@ -1,6 +1,10 @@
+{{- $theme := joinPath .chezmoi.destDir ".config/bat/themes/noctalia.tmTheme" -}}
 #!/bin/sh
 # O bat só enxerga um tema novo depois de montar o cache. Sem isso, na
 # instalação nova o --theme=noctalia cai no tema padrão.
-# Roda de novo quando o tema da fonte muda: {{ include "dot_config/bat/themes/create_noctalia.tmTheme" | sha256sum }}
+# Roda de novo quando o tema muda, na fonte ou em ~ (o Noctalia o reescreve; se
+# ele sumir, o apply o recria e o cache é refeito):
+#   fonte: {{ include "dot_config/bat/themes/create_noctalia.tmTheme" | sha256sum }}
+#   ~:     {{ if stat $theme }}{{ include $theme | sha256sum }}{{ else }}ausente{{ end }}
 command -v bat >/dev/null 2>&1 && bat cache --build >/dev/null
 exit 0
