@@ -1,49 +1,10 @@
 #!/bin/bash
-# Prefixo dos jogos. Na Steam, nas opções de inicialização de cada jogo:
-#   game-run %command%         jogar: gamemode e limite de FPS, sem MangoHud
-#   game-run --hud %command%   medir o desempenho: o mesmo, com o MangoHud
-# Para medir sem o limite de FPS: DXVK_FRAME_RATE=0 VKD3D_FRAME_RATE=0 game-run --hud %command%
-#
-# O MangoHud fica de fora por padrão: ele entra em cada quadro do jogo e, pelo
-# LD_PRELOAD, em tudo o que o jogo abrir (o Ghostty das pastas travava). Já
-# travou jogos DX12 na tela preta com o limitador de FPS dele (commit 9a26180).
-#
-# Limite de FPS: 3 abaixo dos 144 Hz, dentro do VRR, pelo limitador do próprio
-# Proton, sem overlay: DXVK_FRAME_RATE (DirectX 9/10/11) e VKD3D_FRAME_RATE
-# (DirectX 12), dos READMEs do DXVK e do VKD3D-Proton. Um valor já definido nas
-# opções do jogo vale mais. Jogos nativos (Vulkan, OpenGL) não usam os dois.
-#
-# No modo console (gamescope define XDG_CURRENT_DESKTOP=gamescope), o limite é o
-# -r do steam-console, e o HUD é o mangoapp do gamescope: --hud o mostra com o
-# mangohudctl enquanto o jogo roda (o mangohud normal não funciona lá dentro).
+# Opção de inicialização dos jogos da Steam:  game-run %command%
+# Dentro do gamescope (modo console) o HUD vem do --mangoapp, e o mangohud
+# normal não é suportado (README do MangoHud). Fora dele, o mangohud de sempre.
 set -euo pipefail
 
-hud=false
-if [[ ${1:-} == --hud ]]; then
-    hud=true
-    shift
-fi
-if [[ $# -eq 0 ]]; then
-    echo "Usage: game-run [--hud] command..." >&2
-    exit 1
-fi
-
 if [[ ${XDG_CURRENT_DESKTOP:-} == gamescope ]]; then
-    if ! $hud; then
-        exec gamemoderun "$@"
-    fi
-    # Sem exec: depois do jogo, esconde o HUD de novo (o Big Picture fica sem ele)
-    mangohudctl set no_display 0 || true
-    status=0
-    gamemoderun "$@" || status=$?
-    mangohudctl set no_display 1 || true
-    exit "$status"
+    exec gamemoderun "$@"
 fi
-
-export DXVK_FRAME_RATE="${DXVK_FRAME_RATE:-141}"
-export VKD3D_FRAME_RATE="${VKD3D_FRAME_RATE:-141}"
-
-if $hud; then
-    exec mangohud gamemoderun "$@"
-fi
-exec gamemoderun "$@"
+exec mangohud gamemoderun "$@"

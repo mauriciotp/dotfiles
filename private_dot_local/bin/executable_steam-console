@@ -112,13 +112,9 @@ fps=$((refresh - 3))
 # reabre no fim herdaria o caminho (o uwsm app passa o ambiente adiante), e os
 # jogos do Proton não enxergam o /run/user dentro do container da Steam: o
 # MangoHud voltava ao padrão (HUD visível, sem limite de FPS, poucos itens).
-# A cópia ganha no_display: com ele o gamescope nem abre o mangoapp (código do
-# gamescope 3.17, src/steamcompmgr.cpp), e o HUD só aparece quando um jogo pede
-# com game-run --hud (mangohudctl). Sem ele, o HUD ficaria por cima de tudo.
 hud="${XDG_RUNTIME_DIR:-/tmp}/steam-console-mangohud.conf"
 hud_env=()
 if cp "$HOME/.config/MangoHud/MangoHud.conf" "$hud" 2>/dev/null; then
-    echo no_display >>"$hud"
     hud_env=("MANGOHUD_CONFIGFILE=$hud")
 fi
 

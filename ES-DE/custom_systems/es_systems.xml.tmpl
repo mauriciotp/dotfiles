@@ -6,18 +6,13 @@
      mesmo <name> de um do pacote o substitui. -->
 <systemList>
     <!-- Switch 2: não existe no ES-DE 3.5. Plataforma e tema do Switch.
-         O comando segue o do Eden no pacote (-f tela cheia, -g abre o jogo).
-         O primeiro <command> é o padrão; o segundo, com o MangoHud (só a
-         camada Vulkan, MANGOHUD=1), é para medir. Para escolher por jogo, ligue
-         Other settings → "Enable alternative emulators per game" e, no jogo,
-         "Edit this game's metadata" → "Alternative emulator" (USERGUIDE.md). -->
+         O comando segue o do Eden no pacote (-f tela cheia, -g abre o jogo). -->
     <system>
         <name>switch2</name>
         <fullname>Nintendo Switch 2</fullname>
         <path>~/Games/Emulators/Switch2/ROMs</path>
         <extension>.nup .NUP</extension>
         <command label="Lichii (Standalone)">%PRECOMMAND_GAME-RUN% %EMULATOR_LICHII% -f -g %ROM%</command>
-        <command label="Lichii (Standalone, MangoHud)">%PRECOMMAND_GAME-RUN% env MANGOHUD=1 %EMULATOR_LICHII% -f -g %ROM%</command>
         <platform>switch</platform>
         <theme>switch</theme>
     </system>

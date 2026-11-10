@@ -11,9 +11,8 @@
             <entry>~/Games/Emulators/Apps/lichii.AppImage|env QT_QPA_PLATFORM=xcb {{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage</entry>
         </rule>
     </emulator>
-    <!-- game-run (gamemode) como pré-comando: só o jogo aberto pelo ES-DE o
-         recebe, não o ES-DE. O MangoHud fica no comando alternativo
-         (es_systems.xml), só para medir. -->
+    <!-- game-run (MangoHud + gamemode) como pré-comando: só o jogo aberto pelo
+         ES-DE o recebe, não o ES-DE nem o menu do emulador. -->
     <emulator name="GAME-RUN">
         <rule type="staticpath">
             <entry>~/.local/bin/game-run</entry>
