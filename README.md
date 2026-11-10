@@ -283,25 +283,38 @@ Saia e entre de novo. Ao fazer login no **tty1**, o `.zprofile` abre o Hyprland 
 O AppImage não fica no repositório. O atalho de menu só aparece quando o arquivo estiver no lugar certo:
 
 ```sh
-mkdir -p ~/Games/Emuladores
-mv ~/Downloads/<arquivo>.AppImage ~/Games/Emuladores/lichii.AppImage
-chmod +x ~/Games/Emuladores/lichii.AppImage
+mkdir -p ~/Games/Emulators/Apps ~/Games/Emulators/Switch2/{ROMs,Updates,DLC,Mods}
+mv ~/Downloads/<arquivo>.AppImage ~/Games/Emulators/Apps/lichii.AppImage
+chmod +x ~/Games/Emulators/Apps/lichii.AppImage
 
 # ícone: extraído do próprio AppImage (é um arquivo SquashFS), sem executá-lo
 icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
-7z e ~/Games/Emuladores/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
+7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
 O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland, e com `game-run`. A janela vai para o workspace 10.
 
+**Pastas dos jogos de emulador** (em inglês, uma por plataforma):
+
+```
+~/Games/Emulators/
+  Apps/               os emuladores (AppImages); um emulador pode servir a mais de uma plataforma
+  Switch2/            uma pasta por plataforma: Switch2, PS4, PS5...
+    ROMs/             suas cópias dos jogos (.nup, .nsp, .xci): só leitura
+    Updates/          atualizações separadas do jogo
+    DLC/              conteúdo adicional
+    Mods/             mods, uma subpasta por jogo
+```
+
+Os `.nup` já trazem uma atualização: o `[v131072]` no nome é a versão dela (o README do Hookshot pede o Zelda com "update v131072"). Por isso eles ficam em `ROMs/`, não em `Updates/`. Para uma plataforma nova, repita a pasta com as mesmas quatro subpastas.
+
 ### 7. Recomps (opcional)
 
-Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder de cada projeto monta o jogo **a partir da sua cópia** (por exemplo, um `.nup` em `~/Games/switch2/`). Nem o builder nem o jogo ficam no repositório.
+Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder de cada projeto monta o jogo **a partir da sua cópia** (por exemplo, um `.nup` em `~/Games/Emulators/Switch2/ROMs/`). Nem o builder nem o jogo ficam no repositório.
 
 ```
 ~/Games/
-  switch2/            suas cópias dos jogos: só leitura
-  Emuladores/         AppImages de emuladores
+  Emulators/          emuladores e jogos por plataforma (veja a seção 6)
   Recomps/
     Builders/         AppImages dos builders, com o nome original (o launcher usa o arquivo para atualizar)
     Hookshot/         Zelda: Ocarina of Time
