@@ -12,6 +12,7 @@ local emulators = {
 	"[Ll]ichii",
 	"io\\.github\\.zortos293\\.lichii",
 	"io\\.github\\.NotRexed\\.Hookshot", -- Zelda: Ocarina of Time (Hookshot)
+	"es-de", -- ES-DE: o frontend abre no 10, junto com os jogos que ele abre
 }
 
 local games = "^(steam_app_.*|gamescope|.*\\.exe|" .. table.concat(emulators, "|") .. ")$"
