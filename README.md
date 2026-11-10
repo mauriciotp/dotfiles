@@ -159,6 +159,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+SHIFT+B / F / N / O / D | navegador / yazi / Neovim / Obsidian / Discord |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam, Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope) |
+| Shift direito+F12 (no jogo) | mostrar/esconder o HUD do MangoHud (começa escondido) |
+| Shift esquerdo+F1 (no jogo) | limite de FPS: 141 ↔ sem limite |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
