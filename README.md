@@ -66,6 +66,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   └── starship-palette.toml    paleta Catppuccin Mocha padrão do Starship
 ├── run_onchange_after_bat-cache.sh.tmpl   monta o cache de temas do bat
 ├── run_onchange_after_mime-defaults.sh     apps padrão do xdg-open (pastas: yazi no Ghostty)
+├── ES-DE/custom_systems/        ~/ES-DE: sistemas e regras de emulador do ES-DE (Switch 2)
 ├── dot_gitconfig                ~/.gitconfig (e-mail noreply, credenciais via gh)
 ├── dot_zshenv                   ~/.zshenv: só aponta o ZDOTDIR para ~/.config/zsh
 ├── dot_config/                  ~/.config/
@@ -307,6 +308,23 @@ O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que
 ```
 
 Os `.nup` já trazem uma atualização: o `[v131072]` no nome é a versão dela (o README do Hookshot pede o Zelda com "update v131072"). Por isso eles ficam em `ROMs/`, não em `Updates/`. Para uma plataforma nova, repita a pasta com as mesmas quatro subpastas.
+
+### 6b. ES-DE: os emuladores num só lugar (opcional)
+
+O ES-DE (`emulationstation-de`, do AUR) lista os jogos de todas as plataformas e abre cada um no emulador certo. Os arquivos em `~/ES-DE/custom_systems/` vêm deste repositório:
+
+| Arquivo | O que define |
+|---|---|
+| `es_systems.xml` | os sistemas que faltam no ES-DE ou que mudam: hoje o `switch2` (Nintendo Switch 2), com os jogos em `~/Games/Emulators/Switch2/ROMs` (`.nup`) |
+| `es_find_rules.xml` | onde achar cada emulador (`LICHII`: o AppImage em `Emulators/Apps`, em X11) e o pré-comando `GAME-RUN` |
+
+O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: MangoHud e gamemode só no jogo, não no ES-DE nem no menu do emulador. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
+
+**Abrir pela Steam** (controle pelo Steam Input, e a Steam desliga as teclas falsas do controle):
+1. Steam → **Adicionar um jogo** → **Adicionar um jogo não-Steam** → marque **ES-DE**.
+2. Nas propriedades, **sem** opções de inicialização: o `game-run` já vai em cada jogo.
+
+**Plataforma nova:** crie `~/Games/Emulators/<Plataforma>/{ROMs,Updates,DLC,Mods}`; copie o bloco `<system>` do pacote (`/usr/share/es-de/resources/systems/linux/es_systems.xml`) para o `es_systems.xml.tmpl`, troque o `<path>` para a pasta `ROMs` e ponha `%PRECOMMAND_GAME-RUN%` antes do `%EMULATOR_...%`. Se o emulador for um AppImage em `Emulators/Apps`, acrescente a regra dele no `es_find_rules.xml.tmpl`. A doc completa está no `INSTALL.md` do ES-DE (seções es_systems.xml e es_find_rules.xml).
 
 ### 7. Recomps (opcional)
 

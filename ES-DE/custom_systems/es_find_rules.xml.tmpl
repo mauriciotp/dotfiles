@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!-- Regras de busca do ES-DE que complementam as do pacote
+     (/usr/share/es-de/resources/systems/linux/es_find_rules.xml).
+     Doc: INSTALL.md do ES-DE, seção es_find_rules.xml. -->
+<ruleList>
+    <!-- Lichii (fork do Eden): o AppImage fica em ~/Games/Emulators/Apps.
+         Depois do "|" vem o comando de verdade: o Lichii roda em X11 (xcb),
+         como na entrada do menu. -->
+    <emulator name="LICHII">
+        <rule type="staticpath">
+            <entry>~/Games/Emulators/Apps/lichii.AppImage|env QT_QPA_PLATFORM=xcb {{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage</entry>
+        </rule>
+    </emulator>
+    <!-- game-run (MangoHud + gamemode) como pré-comando: só o jogo aberto pelo
+         ES-DE o recebe, não o ES-DE nem o menu do emulador. -->
+    <emulator name="GAME-RUN">
+        <rule type="staticpath">
+            <entry>~/.local/bin/game-run</entry>
+        </rule>
+    </emulator>
+</ruleList>
