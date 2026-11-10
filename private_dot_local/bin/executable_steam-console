@@ -99,32 +99,17 @@ if pgrep -x steam >/dev/null; then
     fi
 fi
 
-# Limite de FPS: 3 abaixo da taxa da tela, dentro do VRR (como o fps_limit do
-# MangoHud.conf, que não vale aqui dentro). O -r é a taxa da tela virtual do
-# jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
+# Limite de FPS: 3 abaixo da taxa da tela, dentro do VRR. O -r é a taxa da
+# tela virtual do jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
 fps=$((refresh - 3))
-
-# HUD: sem -steamdeck a Steam não escolhe preset, e o gamescope criaria um
-# arquivo só com no_display. Com o MANGOHUD_CONFIGFILE definido, o gamescope
-# usa o arquivo dado; vai uma cópia do MangoHud.conf, para a Steam nunca
-# sobrescrever o original (gist do Steam Gamescope Session, comentário 1).
-# A variável vale só para o gamescope, sem export: a Steam que este script
-# reabre no fim herdaria o caminho (o uwsm app passa o ambiente adiante), e os
-# jogos do Proton não enxergam o /run/user dentro do container da Steam: o
-# MangoHud voltava ao padrão (HUD visível, sem limite de FPS, poucos itens).
-hud="${XDG_RUNTIME_DIR:-/tmp}/steam-console-mangohud.conf"
-hud_env=()
-if cp "$HOME/.config/MangoHud/MangoHud.conf" "$hud" 2>/dev/null; then
-    hud_env=("MANGOHUD_CONFIGFILE=$hud")
-fi
 
 echo "$target" >"$state/current"
 rm -f "$state/next"
 
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
-# --mangoapp: o MangoHud do gamescope (o mangohud normal não funciona aqui)
-env "${hud_env[@]}" gamescope -e -f --adaptive-sync --mangoapp \
+# Sem --mangoapp por enquanto: o MangoHud fica de fora até decidirmos como ligá-lo
+gamescope -e -f --adaptive-sync \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
 # A Steam fechou: o recado diz para onde ir (sem recado: saída pelo Big Picture)

@@ -2,7 +2,7 @@
 # O yazi.desktop do pacote tem Terminal=true, e o xdg-open fora de um terminal
 # o roda sem terminal: o yazi falha e nada aparece. Padrão para inode/directory
 # em run_onchange_after_mime-defaults.sh. Fora do menu: SUPER+SHIFT+F abre o yazi.
-# env -u: um jogo aberto pelo game-run (Lichii, Hookshot) passa o MangoHud no
+# env -u: um jogo aberto com o MangoHud (mangohud ...) passa o MangoHud no
 # LD_PRELOAD para o que ele abrir, e o Ghostty trava com ele (100% de CPU, sem janela).
 [Desktop Entry]
 Type=Application

@@ -109,7 +109,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
 | `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8 |
-| `game-run` | prefixo para jogos: gamemode + MangoHud (ou mangoapp no gamescope) | na Steam: opções de inicialização `game-run %command%` |
+| `game-run` | prefixo de todos os jogos (Steam, emuladores, recomps): só o gamemode, por enquanto sem MangoHud | na Steam: opções de inicialização `game-run %command%` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
@@ -160,8 +160,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
 | SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
-| Shift direito+F12 (no jogo) | mostrar/esconder o HUD do MangoHud (começa escondido) |
-| Shift esquerdo+F1 (no jogo) | limite de FPS: 141 ↔ sem limite |
+| Shift direito+F12 (no jogo, com `mangohud %command%`) | mostrar/esconder o HUD do MangoHud (começa escondido) |
+| Shift esquerdo+F1 (no jogo, com `mangohud %command%`) | limite de FPS do MangoHud: 141 ↔ sem limite |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
@@ -296,7 +296,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele **não** usa o `game-run`: o `LD_PRELOAD` do MangoHud passaria para tudo o que o emulador abre. No lugar, `MANGOHUD=1` liga só a camada Vulkan do MangoHud, e o HUD aparece só no jogo (que desenha com Vulkan); o gamemode o próprio Lichii pede (`enable_gamemode` no `~/.config/eden/qt-config.ini`).
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele abre pelo `game-run` (gamemode), como os outros jogos, sem MangoHud.
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 
@@ -321,7 +321,7 @@ O ES-DE (`emulationstation-de`, do AUR) lista os jogos de todas as plataformas e
 | `es_systems.xml` | os sistemas que faltam no ES-DE ou que mudam: hoje o `switch2` (Nintendo Switch 2), com os jogos em `~/Games/Emulators/Switch2/ROMs` (`.nup`) |
 | `es_find_rules.xml` | onde achar cada emulador (`LICHII`: o AppImage em `Emulators/Apps`, em X11) e o pré-comando `GAME-RUN` |
 
-O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: MangoHud e gamemode só no jogo, não no ES-DE nem no menu do emulador. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
+O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: gamemode só no jogo, não no ES-DE. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
 
 **Abrir pela Steam** (controle pelo Steam Input, e a Steam desliga as teclas falsas do controle):
 1. Steam → **Adicionar um jogo** → **Adicionar um jogo não-Steam** → marque **ES-DE**.
@@ -600,7 +600,7 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | Erro de config do Hyprland (aviso vermelho no topo) | `hyprctl configerrors`; corrija com `chezmoi edit` e valide com `Hyprland --verify-config -c ~/.config/hypr/hyprland.lua` |
 | `chezmoi status` mostra algo inesperado | `chezmoi diff ARQUIVO` para ver o quê. Se a versão boa é a de `~`, `chezmoi re-add`; se é a do repositório, `chezmoi apply ARQUIVO` |
 | "Abrir pasta" de um app não faz nada | `xdg-mime query default inode/directory` tem que responder `yazi-ghostty.desktop`. Se não, rode `chezmoi apply` (o script `run_onchange_after_mime-defaults.sh` define o padrão); para ver o que o `xdg-open` escolhe: `XDG_UTILS_DEBUG_LEVEL=2 xdg-open ~` |
-| "Abrir pasta" de um **jogo ou emulador** não abre janela (Ghostty a 100% de CPU) | o `game-run` põe o MangoHud no `LD_PRELOAD`, e o que o jogo abre herda; o Ghostty trava com ele. O `yazi-ghostty.desktop` limpa isso (`env -u LD_PRELOAD -u MANGOHUD`); se travou antes da correção, feche os processos `ghostty` presos (`pkill -f "ghostty -e yazi"`) |
+| "Abrir pasta" de um **jogo ou emulador** não abre janela (Ghostty a 100% de CPU) | com o MangoHud (`mangohud %command%`), ele vai no `LD_PRELOAD`, e o que o jogo abre herda; o Ghostty trava com ele. O `yazi-ghostty.desktop` limpa isso (`env -u LD_PRELOAD -u MANGOHUD`); se travou antes da correção, feche os processos `ghostty` presos (`pkill -f "ghostty -e yazi"`) |
 | Uma edição sumiu depois de um `apply` | foi feita em `~` sem `re-add`. Recupere pelo histórico do editor; daí em diante use `chezmoi edit` |
 | O tmux abre sem cores e sem plugins | o TPM não instalou os plugins: **Ctrl+Space I**. Se nem o TPM existir: `chezmoi apply -R` |
 | O bat ignora o tema | `bat cache --build` |
