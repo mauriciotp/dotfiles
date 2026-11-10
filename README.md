@@ -140,7 +140,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - Cada app tem um workspace fixo: 1 dev, 2 web, 3 chat, 4 notes, 5 media, 6 tools, 8 stores, **10 games**.
 - **SUPER+número** vai para o workspace no monitor em foco; a tecla 0 é o 10.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. Com **SUPER+ALT+O**, `tv-toggle` a liga e o workspace 10 vai para a TV. Com a TV desligada, o 10 fica no monitor.
-- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/apps/games.lua`: janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores e recomps.
+- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/apps/games.lua`: janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps.
 - **Monitor QHD futuro:** `monitors.lua` tem o campo `qhd`. Quando ele chegar, os workspaces 3, 5, 6 e 8 passam para o monitor secundário como 13, 15, 16 e 18; `workspaces.lua` faz isso sozinho.
 
 **Numa máquina com outras telas, edite `monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
@@ -158,7 +158,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+Space | launcher do Noctalia |
 | SUPER+SHIFT+B / F / N / O / D | navegador / yazi / Neovim / Obsidian / Discord |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
-| SUPER+CTRL+SHIFT+G | modo console na TV (gamescope) |
+| SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
+| SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
 | Shift direito+F12 (no jogo) | mostrar/esconder o HUD do MangoHud (começa escondido) |
 | Shift esquerdo+F1 (no jogo) | limite de FPS: 141 ↔ sem limite |
 | SUPER+Q ou SUPER+W | fechar janela |
@@ -605,7 +606,7 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | O bat ignora o tema | `bat cache --build` |
 | Um app não vai para o workspace certo | `hyprctl clients`, compare a `class:` com a regra em `hypr/apps/` |
 | A TV ficou com os workspaces depois de acordar o PC | `hyprctl reload` (SUPER+CTRL+R), que leva tudo de volta ao monitor |
-| A TV liga em 4K@60 com um aviso, ou fica sem sinal | o PC ligou com a TV desligada, e o driver da NVIDIA só ofereceu até 4K@60. Com a TV ligada, tire e recoloque o cabo HDMI e aperte SUPER+ALT+O de novo. Para conferir: `hyprctl monitors all -j \| jq -r '.[] \| select(.name=="HDMI-A-1") \| .availableModes[]' \| grep 3840x2160` deve listar o 143.98 ou 143.99 |
+| A TV liga em 4K@60 com um aviso, ou fica sem sinal | o PC ligou com a TV desligada, e o driver da NVIDIA só ofereceu até 4K@60. Com a TV ligada, tire e recoloque o cabo HDMI e aperte SUPER+ALT+O de novo. Reler a porta pelo kernel (`echo detect \| sudo tee /sys/class/drm/card1-HDMI-A-1/status`) não resolve (testado em 2026-11-10). Para conferir: `hyprctl monitors all -j \| jq -r '.[] \| select(.name=="HDMI-A-1") \| .availableModes[]' \| grep 3840x2160` deve listar o 143.98 ou 143.99 |
 | Uma sessão do tmux que você matou voltou | o retrato salvo era anterior ao kill: mate de novo e aperte **Ctrl+Space Ctrl+s** |
 | O `chezmoi diff` está vazio, mas há mudanças | o `diff` só compara o repositório com os arquivos em `~`. Commits sem push aparecem em `chezmoi git -- status` (`ahead N`) |
 
