@@ -579,6 +579,7 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | Erro de config do Hyprland (aviso vermelho no topo) | `hyprctl configerrors`; corrija com `chezmoi edit` e valide com `Hyprland --verify-config -c ~/.config/hypr/hyprland.lua` |
 | `chezmoi status` mostra algo inesperado | `chezmoi diff ARQUIVO` para ver o quê. Se a versão boa é a de `~`, `chezmoi re-add`; se é a do repositório, `chezmoi apply ARQUIVO` |
 | "Abrir pasta" de um app não faz nada | `xdg-mime query default inode/directory` tem que responder `yazi-ghostty.desktop`. Se não, rode `chezmoi apply` (o script `run_onchange_after_mime-defaults.sh` define o padrão); para ver o que o `xdg-open` escolhe: `XDG_UTILS_DEBUG_LEVEL=2 xdg-open ~` |
+| "Abrir pasta" de um **jogo ou emulador** não abre janela (Ghostty a 100% de CPU) | o `game-run` põe o MangoHud no `LD_PRELOAD`, e o que o jogo abre herda; o Ghostty trava com ele. O `yazi-ghostty.desktop` limpa isso (`env -u LD_PRELOAD -u MANGOHUD`); se travou antes da correção, feche os processos `ghostty` presos (`pkill -f "ghostty -e yazi"`) |
 | Uma edição sumiu depois de um `apply` | foi feita em `~` sem `re-add`. Recupere pelo histórico do editor; daí em diante use `chezmoi edit` |
 | O tmux abre sem cores e sem plugins | o TPM não instalou os plugins: **Ctrl+Space I**. Se nem o TPM existir: `chezmoi apply -R` |
 | O bat ignora o tema | `bat cache --build` |
