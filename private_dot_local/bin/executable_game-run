@@ -1,6 +1,0 @@
-#!/bin/bash
-# Prefixo de todos os jogos: Steam (opções de inicialização: game-run %command%),
-# emuladores (menu e ES-DE) e recomps. Só o gamemode. O MangoHud fica de fora
-# por padrão: para ver as métricas de um jogo, mangohud game-run %command%
-# (no modo console, SUPER+F12 mostra o mangoapp do steam-console).
-exec gamemoderun "$@"

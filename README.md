@@ -109,7 +109,6 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
 | `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8 |
-| `game-run` | prefixo de todos os jogos (Steam, emuladores, recomps): só o gamemode; o MangoHud só quando pedido (veja [Ver as métricas de um jogo e limitar o FPS](#ver-as-métricas-de-um-jogo-e-limitar-o-fps)) | na Steam: opções de inicialização `game-run %command%` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
@@ -160,7 +159,7 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
 | SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
-| Shift direito+F12 (no jogo, desktop, com `mangohud game-run %command%`) | esconder/mostrar o HUD do MangoHud (começa visível) |
+| Shift direito+F12 (no jogo, desktop, com `mangohud gamemoderun %command%`) | esconder/mostrar o HUD do MangoHud (começa visível) |
 | SUPER+F12 (modo console) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
@@ -279,7 +278,7 @@ Saia e entre de novo. Ao fazer login no **tty1**, o `.zprofile` abre o Hyprland 
 | Neovim | abra `nvim`: o LazyVim instala os plugins nas versões do `lazy-lock.json` |
 | mise | `mise install` instala o Go e o Node |
 | GitHub | `gh auth login`; o `.gitconfig` usa o `gh` como credencial |
-| Steam | abra uma vez, depois rode `update-ge-proton` e reinicie a Steam. Em cada jogo, nas opções de inicialização: `game-run %command%` |
+| Steam | abra uma vez, depois rode `update-ge-proton` e reinicie a Steam. Em cada jogo, nas opções de inicialização: `gamemoderun %command%` |
 | Noctalia | já sobe com a sessão. Os temas que ele gera substituem o Mocha padrão |
 
 ### 6. Emulador Lichii (opcional)
@@ -296,7 +295,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele abre pelo `game-run` (gamemode), como os outros jogos, sem MangoHud.
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. O gamemode é ligado pelo próprio Lichii ao abrir o jogo (opção `enable_gamemode`, ligada por padrão, em `~/.config/eden/qt-config.ini`); para conferir, `gamemoded -s` com o jogo aberto.
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 
@@ -319,15 +318,15 @@ O ES-DE (`emulationstation-de`, do AUR) lista os jogos de todas as plataformas e
 | Arquivo | O que define |
 |---|---|
 | `es_systems.xml` | os sistemas que faltam no ES-DE ou que mudam: hoje o `switch2` (Nintendo Switch 2), com os jogos em `~/Games/Emulators/Switch2/ROMs` (`.nup`) |
-| `es_find_rules.xml` | onde achar cada emulador (`LICHII`: o AppImage em `Emulators/Apps`, em X11) e o pré-comando `GAME-RUN` |
+| `es_find_rules.xml` | onde achar cada emulador (`LICHII`: o AppImage em `Emulators/Apps`, em X11) |
 
-O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: gamemode só no jogo, não no ES-DE. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
+O jogo abre com `lichii.AppImage -f -g <jogo>` (tela cheia, direto no jogo); o gamemode vem do próprio Lichii, só no jogo, não no ES-DE. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
 
 **Abrir pela Steam** (controle pelo Steam Input, e a Steam desliga as teclas falsas do controle):
 1. Steam → **Adicionar um jogo** → **Adicionar um jogo não-Steam** → marque **ES-DE**.
-2. Nas propriedades, **sem** opções de inicialização: o `game-run` já vai em cada jogo.
+2. Nas propriedades, **sem** opções de inicialização: o gamemode vem de cada emulador.
 
-**Plataforma nova:** crie `~/Games/Emulators/<Plataforma>/{ROMs,Updates,DLC,Mods}`; copie o bloco `<system>` do pacote (`/usr/share/es-de/resources/systems/linux/es_systems.xml`) para o `es_systems.xml.tmpl`, troque o `<path>` para a pasta `ROMs` e ponha `%PRECOMMAND_GAME-RUN%` antes do `%EMULATOR_...%`. Se o emulador for um AppImage em `Emulators/Apps`, acrescente a regra dele no `es_find_rules.xml.tmpl`. A doc completa está no `INSTALL.md` do ES-DE (seções es_systems.xml e es_find_rules.xml).
+**Plataforma nova:** crie `~/Games/Emulators/<Plataforma>/{ROMs,Updates,DLC,Mods}`; copie o bloco `<system>` do pacote (`/usr/share/es-de/resources/systems/linux/es_systems.xml`) para o `es_systems.xml.tmpl`, troque o `<path>` para a pasta `ROMs` Se o emulador não liga o gamemode sozinho, crie no `es_find_rules.xml.tmpl` um emulador `GAMEMODERUN` com a regra `systempath` `gamemoderun` e ponha `%PRECOMMAND_GAMEMODERUN%` antes do `%EMULATOR_...%`. Se o emulador for um AppImage em `Emulators/Apps`, acrescente a regra dele no `es_find_rules.xml.tmpl`. A doc completa está no `INSTALL.md` do ES-DE (seções es_systems.xml e es_find_rules.xml).
 
 ### 7. Recomps (opcional)
 
@@ -356,7 +355,7 @@ No builder, em **Save the game to**, troque o padrão para `~/Games/Recomps/Hook
 
 | Entrada | De onde vem | Para quê |
 |---|---|---|
-| Zelda: Ocarina of Time | este repositório (`io.github.NotRexed.Hookshot.desktop`) | jogar: abre o jogo direto, com `game-run` |
+| Zelda: Ocarina of Time | este repositório (`io.github.NotRexed.Hookshot.desktop`) | jogar: abre o jogo direto, com `gamemoderun` |
 | Hookshot | criada pelo builder a cada build | o launcher, com o botão **Update** |
 
 Saves em `~/.local/share/hookshot`: copie antes de cada update.
@@ -551,13 +550,13 @@ chezmoi update -v
 ```
 
 #### Ver as métricas de um jogo e limitar o FPS
-O MangoHud não roda por padrão: o `game-run` é só o gamemode. É o jeito mais comum na comunidade (README do MangoHud, ArchWiki), e assim um jogo que não se dá com ele não trava sem você saber por quê.
+O MangoHud não roda por padrão: os jogos abrem só com o gamemode. É o jeito mais comum na comunidade (README do MangoHud, ArchWiki), e assim um jogo que não se dá com ele não trava sem você saber por quê.
 
 | Onde | Ver as métricas | Parar |
 |---|---|---|
-| Steam, desktop | opções de inicialização: `mangohud game-run %command%` (começa visível; Shift direito+F12 esconde) | voltar para `game-run %command%` |
+| Steam, desktop | opções de inicialização: `mangohud gamemoderun %command%` (começa visível; Shift direito+F12 esconde) | voltar para `gamemoderun %command%` |
 | Modo console | SUPER+F12, em qualquer jogo (é o mangoapp do gamescope, sem mexer nas opções) | SUPER+F12 |
-| Emulador ou recomp | uma vez pelo terminal: `mangohud game-run <programa>` | fechar |
+| Emulador ou recomp | uma vez pelo terminal: `mangohud <programa>` | fechar |
 
 As duas formas leem o mesmo `~/.config/MangoHud/MangoHud.conf`. Logs: Shift esquerdo+F2, gravados no `$HOME`.
 
@@ -566,7 +565,7 @@ As duas formas leem o mesmo `~/.config/MangoHud/MangoHud.conf`. Logs: Shift esqu
 | Caso | Como |
 |---|---|
 | o jogo tem limitador próprio | **141** no menu do jogo (o melhor: não acrescenta atraso) |
-| não tem (Proton) | opções de inicialização: `DXVK_FRAME_RATE=141 VKD3D_FRAME_RATE=141 game-run %command%` (DXVK: DX9 a DX11; VKD3D: DX12) |
+| não tem (Proton) | opções de inicialização: `DXVK_FRAME_RATE=141 VKD3D_FRAME_RATE=141 gamemoderun %command%` (DXVK: DX9 a DX11; VKD3D: DX12) |
 | modo console | nada: o `steam-console` passa `-r` = taxa − 3 ao gamescope |
 | emuladores e recomps | nada: os jogos rodam a 30 ou 60 |
 
