@@ -19,6 +19,12 @@ bind(mod .. " + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", "heroic"))
 bind(mod .. " + CTRL + SHIFT + G", "Games: Steam console mode on/off (gamescope)", run(L.bin .. "steam-console"))
 -- variante: no monitor, com a TV desligada (alguém usando os apps da TV)
 bind(mod .. " + CTRL + SHIFT + ALT + G", "Games: Steam console mode on the monitor", run(L.bin .. "steam-console --monitor"))
+-- HUD do modo console (mangoapp): começa oculto, e o Shift_R+F12 só funciona
+-- com ele visível; no desktop, o HUD do jogo usa o Shift_R+F12. Só com o
+-- gamescope aberto: o recado fica na fila do mangoapp até alguém ler, e um
+-- toque no desktop mudaria o HUD do próximo modo console
+bind(mod .. " + F12", "Games: show/hide the console mode HUD",
+	run("sh -c 'pgrep -x gamescope >/dev/null && exec mangohudctl toggle no_display'"))
 bind(mod .. " + SHIFT + R", "Record: OBS", app("^com\\.obsproject\\.Studio$", "obs"))
 bind(mod .. " + SHIFT + P", "Pods: k9s", app("^com\\.mauricio\\.k9s$", "ghostty --class=com.mauricio.k9s -e k9s"))
 

@@ -1,5 +1,10 @@
 #!/bin/bash
 # Prefixo de todos os jogos: Steam (opções de inicialização: game-run %command%),
-# emuladores (menu e ES-DE) e recomps. Por enquanto só o gamemode; o MangoHud
-# fica de fora até decidirmos como ligá-lo.
-exec gamemoderun "$@"
+# emuladores (menu e ES-DE) e recomps. Roda o jogo com o gamemode e, fora do
+# gamescope, com o MangoHud (começa oculto: Shift_R+F12). Dentro do gamescope
+# (modo console, XDG_CURRENT_DESKTOP=gamescope), o HUD é o mangoapp do
+# steam-console: o mangohud normal ali não é suportado (README do MangoHud).
+if [[ ${XDG_CURRENT_DESKTOP:-} == gamescope ]]; then
+    exec gamemoderun "$@"
+fi
+exec mangohud gamemoderun "$@"
