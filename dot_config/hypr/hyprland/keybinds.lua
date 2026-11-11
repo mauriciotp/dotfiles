@@ -17,8 +17,6 @@ bind("SUPER + SHIFT + B", "Browser", app("^firefox$", vars.browser))
 bind("SUPER + SHIFT + ALT + B", "Browser: private window", run(vars.privateBrowser))
 bind("SUPER + SHIFT + F", "Files: yazi", run(vars.fileExplorer))
 bind("SUPER + SHIFT + N", "Neovim", run(vars.editor))
-bind("SUPER + SHIFT + O", "Obsidian", app("^md\\.obsidian\\.Obsidian$", "obsidian"))
-bind("SUPER + SHIFT + D", "Discord", app("^discord$", "discord"))
 if cmd_present("obs") then
 	bind("SUPER + SHIFT + R", "Record: OBS", app("^com\\.obsproject\\.Studio$", vars.obs))
 end
@@ -28,20 +26,21 @@ end
 bind("SUPER + F1", "Keybinds cheatsheet", F.bin .. "keybinds --window")
 
 -- ===== Workspaces especiais =====
--- Música: workspace especial "music". Abre o Spotify se não estiver rodando.
-if cmd_present("spotify-launcher") then
-	bind("SUPER + SHIFT + M", "Music: Spotify (toggle)", function()
-		hl.dispatch(hl.dsp.exec_cmd("pgrep -x spotify >/dev/null || uwsm app -- spotify-launcher"))
-		hl.dispatch(hl.dsp.workspace.toggle_special("music"))
-	end)
-end
+-- Abrem por cima de tudo; a mesma tecla esconde. Se o app não está rodando, abre;
+-- se está em outro workspace, traz (utils/functions.lua, toggle). Apps em variables.lua.
+local toggle = F.toggle
+bind("SUPER + SHIFT + M", "Special: music (Spotify)", toggle("music"))
+bind("SUPER + SHIFT + D", "Special: communication (Discord)", toggle("communication"))
+bind("SUPER + SHIFT + O", "Special: notes (Obsidian)", toggle("notes"))
+bind("CTRL + SHIFT + escape", "Special: system monitor (btop)", toggle("sysmon"))
 
--- Scratchpad: workspace especial vazio por cima de tudo; você manda as janelas
-bind({ "SUPER + grave", "SUPER + mouse:275" }, "Scratchpad (toggle)", hl.dsp.workspace.toggle_special("scratch"))
-bind("SUPER + SHIFT + grave", "Move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratch", follow = false }))
+-- Scratchpad: especial vazio por cima de tudo; você manda as janelas.
+-- Com outro especial aberto, a tecla fecha esse especial (specialWsCloseAny).
+bind({ "SUPER + grave", "SUPER + mouse:275" }, "Special: scratchpad (or close the open one)", F.toggle_scratch)
+bind("SUPER + SHIFT + grave", "Special: move window to scratchpad", hl.dsp.window.move({ workspace = "special:scratch", follow = false }))
 
 -- ===== Jogos =====
--- Steam normal; no modo console, sai dele para a janela da Steam no workspace 8
+-- Steam normal; no modo console, sai dele para a janela da Steam
 bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-console --desktop"))
 if cmd_present("heroic") then
 	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", vars.heroic))

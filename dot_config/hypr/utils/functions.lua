@@ -107,4 +107,70 @@ end
 -- hyprland/rules.lua)
 F.single_main_window = {}
 
+-- ===== Workspaces especiais =====
+
+-- Texto vira regex exata: "md.obsidian.Obsidian" → "^(md\.obsidian\.Obsidian)$"
+function F.exact_regex(names)
+	local escaped = {}
+	for i, name in ipairs(names) do
+		escaped[i] = (name:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?%{%}|\\]", "\\%0"))
+	end
+	return "^(" .. table.concat(escaped, "|") .. ")$"
+end
+
+local function has_class(app, class)
+	for _, c in ipairs(app.classes or {}) do
+		if c == class then
+			return true
+		end
+	end
+	return false
+end
+
+-- toggle(nome): ação da tecla de um especial (Caelestia, utils/functions.lua).
+--   fechado, ou outro especial aberto  mostra este; abre os apps que não estão
+--                                      rodando e traz os que estão em outro lugar
+--   este já aberto                     esconde
+-- Os apps de cada especial ficam em variables.lua (toggles).
+function F.toggle(name)
+	local vars = require("variables")
+	return function()
+		local open = hl.get_active_special_workspace()
+		local target = "special:" .. name
+		if open and open.name == target then
+			hl.dispatch(hl.dsp.workspace.toggle_special(name))
+			return
+		end
+		hl.dispatch(hl.dsp.focus({ workspace = target }))
+		local windows = hl.get_windows() or {}
+		for _, app in pairs(vars.toggles[name] or {}) do
+			local running = false
+			for _, w in ipairs(windows) do
+				if has_class(app, w.class) then
+					running = true
+					local here = w.workspace and w.workspace.name == target
+					if app.move and not here then
+						hl.dispatch(hl.dsp.window.move({ window = "address:" .. w.address, workspace = target, follow = false }))
+					end
+				end
+			end
+			if not running and app.command then
+				hl.dispatch(F.run(app.command))
+			end
+		end
+	end
+end
+
+-- Tecla do scratchpad: com specialWsCloseAny, fecha o especial aberto (qualquer
+-- um); sem especial aberto, mostra o scratchpad.
+function F.toggle_scratch()
+	local vars = require("variables")
+	local open = hl.get_active_special_workspace()
+	if vars.specialWsCloseAny and open then
+		hl.dispatch(hl.dsp.workspace.toggle_special((open.name:gsub("^special:", ""))))
+	else
+		hl.dispatch(hl.dsp.workspace.toggle_special("scratch"))
+	end
+end
+
 return F

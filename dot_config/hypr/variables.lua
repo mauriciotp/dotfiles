@@ -33,4 +33,31 @@ return {
 
 	-- ===== Diversos =====
 	resizeStep = 40, -- pixels por toque ao redimensionar pelo teclado
+	-- a tecla do scratchpad fecha o especial aberto, seja qual for, em vez de
+	-- abrir o scratchpad por cima dele (Caelestia)
+	specialWsCloseAny = true,
+
+	-- ===== Workspaces especiais (formato do Caelestia, sem o cli.json) =====
+	-- categoria → apps. Cada app:
+	--   classes  as classes exatas da janela (hyprctl clients); viram a regra
+	--            que manda a janela para o especial (hyprland/rules.lua)
+	--   command  abre o app quando a tecla do especial é apertada e ele não está rodando
+	--   move     traz para o especial a janela que estiver em outro workspace
+	-- O scratchpad ("scratch") não está aqui: começa vazio e você manda as janelas.
+	-- Especial novo: uma entrada aqui e uma tecla em hyprland/keybinds.lua.
+	toggles = {
+		music = {
+			spotify = { classes = { "Spotify", "spotify" }, command = "spotify-launcher", move = true },
+		},
+		communication = {
+			discord = { classes = { "discord" }, command = "discord", move = true },
+			vesktop = { classes = { "vesktop" }, move = true },
+		},
+		sysmon = {
+			btop = { classes = { "com.mauricio.btop" }, command = "ghostty --class=com.mauricio.btop -e btop" },
+		},
+		notes = {
+			obsidian = { classes = { "md.obsidian.Obsidian" }, command = "obsidian", move = true },
+		},
+	},
 }

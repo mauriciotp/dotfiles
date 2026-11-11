@@ -6,7 +6,7 @@
 # Uso (os atalhos ficam em hypr/hyprland/keybinds.lua):
 #   steam-console            modo console na TV          SUPER+CTRL+SHIFT+G
 #   steam-console --monitor  modo console no monitor     SUPER+CTRL+SHIFT+ALT+G
-#   steam-console --desktop  Steam normal (workspace 8)  SUPER+SHIFT+G
+#   steam-console --desktop  Steam normal               SUPER+SHIFT+G
 #
 # Fora do modo console:
 # 1. liga a TV, se conectada (tv-toggle); sem ela, usa o monitor do workspace 10.
@@ -23,7 +23,7 @@
 # instância que está rodando o gamescope, que o lê quando a Steam fecha:
 #   o mesmo atalho         sai para o desktop, com a Steam em segundo plano
 #   o atalho do outro lugar troca de lugar (TV <-> monitor), sem passar pelo desktop
-#   SUPER+SHIFT+G          sai para o desktop com a janela da Steam no workspace 8
+#   SUPER+SHIFT+G          sai para o desktop com a janela da Steam
 #
 # O Switch to Desktop do Big Picture não funciona fora do SteamOS: ele chama o
 # SteamOS Manager pelo D-Bus (com.steampowered.SteamOSManager1), que não existe
@@ -32,7 +32,6 @@ set -euo pipefail
 
 TV="HDMI-A-1"
 GAMES=10
-STORES=8
 SELF="$HOME/.local/bin/steam-console"
 
 case ${1:-} in
@@ -134,14 +133,14 @@ case $next in
     monitor) exec "$SELF" --monitor ;;
 esac
 
-# De volta ao desktop: a TV como estava e a Steam normal (workspace 8)
+# De volta ao desktop: a TV como estava e a Steam normal; com --desktop, a
+# janela da Steam abre no workspace em foco
 if $turned_tv_on && tv_active; then
     "$HOME/.local/bin/tv-toggle" off
 fi
 steam_args=(-silent)
 if [[ $next == desktop ]]; then
     steam_args=()
-    hyprctl dispatch "hl.dsp.focus({ workspace = $STORES })" >/dev/null
 fi
 if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
     exec uwsm app -- steam "${steam_args[@]}"
