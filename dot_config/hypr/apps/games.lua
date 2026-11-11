@@ -23,6 +23,10 @@ hl.window_rule({
 	workspace = tostring(W.GAMES),
 	immediate = true, -- tearing permitido (só em tela cheia; chave geral no look.lua)
 	content = "game", -- liga o direct scanout automático e o VRR (monitors.lua)
+	-- a tela não apaga nem bloqueia com um jogo aberto, mesmo em janela (o
+	-- controle não conta como atividade); vale sobre a regra geral de tela
+	-- cheia (apps/system.lua), que vem antes. Caelestia, H4
+	idle_inhibit = "always",
 })
 
 hl.window_rule({
