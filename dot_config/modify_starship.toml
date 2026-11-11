@@ -19,6 +19,7 @@ $directory\
 $git_branch$git_state$git_status\
 $nodejs$golang$python$rust\
 $docker_context$kubernetes\
+$jobs$sudo\
 $cmd_duration
 $character"""
 
@@ -27,6 +28,17 @@ $character"""
 style = "bold lavender"
 truncation_length = 4       # mostra no máximo as 4 últimas pastas
 read_only = " \U000f033e"            # cadeado quando a pasta não é gravável
+repo_root_style = "bold blue"   # a pasta raiz do repositório git em destaque (Caelestia, S3)
+
+# --- Programas parados (Ctrl+Z) ---
+# O jobs já vem ligado; faltava no format (S1). Símbolo a partir de 1, número a partir de 2.
+
+# --- sudo liberado (os minutos depois de digitar a senha) ---
+[sudo]
+disabled = false
+symbol = "\uf09c "              # cadeado aberto: o próximo sudo não pede senha (S2)
+format = "[$symbol]($style)"
+style = "bold red"
 
 # --- Git ---
 [git_branch]
