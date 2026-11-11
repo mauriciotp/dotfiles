@@ -16,7 +16,7 @@ palette = "noctalia"
 
 format = """
 $directory\
-$git_branch$git_state$git_status$git_metrics\
+$git_branch$git_commit$git_state$git_status$git_metrics\
 $nodejs$golang$python$rust\
 $docker_context$kubernetes\
 $jobs$sudo\
@@ -36,7 +36,7 @@ repo_root_style = "bold blue"   # a pasta raiz do repositório git em destaque (
 # --- sudo liberado (os minutos depois de digitar a senha) ---
 [sudo]
 disabled = false
-symbol = "\uf09c "              # cadeado aberto: o próximo sudo não pede senha (S2)
+symbol = "\uef01 "              # chapéu de mago (preset nerd-font-symbols): o próximo sudo não pede senha (S2)
 format = "[$symbol]($style)"
 style = "bold red"
 
@@ -45,6 +45,10 @@ style = "bold red"
 symbol = " "
 style = "mauve"
 format = "[$symbol$branch(:$remote_branch)]($style) "
+
+[git_commit]                 # só fora de um branch (detached HEAD): o hash e, se houver, a tag
+tag_disabled = false         # a tag vem desligada por padrão
+tag_symbol = " \uf412 "      # preset nerd-font-symbols
 
 [git_state]                  # aparece só no meio de rebase/merge/cherry-pick
 style = "yellow"
