@@ -24,7 +24,7 @@ bind(mod .. " + CTRL + SHIFT + ALT + G", "Games: Steam console mode on the monit
 -- gamescope aberto: o recado fica na fila do mangoapp até alguém ler, e um
 -- toque no desktop mudaria o HUD do próximo modo console
 bind(mod .. " + F12", "Games: show/hide the console mode HUD",
-	run("sh -c 'pgrep -x gamescope >/dev/null && exec mangohudctl toggle no_display'"))
+	run("sh -c 'pgrep -f \"^gamescope .*--mangoapp\" >/dev/null && exec mangohudctl toggle no_display'"))
 bind(mod .. " + SHIFT + R", "Record: OBS", app("^com\\.obsproject\\.Studio$", "obs"))
 bind(mod .. " + SHIFT + P", "Pods: k9s", app("^com\\.mauricio\\.k9s$", "ghostty --class=com.mauricio.k9s -e k9s"))
 
