@@ -55,6 +55,21 @@ for special in pairs(vars.toggles) do
 	create_tag(special .. "_app", { workspace = "special:" .. special .. " silent" })
 end
 
+-- ===== Pop-out (SUPER+P, hyprland/keybinds.lua) =====
+-- O Hyprland leva a janela flutuante a outro monitor na mesma distância da
+-- origem, e ela cairia fora do centro ou fora da tela menor. A janela com a tag
+-- "pop" é recentralizada depois de chegar (Omarchy, pop.lua): o evento vem antes
+-- da mudança, por isso o timer.
+hl.on("window.move_to_workspace", function(w, ws)
+	if not (w and ws and w.monitor and ws.monitor) or w.monitor.id == ws.monitor.id or not F.has_tag(w, "pop") then
+		return
+	end
+	local sel = "address:" .. w.address
+	hl.timer(function()
+		hl.dispatch(hl.dsp.window.center({ window = sel }))
+	end, { timeout = 1, type = "oneshot" })
+end)
+
 -- ===== Apps que abrem janelas extras sem declarar a janela-pai =====
 -- A primeira janela do app fica no tiling; as outras flutuam centralizadas.
 -- A lista F.single_main_window é preenchida nos arquivos de cada app

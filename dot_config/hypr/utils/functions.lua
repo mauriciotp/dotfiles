@@ -103,6 +103,51 @@ function F.create_tag(tag, props)
 	return F.window(tag, { tag = tag }, props)
 end
 
+-- ===== Tamanhos =====
+
+-- Tamanho em % da tela em foco, para window.resize (Caelestia)
+function F.resize_by_screen(x_percent, y_percent)
+	local m = hl.get_active_monitor()
+	if not m then
+		return nil
+	end
+	return {
+		x = math.floor(m.width / m.scale * x_percent / 100),
+		y = math.floor(m.height / m.scale * y_percent / 100),
+		relative = false,
+	}
+end
+
+-- Redimensiona a janela ativa em % do tamanho dela (Caelestia): o passo
+-- acompanha o tamanho da janela, em vez de um número fixo de pixels.
+function F.resize_active_window(x_percent, y_percent)
+	return function()
+		local w = hl.get_active_window()
+		if not (w and w.size) then
+			return
+		end
+		hl.dispatch(hl.dsp.window.resize({
+			x = math.floor(w.size.x * x_percent / 100),
+			y = math.floor(w.size.y * y_percent / 100),
+			relative = true,
+		}))
+	end
+end
+
+-- A janela tem a tag? (as tags dinâmicas vêm com * no fim)
+function F.has_tag(w, tag)
+	local tags = w and w.tags or {}
+	if type(tags) == "string" then
+		tags = { tags }
+	end
+	for _, t in ipairs(tags) do
+		if t == tag or t == tag .. "*" then
+			return true
+		end
+	end
+	return false
+end
+
 -- Apps cujas janelas extras flutuam (preenchida em hyprland/apps/, usada em
 -- hyprland/rules.lua)
 F.single_main_window = {}

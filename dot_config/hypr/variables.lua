@@ -32,7 +32,7 @@ return {
 	dimSpecial = 0.6, -- escurece o que está embaixo de um workspace especial aberto (Omarchy)
 
 	-- ===== Diversos =====
-	resizeStep = 40, -- pixels por toque ao redimensionar pelo teclado
+	resizePercent = 10, -- % do tamanho da janela por toque ao redimensionar pelo teclado
 	-- a tecla do scratchpad fecha o especial aberto, seja qual for, em vez de
 	-- abrir o scratchpad por cima dele (Caelestia)
 	specialWsCloseAny = true,
