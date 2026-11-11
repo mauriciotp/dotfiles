@@ -12,8 +12,9 @@ palette = "noctalia"
 # versão do projeto e linguagem (só dentro de projetos), k8s/docker (só onde fazem
 # sentido), sudo e duração do último comando. Linha 2: programas parados e a seta.
 # Precisa de Nerd Font (o Ghostty usa JetBrainsMono Nerd Font).
-# Cores: paleta "noctalia", gravada no fim do arquivo pelo template do Noctalia
-# (mesmos nomes da Catppuccin). O chezmoi mantém a paleta que estiver no arquivo;
+# Cores: só nomes da paleta "noctalia", gravada no fim do arquivo pelo template do
+# Noctalia (mesmos nomes da Catppuccin, cada um ligado a uma cor do tema do terminal),
+# para tudo mudar junto com o tema. Nada de número fixo (208) nem nome fora da paleta. O chezmoi mantém a paleta que estiver no arquivo;
 # sem ela (instalação nova), usa a Catppuccin Mocha de .chezmoitemplates.
 # Só o que muda o padrão (starship print-config --default).
 
@@ -71,7 +72,7 @@ disabled = false
 
 # --- Versão do projeto: "is <versão>" (package.json, Cargo.toml...) ---
 [package]
-style = "bold 208"           # laranja, como o padrão (a paleta do Noctalia não tem laranja)
+style = "bold peach"         # o "laranja" da paleta do Noctalia (bright yellow do tema); o padrão é o 208 fixo
 symbol = "\U000f03d7 "
 
 # --- Linguagens: "via <ícone> <versão>", só em pastas com arquivos delas ---
