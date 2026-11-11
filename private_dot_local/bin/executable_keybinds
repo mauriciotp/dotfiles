@@ -15,6 +15,8 @@ theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
 [[ -r $theme ]] && source "$theme"
 
 # modmask é uma máscara de bits: SHIFT=1 CAPS=2 CTRL=4 ALT=8 SUPER=64
+# Teclas no formato compacto (SUPER+SHIFT+M), para digitar na busca do jeito
+# que aparecem; nomes do Hyprland viram símbolos (comma → ",", grave → "`").
 hyprctl binds -j | jq -r '
     def mods($m): [
         (if ($m % 128) >= 64 then "SUPER" else empty end),
@@ -22,12 +24,28 @@ hyprctl binds -j | jq -r '
         (if ($m % 16)  >= 8  then "ALT"   else empty end),
         (if ($m % 2)   >= 1  then "SHIFT" else empty end)
     ];
+    def keyname: {
+        "comma": ",", "period": ".", "slash": "/", "semicolon": ";", "apostrophe": "'"'"'",
+        "backslash": "\\", "grave": "`", "minus": "-", "equal": "=", "space": "Space",
+        "Return": "Enter", "escape": "Esc", "BackSpace": "Backspace", "Delete": "Del",
+        "Page_Down": "PgDn", "Page_Up": "PgUp",
+        "left": "←", "right": "→", "up": "↑", "down": "↓",
+        "Left": "←", "Right": "→", "Up": "↑", "Down": "↓",
+        "mouse:272": "LeftClick", "mouse:273": "RightClick", "mouse:275": "SideButton",
+        "mouse_down": "Wheel↓", "mouse_up": "Wheel↑"
+    }[.] // (if startswith("XF86Audio") then "Media" + ltrimstr("XF86Audio") else ascii_upcase end);
     [.[] | select(.has_description)
-        | ((mods(.modmask) + [.key]) | join(" + ")) as $k
+        | ((mods(.modmask) + [.key | keyname]) | join("+")) as $k
         # "Categoria: ação" vira duas colunas (convenção do keybinds.lua)
         | (.description | capture("^(?<cat>[^:]+): (?<act>.*)$") // {cat: "Other", act: .description}) as $d
         | {cat: $d.cat, act: $d.act, keys: $k}]
     | group_by(.cat) | .[] | group_by(.act) | .[]
-    | "\(.[0].cat)\t\(map(.keys) | join("  ·  "))\t\(.[0].act)"' |
+    | "\(.[0].cat)\t\(.[0].act)\t\(map(.keys) | join("  "))"' |
     column -t -s $'\t' |
-    fzf --reverse --no-sort --prompt="keybind › " --header="Esc closes" >/dev/null || true
+    # sem consulta, a lista fica na ordem das categorias; com consulta, os
+    # melhores resultados sobem. --exact: cada palavra digitada precisa aparecer
+    # inteira (a busca aproximada casava letras soltas espalhadas pela linha);
+    # 'super+s' (entre aspas simples) acha só essa tecla, sem SUPER+SHIFT...
+    fzf --reverse --exact --ignore-case --tiebreak=begin,length \
+        --prompt="keybind › " \
+        --header="words in any order · 'super+s' = exactly that key · Esc closes" >/dev/null || true
