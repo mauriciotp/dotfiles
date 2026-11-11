@@ -501,6 +501,10 @@ chezmoi edit --apply ~/.config/starship.toml
 ```
 - Na fonte, o arquivo começa com 3 ou 4 linhas de template (`{{- ... -}}`), seguidas da config normal. Mexa só na config normal.
 - O bloco de cores (a paleta do Starship, o `gui.theme` do lazygit) **não** está na fonte: o chezmoi o mantém do arquivo atual. Para mudar as cores padrão, edite `.chezmoitemplates/starship-palette.toml` ou `dot_config/lazygit/themes/create_noctalia.yml`.
+- No Starship:
+  - **Ícones como `\uXXXX`** (`symbol = " "`): são caracteres de uso privado do Nerd Font, que editores e ferramentas apagam sem avisar. Ache o código em nerdfonts.com/cheat-sheet; para ver o ícone, `printf '\n'`. Acima de `FFFF`, use `\U` com 8 dígitos (`\U000f1617`).
+  - **Cores só com nomes da paleta** (`sky`, `pink`, `peach`, `red`…): o Noctalia liga cada nome a uma cor do tema, e o prompt muda junto. Um número fixo (`208`) não muda.
+  - **O que não está no arquivo vem do padrão** (as palavras `on`, `via`, `is`, `took` estão no `format` padrão de cada módulo): `starship print-config git_branch` mostra o que vale de fato, `starship print-config --default git_branch` só o padrão.
 - **Não use `chezmoi re-add`** nesses dois. Na fonte, eles não são uma cópia do arquivo, e sim uma receita que monta o arquivo a cada `apply`. Copiar o arquivo por cima destruiria a receita, então o `re-add` os **pula sem avisar**. Uma edição feita direto em `~` some no próximo `apply`.
 
 #### Começar a controlar um programa novo
