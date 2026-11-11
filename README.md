@@ -108,7 +108,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
-| `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8 |
+| `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8. O HUD é o mangoapp do gamescope, com a sua config do MangoHud, oculto até o **SUPER+F12** |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
@@ -279,6 +279,7 @@ Saia e entre de novo. Ao fazer login no **tty1**, o `.zprofile` abre o Hyprland 
 | mise | `mise install` instala o Go e o Node |
 | GitHub | `gh auth login`; o `.gitconfig` usa o `gh` como credencial |
 | Steam | abra uma vez, depois rode `update-ge-proton` e reinicie a Steam. Em cada jogo, nas opções de inicialização: `gamemoderun %command%` |
+| Heroic | Configurações → padrão dos jogos: ligue **GameMode**; o MangoHud, só no jogo que for medir |
 | Noctalia | já sobe com a sessão. Os temas que ele gera substituem o Mocha padrão |
 
 ### 6. Emulador Lichii (opcional)
@@ -326,7 +327,7 @@ O jogo abre com `lichii.AppImage -f -g <jogo>` (tela cheia, direto no jogo); o g
 1. Steam → **Adicionar um jogo** → **Adicionar um jogo não-Steam** → marque **ES-DE**.
 2. Nas propriedades, **sem** opções de inicialização: o gamemode vem de cada emulador.
 
-**Plataforma nova:** crie `~/Games/Emulators/<Plataforma>/{ROMs,Updates,DLC,Mods}`; copie o bloco `<system>` do pacote (`/usr/share/es-de/resources/systems/linux/es_systems.xml`) para o `es_systems.xml.tmpl`, troque o `<path>` para a pasta `ROMs` Se o emulador não liga o gamemode sozinho, crie no `es_find_rules.xml.tmpl` um emulador `GAMEMODERUN` com a regra `systempath` `gamemoderun` e ponha `%PRECOMMAND_GAMEMODERUN%` antes do `%EMULATOR_...%`. Se o emulador for um AppImage em `Emulators/Apps`, acrescente a regra dele no `es_find_rules.xml.tmpl`. A doc completa está no `INSTALL.md` do ES-DE (seções es_systems.xml e es_find_rules.xml).
+**Plataforma nova:** crie `~/Games/Emulators/<Plataforma>/{ROMs,Updates,DLC,Mods}`; copie o bloco `<system>` do pacote (`/usr/share/es-de/resources/systems/linux/es_systems.xml`) para o `es_systems.xml.tmpl`, troque o `<path>` para a pasta `ROMs`. Antes, veja se o emulador tem a opção de gamemode (o Lichii e o RetroArch têm) e ligue nela. Se não tiver, crie no `es_find_rules.xml.tmpl` um emulador `GAMEMODERUN` com a regra `systempath` `gamemoderun` e ponha `%PRECOMMAND_GAMEMODERUN%` antes do `%EMULATOR_...%`. Se o emulador for um AppImage em `Emulators/Apps`, acrescente a regra dele no `es_find_rules.xml.tmpl`. A doc completa está no `INSTALL.md` do ES-DE (seções es_systems.xml e es_find_rules.xml).
 
 ### 7. Recomps (opcional)
 
@@ -555,6 +556,7 @@ O MangoHud não roda por padrão: os jogos abrem só com o gamemode. É o jeito 
 | Onde | Ver as métricas | Parar |
 |---|---|---|
 | Steam, desktop | opções de inicialização: `mangohud gamemoderun %command%` (começa visível; Shift direito+F12 esconde) | voltar para `gamemoderun %command%` |
+| Heroic | nas configurações do jogo, ligue **MangoHud** | desligar a opção |
 | Modo console | SUPER+F12, em qualquer jogo (é o mangoapp do gamescope, sem mexer nas opções) | SUPER+F12 |
 | Emulador ou recomp | uma vez pelo terminal: `mangohud <programa>` | fechar |
 
