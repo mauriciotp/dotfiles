@@ -104,7 +104,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 
 | Script | O que faz | Como se usa |
 |---|---|---|
-| `launch-or-focus` | foca a janela do app se já estiver aberta; senão, abre | usado pelos atalhos SUPER+SHIFT+letra |
+| `launch-or-focus` | foca a janela do app se já estiver aberta; senão, abre | usado pelos atalhos dos apps de janela única (OBS, k9s, Heroic) |
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
@@ -136,13 +136,24 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
 ### Workspaces e monitores
 
-- Cada app tem um workspace fixo: 1 dev, 2 web, 3 chat, 4 notes, 5 media, 6 tools, 8 stores, **10 games**.
-- **SUPER+número** vai para o workspace no monitor em foco; a tecla 0 é o 10.
+- **Nenhum app tem número fixo:** a janela abre no workspace em que você está. A exceção é o **10, dos jogos**.
+- **SUPER+número** vai para o workspace no monitor em foco; a tecla 0 é o 10. A barra mostra só os workspaces que têm janela.
+- **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
+
+  | Tecla | Especial | App |
+  |---|---|---|
+  | SUPER+S | `scratch` | o que você mandar (SUPER+ALT+S); com outro especial aberto, a tecla fecha esse |
+  | SUPER+M | `music` | Spotify |
+  | SUPER+D | `communication` | Discord |
+  | SUPER+R | `notes` | Obsidian |
+  | CTRL+SHIFT+Escape | `sysmon` | btop |
+
+  Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. Com **SUPER+ALT+O**, `tv-toggle` a liga e o workspace 10 vai para a TV. Com a TV desligada, o 10 fica no monitor.
 - **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps.
-- **Monitor QHD futuro:** `monitors.lua` tem o campo `qhd`. Quando ele chegar, os workspaces 3, 5, 6 e 8 passam para o monitor secundário como 13, 15, 16 e 18; `workspaces.lua` faz isso sozinho.
+- **Monitor QHD futuro:** `variables.lua` tem o campo `screens.qhd`. Quando ele chegar, ele vira o principal e o monitor atual ganha os seus próprios 1–9 (por baixo, 11–19); `utils/workspaces.lua` faz isso sozinho.
 
-**Numa máquina com outras telas, edite `monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
+**Numa máquina com outras telas, edite `screens` no `variables.lua` e os modos em `hyprland/monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
 
 ### Atalhos principais
 
@@ -155,24 +166,31 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+Return | terminal (Ghostty) |
 | SUPER+ALT+Return | terminal já no tmux (sessão `main`) |
 | SUPER+Space | launcher do Noctalia |
-| SUPER+SHIFT+B / F / N / O / D | navegador / yazi / Neovim / Obsidian / Discord |
+| SUPER+SHIFT+B / F / N | navegador (sempre janela nova) / yazi / Neovim |
+| SUPER+S / M / D / R | especiais: scratchpad / Spotify / Discord / Obsidian (veja Workspaces) |
+| CTRL+SHIFT+Escape | especial do btop |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
 | SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
-| Shift direito+F12 (no jogo, desktop, com `mangohud gamemoderun %command%`) | esconder/mostrar o HUD do MangoHud (começa visível) |
 | SUPER+F12 (modo console) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
-| SUPER+Q ou SUPER+W | fechar janela |
-| SUPER+F / M / T | tela cheia / maximizar / flutuar |
+| SUPER+Q ou SUPER+W | fechar janela; SUPER+CTRL+Q fecha todas do workspace; SUPER+SHIFT+ALT+Q mata a janela clicada (app travado) |
+| SUPER+F / ALT+F / T | tela cheia / maximizar / flutuar |
+| SUPER+CTRL+F | tela cheia dentro do tile (o app acha que está em tela cheia) |
+| SUPER+P / ALT+P | pop-out que vai e volta (flutua, fixa em todos os workspaces) / pop-out pequeno no canto |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
+| SUPER+Z / X (segurando) | mover / redimensionar a janela com o mouse, sem botão |
 | SUPER+1…0 | workspace; com SHIFT, leva a janela junto; com CTRL, manda a janela e fica |
-| SUPER+Tab | próximo workspace do monitor |
-| SUPER+crase | scratchpad (SUPER+SHIFT+crase manda a janela para lá) |
+| SUPER+Tab ou Page_Down | próximo workspace do monitor |
 | SUPER+O, SUPER+ALT+O | focar o outro monitor; ligar/desligar a TV |
+| SUPER+N | central de controle do Noctalia (SUPER+CTRL+A: áudio; SUPER+CTRL+B: bluetooth) |
 | SUPER+SHIFT+S | print de uma região |
 | SUPER+V | histórico da área de transferência |
-| SUPER+Escape | bloquear a tela |
+| SUPER+SHIFT+M / SUPER+ALT+M | mudo / microfone mudo |
+| SUPER+Escape | bloquear a tela (SUPER+ALT+Escape: volta o bloqueio se o Noctalia cair) |
+| SUPER+SHIFT+Escape ou CTRL+ALT+Delete | menu de sessão |
+| SUPER+ALT+F1 | desliga todos os atalhos (VM, área de trabalho remota); de novo, liga |
 | SUPER+CTRL+R | recarregar a config do Hyprland |
-| SUPER+F1 | cola de atalhos |
+| SUPER+F1 ou SUPER+/ | cola de atalhos, agrupada por categoria |
 
 **tmux** (prefixo **Ctrl+Space**: aperte, solte, depois a tecla)
 
@@ -529,8 +547,11 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 4. Recarregue: **SUPER+CTRL+R** ou `hyprctl reload`. Isso desliga a TV no Hyprland; ligue de novo com SUPER+ALT+O.
 5. Confira se não sobrou erro: `hyprctl configerrors`.
 
-#### Fazer um app abrir num workspace fixo
-Veja o bloco "Workspace fixo por app" em `hypr/hyprland/rules.lua`. Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
+#### Fazer um app flutuar, ou abrir num especial
+Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
+- **Flutuar:** acrescente a classe numa das listas de tag do `hypr/hyprland/rules.lua` (`float`, `float_60_70`...).
+- **Num especial:** acrescente o app na tabela `toggles` do `hypr/variables.lua`.
+- **Regra só daquele app** (workspace fixo, foco, tamanho): crie `hypr/hyprland/apps/<app>.lua` com `F.window(...)` e ponha o nome na lista do `hypr/hyprland.lua`.
 
 #### Trocar o app padrão de um tipo de arquivo
 O `xdg-open` (usado pelos apps em "abrir pasta", "abrir com o padrão" etc.) lê o `~/.config/mimeapps.list`. Esse arquivo fica fora do chezmoi, porque outros apps também o editam; as escolhas ficam no script `run_onchange_after_mime-defaults.sh`, uma linha `xdg-mime default <app>.desktop <tipo>` por tipo:
