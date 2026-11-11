@@ -109,7 +109,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer, e leva o workspace 10 (jogos) junto | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
 | `steam-console` | Steam Big Picture dentro do gamescope (modo console), na TV | **SUPER+CTRL+SHIFT+G**; `--monitor` para jogar no monitor (**SUPER+CTRL+SHIFT+ALT+G**); `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). No modo console, o mesmo atalho sai para o desktop, o do outro lugar troca TV ↔ monitor e SUPER+SHIFT+G sai com a janela da Steam no workspace 8 |
-| `game-run` | prefixo de todos os jogos (Steam, emuladores, recomps): gamemode e, fora do gamescope, MangoHud (começa oculto); no modo console o HUD é o mangoapp | na Steam: opções de inicialização `game-run %command%` |
+| `game-run` | prefixo de todos os jogos (Steam, emuladores, recomps): só o gamemode; o MangoHud só quando pedido (veja [Ver as métricas de um jogo e limitar o FPS](#ver-as-métricas-de-um-jogo-e-limitar-o-fps)) | na Steam: opções de inicialização `game-run %command%` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
@@ -160,9 +160,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
 | SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
-| Shift direito+F12 (no jogo, desktop) | mostrar/esconder o HUD do MangoHud (começa escondido; vem do `game-run`) |
-| SUPER+F12 (modo console) | mostrar/esconder o HUD do mangoapp (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
-| Shift esquerdo+F1 (no jogo, desktop) | limite de FPS do MangoHud: 141 ↔ sem limite (no modo console, o limite é o do gamescope) |
+| Shift direito+F12 (no jogo, desktop, com `mangohud game-run %command%`) | esconder/mostrar o HUD do MangoHud (começa visível) |
+| SUPER+F12 (modo console) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
@@ -297,7 +296,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele abre pelo `game-run` (gamemode e MangoHud oculto), como os outros jogos.
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. Ele abre pelo `game-run` (gamemode), como os outros jogos, sem MangoHud.
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 
@@ -322,7 +321,7 @@ O ES-DE (`emulationstation-de`, do AUR) lista os jogos de todas as plataformas e
 | `es_systems.xml` | os sistemas que faltam no ES-DE ou que mudam: hoje o `switch2` (Nintendo Switch 2), com os jogos em `~/Games/Emulators/Switch2/ROMs` (`.nup`) |
 | `es_find_rules.xml` | onde achar cada emulador (`LICHII`: o AppImage em `Emulators/Apps`, em X11) e o pré-comando `GAME-RUN` |
 
-O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: gamemode e MangoHud só no jogo, não no ES-DE. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
+O jogo abre com `game-run lichii.AppImage -f -g <jogo>`: gamemode só no jogo, não no ES-DE. O resto da config do ES-DE (`~/ES-DE/settings/es_settings.xml`, listas de jogos, imagens baixadas) é escrito pelo próprio ES-DE e fica fora do repositório.
 
 **Abrir pela Steam** (controle pelo Steam Input, e a Steam desliga as teclas falsas do controle):
 1. Steam → **Adicionar um jogo** → **Adicionar um jogo não-Steam** → marque **ES-DE**.
@@ -550,6 +549,28 @@ chezmoi forget ~/.config/programa/config.toml   # fica no disco, sai do repo
 ```sh
 chezmoi update -v
 ```
+
+#### Ver as métricas de um jogo e limitar o FPS
+O MangoHud não roda por padrão: o `game-run` é só o gamemode. É o jeito mais comum na comunidade (README do MangoHud, ArchWiki), e assim um jogo que não se dá com ele não trava sem você saber por quê.
+
+| Onde | Ver as métricas | Parar |
+|---|---|---|
+| Steam, desktop | opções de inicialização: `mangohud game-run %command%` (começa visível; Shift direito+F12 esconde) | voltar para `game-run %command%` |
+| Modo console | SUPER+F12, em qualquer jogo (é o mangoapp do gamescope, sem mexer nas opções) | SUPER+F12 |
+| Emulador ou recomp | uma vez pelo terminal: `mangohud game-run <programa>` | fechar |
+
+As duas formas leem o mesmo `~/.config/MangoHud/MangoHud.conf`. Logs: Shift esquerdo+F2, gravados no `$HOME`.
+
+**Limite de FPS: 3 abaixo da taxa da tela.** Encostar na taxa da tela tira o jogo do VRR e traz o atraso do V-Sync; 3 abaixo é a recomendação da Blur Busters. Monitor de 144 Hz → **141**; TV a 60 Hz → **57**. O limite fica fora do MangoHud: não pode depender do HUD, e o limitador dele já travou jogos aqui. Por jogo, nesta ordem:
+
+| Caso | Como |
+|---|---|
+| o jogo tem limitador próprio | **141** no menu do jogo (o melhor: não acrescenta atraso) |
+| não tem (Proton) | opções de inicialização: `DXVK_FRAME_RATE=141 VKD3D_FRAME_RATE=141 game-run %command%` (DXVK: DX9 a DX11; VKD3D: DX12) |
+| modo console | nada: o `steam-console` passa `-r` = taxa − 3 ao gamescope |
+| emuladores e recomps | nada: os jogos rodam a 30 ou 60 |
+
+Com o MangoHud ligado, confira: FPS estável perto de 141, e o menu do monitor mostrando a frequência acompanhando o FPS (o VRR agindo).
 
 #### Desfazer uma mudança
 O chezmoi não tem "desfazer"; o git tem:

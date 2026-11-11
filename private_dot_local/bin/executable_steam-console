@@ -104,12 +104,13 @@ fi
 fps=$((refresh - 3))
 
 # HUD: o mangoapp lê uma cópia do MangoHud.conf (a Steam pode reescrever o
-# arquivo apontado; a cópia protege o original). Com o no_display, o HUD
-# começa oculto e o gamescope nem abre o mangoapp, então o Shift_R+F12 não tem
-# quem o receba (src/steamcompmgr.cpp, mangoapp_instances_wanted). Quem mostra
-# e esconde é o SUPER+F12 (mangohudctl toggle no_display, binds/apps.lua).
+# arquivo apontado; a cópia protege o original), com o no_display a mais: o
+# HUD começa oculto e o gamescope nem abre o mangoapp, então ele não custa
+# nada nem o Shift_R+F12 tem quem o receba (src/steamcompmgr.cpp,
+# mangoapp_instances_wanted). Quem mostra e esconde é o SUPER+F12
+# (mangohudctl toggle no_display, binds/apps.lua).
 hud="$state/MangoHud.conf"
-cp "$HOME/.config/MangoHud/MangoHud.conf" "$hud" || true
+{ cat "$HOME/.config/MangoHud/MangoHud.conf"; echo no_display; } >"$hud" || true
 
 echo "$target" >"$state/current"
 rm -f "$state/next"
@@ -117,7 +118,7 @@ rm -f "$state/next"
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
 # --mangoapp: o HUD em camada do gamescope (o mangohud normal aqui dentro não
-# é suportado, README do MangoHud; o game-run não o injeta aqui). A variável
+# é suportado, README do MangoHud). A variável
 # vale só para o gamescope, sem export: a Steam reaberta no fim não a herda.
 MANGOHUD_CONFIGFILE="$hud" \
     gamescope -e -f --adaptive-sync --mangoapp \
