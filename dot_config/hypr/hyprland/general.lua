@@ -1,10 +1,10 @@
--- Margens, bordas, tearing, o layout dwindle e o arrastar das janelas.
+-- Margens, tearing, o layout dwindle e o arrastar das janelas.
+-- A borda fica no padrão do Hyprland, 1 px (Caelestia e dots-hyprland usam o mesmo). O2
 local vars = require("variables")
 
 hl.config({
 	general = {
 		gaps_out = vars.windowGapsOut,
-		border_size = vars.windowBorderSize,
 		-- espaço entre um workspace e outro na animação de troca (Caelestia). O1
 		gaps_workspaces = vars.workspaceGaps,
 		-- cores das bordas: vêm do tema do Noctalia (noctalia.lua, gerado pelo template)
