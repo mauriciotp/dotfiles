@@ -7,7 +7,7 @@
 set -euo pipefail
 
 if [[ ${1:-} == --window ]]; then
-    exec ghostty --class=com.mauricio.keybinds --title="Keybinds" -e "$0"
+    exec ghostty --class=com.mauricio.float --title="Keybinds" -e "$0"
 fi
 
 # cores do Noctalia: aberto pelo Hyprland, o script não herda o FZF_DEFAULT_OPTS do zsh

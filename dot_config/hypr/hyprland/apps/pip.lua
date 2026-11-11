@@ -6,6 +6,7 @@ F.window("pip", { title = "^(Picture.?in.?[Pp]icture)$" }, {
 	float = true,
 	pin = true,
 	keep_aspect_ratio = true,
+	border_size = 0, -- sem borda, como um vídeo solto na tela (Omarchy). Q6
 	size = { "monitor_w*0.3", "monitor_h*0.3" },
 	move = { "monitor_w-window_w-24", "monitor_h*0.06" },
 })

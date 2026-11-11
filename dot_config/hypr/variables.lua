@@ -23,7 +23,8 @@ return {
 
 	-- ===== Aparência =====
 	windowGapsOut = 10, -- doc do Noctalia
-	windowBorderSize = 2,
+	windowBorderSize = 1, -- Caelestia e dots-hyprland. O2
+	workspaceGaps = 20, -- espaço entre workspaces na animação de troca. O1
 	windowRounding = 12,
 	inactiveOpacity = 0.95,
 	blurXray = true, -- doc do Noctalia (as três do blur)

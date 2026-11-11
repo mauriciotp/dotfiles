@@ -24,19 +24,95 @@ window(
 -- (e diálogos X11). Aqui ficam só as que deveriam flutuar mas não avisam.
 -- Para saber se uma regra sobra: comente, recarregue (SUPER+CTRL+R), abra a janela.
 
--- senha do GPG/SSH (pinentry-gtk): flutua e não perde o foco
-window("pinentry", "^pinentry-.*$", { float = true, center = true, size = { 520, 220 }, stay_focused = true })
+-- senha do GPG/SSH (pinentry-gtk): flutua, não perde o foco e sai preta em
+-- gravações e compartilhamentos de tela (no_screen_share, Omarchy). Q1
+window("pinentry", "^pinentry-.*$", { float = true, center = true, size = { 520, 220 }, stay_focused = true, no_screen_share = true })
 -- escolher a tela ao compartilhar (xdg-desktop-portal-hyprland)
 window("share-picker", "^hyprland-share-picker$", { float = true, center = true, size = { 640, 480 } })
+
+-- Popup da extensão do Bitwarden: flutua em 20% × 54% e sai preto em gravações
+-- (Caelestia; no_screen_share do Omarchy). Firefox pelo título; Chrome e
+-- derivados pela classe, que leva o id da extensão. Se o popup nascer com
+-- outro título e escapar da regra, o "resizer" por evento do Caelestia é a
+-- reserva (R12). R13, Q1
+local bitwarden = { float = true, center = true, size = { "monitor_w*0.2", "monitor_h*0.54" }, no_screen_share = true }
+window("bitwarden-firefox", { title = "^Extension: \\(Bitwarden Password Manager\\) - Bitwarden.*$" }, bitwarden)
+window("bitwarden-chromium", ".*nngceckbapebfimnlniiiahkandclblb.*", bitwarden)
+
+-- Aviso "está compartilhando a tela" do navegador: vai para um especial que
+-- nunca é aberto (Omarchy); o Firefox já mostra o controle na barra dele. Q5
+window("sharing-indicator", { title = ".*is sharing.*" }, { workspace = "special:sharing silent" })
+
+-- Toda janela flutuante nasce centralizada, menos as do XWayland: no XWayland,
+-- menus e popups também são janelas (Caelestia). R7
+window("center-floating", { float = true, xwayland = false }, { center = true })
+
+-- Janela fixada em todos os workspaces (pin) com a borda em outra cor
+-- (dots-hyprland), para saber qual está fixada. A cor vem do Noctalia. R15
+local ok, noctalia = pcall(require, "noctalia")
+if ok and noctalia.colors then
+	window("pinned-border", { pin = true }, { border_color = noctalia.colors.secondary })
+end
+
+-- Margem maior no workspace especial: deixa claro que é uma camada por cima
+-- (dots-hyprland). R16
+hl.workspace_rule({ workspace = "s[true]", gaps_out = 30 })
+
+-- Layers sem animação: o seletor de cor e a seleção de região (Caelestia,
+-- dots-hyprland). R17
+hl.layer_rule({ name = "no-anim-pickers", match = { namespace = "^(hyprpicker|selection)$" }, no_anim = true })
 
 -- ===== Listas por tag =====
 -- Para um app ganhar o comportamento de uma tag, acrescente a classe dele na
 -- lista (como o hyprctl clients mostra, em regex).
 
--- flutua centralizada em 60% × 75% da tela
-tagged_rule("float_60_75", {
+-- Tags de tamanho (Caelestia): flutua, centraliza e ocupa uma % da tela.
+-- float_50_60, float_60_70 e float_70_80; "float" só flutua; "float_small"
+-- tem tamanho fixo, para visualizadores (Omarchy, floating-window). R3, Q3
+
+-- 60% × 70%
+tagged_rule("float_60_70", {
 	"^xdg-desktop-portal-gtk$", -- seletor de arquivos do portal, para apps que não informam a janela-pai
-	"^com\\.mauricio\\.keybinds$", -- cola de atalhos (SUPER+F1): janela comum do Ghostty
+	-- programa de terminal flutuante (Omarchy, TUI.float): qualquer
+	-- "ghostty --class=com.mauricio.float -e <programa>" abre assim; a cola do
+	-- SUPER+F1 usa esta classe. Q4
+	"^com\\.mauricio\\.float$",
+}, "class")
+-- diálogos de arquivo pelo título, para os apps que não usam o portal
+-- (Caelestia, dots-hyprland). Os títulos estão em inglês: um app em português
+-- não casa. R4
+tagged_rule("float_60_70", {
+	"(Select|Open)( a)? (File|Folder)(s)?",
+	"Save As",
+}, "title")
+
+-- só flutua
+tagged_rule("float", { "^zenity$" }, "class") -- diálogos de scripts. R6
+tagged_rule("float", {
+	"File (Operation|Upload)( Progress)?", -- progresso de cópia e envio
+	".* Properties", -- propriedades de um arquivo
+	'Rename ".*"', -- renomear
+}, "title") -- R5
+
+-- tamanho fixo (875 × 600): mpv, imv e outros visualizadores, quando instalados
+-- tagged_rule("float_small", { "^(mpv|imv)$" }, "class")
+
+-- popups do XWayland (menus da Steam e de jogos): sem blur, sem sombra, sem
+-- escurecer, opacos e com cantos pequenos (Caelestia). R9
+tagged_rule("xwl_popup", {
+	{ xwayland = true, title = "win[0-9]+" },
+	{ xwayland = true, title = "^$", class = "^$", initial_title = "^$", initial_class = "^$" },
+	{ class = "^steam$", title = "^$" },
+})
+
+-- terminais: uma definição só do que é terminal, para outras regras usarem
+-- ({ tag = "terminal" }). Inclui as classes próprias (k9s, btop, float). Q2
+tagged_rule("terminal", { "^(com\\.mitchellh\\.ghostty|com\\.mauricio\\..+)$" }, "class")
+
+-- navegadores Chromium (Chrome, Brave, Edge, Vivaldi): os web apps nascem
+-- flutuando; a tag os põe no tiling (Omarchy). Q10
+tagged_rule("chromium_browser", {
+	"^((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)$",
 }, "class")
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
@@ -49,7 +125,21 @@ end
 
 -- ===== Definição das tags =====
 -- Sempre depois das listas: a regra da tag só enxerga as tags já dadas acima.
-create_tag("float_60_75", { float = true, center = true, size = { "monitor_w*0.6", "monitor_h*0.75" } })
+create_tag("float", { float = true })
+create_tag("float_50_60", { float = true, center = true, size = { "monitor_w*0.5", "monitor_h*0.6" } })
+create_tag("float_60_70", { float = true, center = true, size = { "monitor_w*0.6", "monitor_h*0.7" } })
+create_tag("float_70_80", { float = true, center = true, size = { "monitor_w*0.7", "monitor_h*0.8" } })
+create_tag("float_small", { float = true, center = true, size = { 875, 600 } })
+create_tag("xwl_popup", {
+	no_dim = true,
+	no_shadow = true,
+	no_blur = true,
+	opaque = true,
+	rounding = math.min(10, vars.windowRounding), -- popups são pequenos
+})
+create_tag("chromium_browser", { tile = true })
+-- janela do pop-out (SUPER+P) com cantos menores (Omarchy). Q8
+create_tag("pop", { rounding = 8 })
 -- silent: o app aberto pelo launcher ou no login vai para o especial sem mostrá-lo
 for special in pairs(vars.toggles) do
 	create_tag(special .. "_app", { workspace = "special:" .. special .. " silent" })
