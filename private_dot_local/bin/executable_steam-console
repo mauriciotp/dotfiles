@@ -103,13 +103,25 @@ fi
 # tela virtual do jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
 fps=$((refresh - 3))
 
+# HUD: o mangoapp lê uma cópia do MangoHud.conf (a Steam pode reescrever o
+# arquivo apontado; a cópia protege o original). A cópia vai sem o no_display:
+# com ele, o gamescope nem abre o mangoapp, e o Shift_R+F12 não tem quem o
+# receba (src/steamcompmgr.cpp, mangoapp_instances_wanted). O HUD começa
+# visível; o Shift_R+F12 esconde e mostra.
+hud="$state/MangoHud.conf"
+grep -vx 'no_display' "$HOME/.config/MangoHud/MangoHud.conf" >"$hud" || true
+
 echo "$target" >"$state/current"
 rm -f "$state/next"
 
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
-# Sem --mangoapp por enquanto: o MangoHud fica de fora até decidirmos como ligá-lo
-gamescope -e -f --adaptive-sync \
+# --mangoapp: o HUD em camada do gamescope (o mangohud normal aqui dentro não
+# é suportado, README do MangoHud). DISABLE_MANGOHUD desliga o mangohud das
+# opções do jogo, para não haver dois HUDs. As variáveis valem só para o
+# gamescope, sem export: a Steam reaberta no fim não as herda.
+MANGOHUD_CONFIGFILE="$hud" DISABLE_MANGOHUD=1 \
+    gamescope -e -f --adaptive-sync --mangoapp \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
 # A Steam fechou: o recado diz para onde ir (sem recado: saída pelo Big Picture)

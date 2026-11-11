@@ -160,8 +160,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do modo console), Heroic |
 | SUPER+CTRL+SHIFT+G | modo console na TV (gamescope); de novo, sai para o desktop |
 | SUPER+CTRL+SHIFT+ALT+G | modo console no monitor; aberto na TV, troca para o monitor (e o outro atalho volta para a TV) |
-| Shift direito+F12 (no jogo, com `mangohud %command%`) | mostrar/esconder o HUD do MangoHud (começa escondido) |
-| Shift esquerdo+F1 (no jogo, com `mangohud %command%`) | limite de FPS do MangoHud: 141 ↔ sem limite |
+| Shift direito+F12 (no jogo) | mostrar/esconder o HUD do MangoHud. No desktop, com `mangohud %command%`, começa escondido; no modo console (mangoapp, em qualquer jogo), começa visível |
+| Shift esquerdo+F1 (no jogo, desktop, com `mangohud %command%`) | limite de FPS do MangoHud: 141 ↔ sem limite (no modo console, o limite é o do gamescope) |
 | SUPER+Q ou SUPER+W | fechar janela |
 | SUPER+F / M / T | tela cheia / maximizar / flutuar |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
