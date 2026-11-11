@@ -3,7 +3,7 @@
 # O overlay da Steam vira uma camada do gamescope, em vez de ser desenhado
 # dentro do jogo a cada quadro (lento em 4K).
 #
-# Uso (os atalhos ficam em hypr/binds/apps.lua):
+# Uso (os atalhos ficam em hypr/hyprland/keybinds.lua):
 #   steam-console            modo console na TV          SUPER+CTRL+SHIFT+G
 #   steam-console --monitor  modo console no monitor     SUPER+CTRL+SHIFT+ALT+G
 #   steam-console --desktop  Steam normal (workspace 8)  SUPER+SHIFT+G
@@ -108,7 +108,7 @@ fps=$((refresh - 3))
 # HUD começa oculto e o gamescope nem abre o mangoapp, então ele não custa
 # nada nem o Shift_R+F12 tem quem o receba (src/steamcompmgr.cpp,
 # mangoapp_instances_wanted). Quem mostra e esconde é o SUPER+F12
-# (mangohudctl toggle no_display, binds/apps.lua).
+# (mangohudctl toggle no_display, hypr/hyprland/keybinds.lua).
 hud="$state/MangoHud.conf"
 { cat "$HOME/.config/MangoHud/MangoHud.conf"; echo no_display; } >"$hud" || true
 

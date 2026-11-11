@@ -1,4 +1,4 @@
--- Teclado e mouse. Só o que difere do padrão do Hyprland.
+-- Teclado e mouse.
 hl.config({
 	input = {
 		kb_variant = "altgr-intl", -- US com acentos pelo AltGr

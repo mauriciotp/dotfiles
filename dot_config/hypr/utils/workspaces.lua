@@ -8,7 +8,7 @@
 -- O SUPER+número vai para o número do monitor em foco (no secundário, 3 = 13).
 -- Quando uma tela liga ou desliga, reconcile() renumera os workspaces (3 ↔ 13)
 -- e leva cada um ao monitor certo.
-local screens = require("monitors")
+local screens = require("variables").screens
 
 local W = {}
 
@@ -147,7 +147,7 @@ local function renumber(from, to)
 	end
 end
 
--- ===== Regras de app: o workspace depende do bloco =====
+-- ===== Regras de app: o workspace depende do bloco (usadas em hyprland/rules.lua) =====
 local app_rules = {}
 
 -- W.app(name, match, slot): manda o app para o slot no monitor certo
@@ -192,7 +192,7 @@ function W.reconcile()
 	end
 end
 
--- ===== Ações dos atalhos (binds/workspaces.lua) =====
+-- ===== Ações dos atalhos (hyprland/keybinds.lua) =====
 -- Vai ao slot no monitor em foco, ou no outro monitor (on_other = true)
 function W.focus(slot, on_other)
 	local layout = W.layout()

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Cola de atalhos do Hyprland (SUPER+F1). Lista os atalhos que têm descrição
-# (flag description nos arquivos de ~/.config/hypr/binds/) num fzf para buscar.
+# (flag description em ~/.config/hypr/hyprland/keybinds.lua) num fzf para buscar.
 # Uso: keybinds          → lista no terminal atual
 #      keybinds --window → abre numa janela flutuante do Ghostty
 set -euo pipefail

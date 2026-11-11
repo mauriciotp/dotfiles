@@ -1,24 +1,26 @@
--- Ponto de entrada: só carrega os outros arquivos.
+-- Ponto de entrada: só carrega os outros arquivos, nesta ordem.
 -- Variáveis de ambiente NÃO ficam aqui: estão em ~/.config/uwsm/env (wiki do Hyprland).
--- Estrutura (inspirada no Omarchy):
---   monitors, look, input   telas, aparência, teclado e mouse
---   workspaces              workspaces por monitor e o workspace dos jogos
---   binds/                  atalhos por contexto
---   apps/                   regras por app (workspace, janelas flutuantes)
-require("monitors")
-require("look")
-require("input")
-require("workspaces")
+-- Estrutura (Caelestia, com a pasta apps/ do Omarchy):
+--   variables.lua        apps, telas e valores (sem teclas)
+--   hyprland/            um arquivo por seção do Hyprland
+--   hyprland/apps/       o que é de um app só: regra e evento juntos
+--   utils/               funções (bind, run, window, tags) e os workspaces por monitor
+require("hyprland.monitors")
+require("hyprland.general")
+require("hyprland.input")
+require("hyprland.misc")
+require("hyprland.animations")
+require("hyprland.decoration")
+require("utils.workspaces")
+require("hyprland.execs")
+require("hyprland.rules")
 
-for _, f in ipairs({ "apps", "shell", "capture", "windows", "workspaces", "media" }) do
-	require("binds." .. f)
+-- App novo com regra própria: crie o arquivo em hyprland/apps/ e ponha o nome aqui
+for _, app in ipairs({ "games", "steam", "obsidian", "pip", "noctalia" }) do
+	require("hyprland.apps." .. app)
 end
 
-for _, f in ipairs({ "system", "noctalia", "terminals", "firefox", "discord", "obsidian", "obs", "k9s", "steam", "spotify", "games" }) do
-	require("apps." .. f)
-end
-
-require("autostart")
+require("hyprland.keybinds")
 
 -- Cores do Noctalia: o arquivo é gerado pelo template "hyprland".
 -- Sem ele (instalação nova), o Hyprland sobe sem o tema em vez de dar erro.

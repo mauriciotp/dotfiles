@@ -72,14 +72,14 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 ├── dot_config/                  ~/.config/
 │   ├── hypr/                    Hyprland (Lua)
 │   │   ├── hyprland.lua         ponto de entrada: carrega os outros arquivos
-│   │   ├── monitors.lua         telas: nomes, modos, posições, VRR
-│   │   ├── workspaces.lua       workspaces por monitor (1–10, jogos no 10)
-│   │   ├── input.lua, look.lua  teclado/mouse; bordas, gaps, blur, animações
-│   │   ├── lib.lua              funções auxiliares (bind, float, caminhos)
-│   │   ├── autostart.lua        inicia o Noctalia pelo uwsm
+│   │   ├── variables.lua        apps, telas e valores usados pelos outros arquivos
+│   │   ├── dot_luarc.json       o Neovim completa e valida a API hl
 │   │   ├── create_noctalia.lua  cores das bordas (gerado pelo Noctalia)
-│   │   ├── apps/                regras de janela por app (workspace, flutuar, jogos)
-│   │   └── binds/               atalhos, um arquivo por grupo
+│   │   ├── hyprland/            um arquivo por seção: monitors, general, decoration,
+│   │   │                        animations, input, misc, execs, rules, keybinds
+│   │   │   └── apps/            o que é de um app só (jogos, Steam, Obsidian, PiP, Noctalia)
+│   │   └── utils/               functions.lua (bind, run, window, tags) e
+│   │                            workspaces.lua (1–10 por monitor, jogos no 10)
 │   ├── uwsm/env, env-hyprland   variáveis de ambiente da sessão (NVIDIA, Qt, PATH...)
 │   ├── noctalia/config.toml     config do Noctalia (tema, templates, notificações)
 │   ├── ghostty/                 config do terminal + tema
@@ -139,14 +139,14 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - Cada app tem um workspace fixo: 1 dev, 2 web, 3 chat, 4 notes, 5 media, 6 tools, 8 stores, **10 games**.
 - **SUPER+número** vai para o workspace no monitor em foco; a tecla 0 é o 10.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. Com **SUPER+ALT+O**, `tv-toggle` a liga e o workspace 10 vai para a TV. Com a TV desligada, o 10 fica no monitor.
-- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/apps/games.lua`: janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps.
+- **Jogos** vão sozinhos para o workspace 10, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps.
 - **Monitor QHD futuro:** `monitors.lua` tem o campo `qhd`. Quando ele chegar, os workspaces 3, 5, 6 e 8 passam para o monitor secundário como 13, 15, 16 e 18; `workspaces.lua` faz isso sozinho.
 
 **Numa máquina com outras telas, edite `monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
 
 ### Atalhos principais
 
-A lista completa está sempre a um **SUPER+F1** de distância, porque ela é gerada a partir dos próprios arquivos de `hypr/binds/`.
+A lista completa está sempre a um **SUPER+F1** de distância, porque ela é gerada a partir das descrições do `hypr/hyprland/keybinds.lua`.
 
 **Hyprland** (SUPER = tecla Windows)
 
@@ -364,7 +364,7 @@ Saves em `~/.local/share/hookshot`: copie antes de cada update.
 **Um recomp novo:**
 1. Baixe o builder só da página de releases do projeto e confira o `sha256`.
 2. Monte o jogo em `~/Games/Recomps/<projeto>`.
-3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista `emulators` de `hypr/apps/games.lua`.
+3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista da tag `game` em `hypr/hyprland/apps/games.lua`.
 4. Copie o `.desktop.tmpl` do Hookshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
 5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
@@ -520,7 +520,7 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 ```
 
 #### Adicionar um atalho no Hyprland
-1. `chezmoi edit --apply ~/.config/hypr/binds/apps.lua` (ou o arquivo do grupo certo).
+1. `chezmoi edit --apply ~/.config/hypr/hyprland/keybinds.lua`, no bloco certo.
 2. Copie uma linha `bind(...)` existente. A descrição em inglês é o que aparece no SUPER+F1.
 3. Valide **antes** de recarregar:
    ```sh
@@ -530,7 +530,7 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 5. Confira se não sobrou erro: `hyprctl configerrors`.
 
 #### Fazer um app abrir num workspace fixo
-Veja os arquivos em `hypr/apps/`. Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
+Veja o bloco "Workspace fixo por app" em `hypr/hyprland/rules.lua`. Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
 
 #### Trocar o app padrão de um tipo de arquivo
 O `xdg-open` (usado pelos apps em "abrir pasta", "abrir com o padrão" etc.) lê o `~/.config/mimeapps.list`. Esse arquivo fica fora do chezmoi, porque outros apps também o editam; as escolhas ficam no script `run_onchange_after_mime-defaults.sh`, uma linha `xdg-mime default <app>.desktop <tipo>` por tipo:
@@ -631,7 +631,7 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | Uma edição sumiu depois de um `apply` | foi feita em `~` sem `re-add`. Recupere pelo histórico do editor; daí em diante use `chezmoi edit` |
 | O tmux abre sem cores e sem plugins | o TPM não instalou os plugins: **Ctrl+Space I**. Se nem o TPM existir: `chezmoi apply -R` |
 | O bat ignora o tema | `bat cache --build` |
-| Um app não vai para o workspace certo | `hyprctl clients`, compare a `class:` com a regra em `hypr/apps/` |
+| Um app não vai para o workspace certo | `hyprctl clients`, compare a `class:` com a regra em `hypr/hyprland/rules.lua` ou `hypr/hyprland/apps/` |
 | A TV ficou com os workspaces depois de acordar o PC | `hyprctl reload` (SUPER+CTRL+R), que leva tudo de volta ao monitor |
 | A TV liga em 4K@60 com um aviso, ou fica sem sinal | o PC ligou com a TV desligada, e o driver da NVIDIA só ofereceu até 4K@60. Com a TV ligada, tire e recoloque o cabo HDMI e aperte SUPER+ALT+O de novo. Reler a porta pelo kernel (`echo detect \| sudo tee /sys/class/drm/card1-HDMI-A-1/status`) não resolve (testado em 2026-11-10). Para conferir: `hyprctl monitors all -j \| jq -r '.[] \| select(.name=="HDMI-A-1") \| .availableModes[]' \| grep 3840x2160` deve listar o 143.98 ou 143.99 |
 | Uma sessão do tmux que você matou voltou | o retrato salvo era anterior ao kill: mate de novo e aperte **Ctrl+Space Ctrl+s** |

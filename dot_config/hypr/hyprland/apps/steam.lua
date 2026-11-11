@@ -1,27 +1,20 @@
--- Steam e Heroic: workspace 8 (stores); no segundo monitor, quando houver.
+-- Steam: janelas extras, lista de amigos e Big Picture.
 -- Os jogos e o Big Picture vão para o 10 (na TV quando ela está ligada).
-local L = require("lib")
-local W = require("workspaces")
-
-W.app("ws-stores", { class = "^(steam|heroic)$" }, 8)
+local F = require("utils.functions")
+local W = require("utils.workspaces")
 
 local function is_big_picture(w)
 	return w and w.class == "steam" and w.title ~= nil and w.title:find("Big Picture", 1, true) ~= nil
 end
 
 -- Propriedades do jogo, Configurações e chat são janelas XWayland sem pai:
--- flutuam (apps/system.lua). O Big Picture fica de fora.
-L.single_main_window["steam"] = function(w)
+-- flutuam (hyprland/rules.lua). O Big Picture fica de fora.
+F.single_main_window["steam"] = function(w)
 	return not is_big_picture(w)
 end
 
 -- lista de amigos alta e estreita
-hl.window_rule({
-	name = "steam-friends",
-	match = { class = "^steam$", title = "^Friends List$" },
-	float = true,
-	size = { 460, 800 },
-})
+F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { float = true, size = { 460, 800 } })
 
 -- Big Picture: vai para o 10 e fica em tela cheia, como um console.
 -- Por evento, e não por regra: as regras só olham o título inicial (wiki,

@@ -1,5 +1,5 @@
 -- Noctalia (doc oficial: docs.noctalia.dev → Compositor Settings → Hyprland)
-local L = require("lib")
+local F = require("utils.functions")
 
 -- blur nos painéis, sem a animação de camada do Hyprland
 hl.layer_rule({
@@ -12,4 +12,4 @@ hl.layer_rule({
 })
 
 -- janela de configurações (SUPER+vírgula)
-L.float("noctalia-settings", { class = "^dev\\.noctalia\\.Noctalia$" }, { 1080, 920 })
+F.window("noctalia-settings", "^dev\\.noctalia\\.Noctalia$", { float = true, center = true, size = { 1080, 920 } })
