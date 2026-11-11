@@ -16,7 +16,7 @@ palette = "noctalia"
 
 format = """
 $directory\
-$git_branch$git_state$git_status\
+$git_branch$git_state$git_status$git_metrics\
 $nodejs$golang$python$rust\
 $docker_context$kubernetes\
 $jobs$sudo\
@@ -58,6 +58,12 @@ stashed = "≡"
 ahead = "⇡${count}"
 behind = "⇣${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+
+# Linhas adicionadas e removidas desde o último commit (+12 -3); só aparece com
+# mudanças. Roda um git diff a cada prompt: se ficar lento num repositório
+# grande, volte para disabled = true (Caelestia, S4)
+[git_metrics]
+disabled = false
 
 # --- Linguagens: cada uma só aparece em pastas com arquivos dela ---
 # (package.json, go.mod, pyproject.toml, Cargo.toml...)
