@@ -46,7 +46,7 @@ Se estiver perdido, vá direto para [Manutenção: o ciclo básico](#o-ciclo-bá
 | Terminal | **Ghostty** | terminal padrão (JetBrainsMono Nerd Font) |
 | Multiplexador | **tmux** 3.8 | sessões persistentes; prefixo **Ctrl+Space** |
 | Shell | **zsh** | config em `~/.config/zsh` (via `ZDOTDIR`), modo vi, fzf-tab |
-| Prompt | **Starship** | prompt de 2 linhas |
+| Prompt | **Starship** | prompt de 2 linhas no estilo padrão do Starship (`pasta on  branch [status] via  versão took 3s`), com os ícones do preset nerd-font-symbols |
 | Editor | **Neovim** + LazyVim | tema catppuccin-mocha |
 | Ferramentas de terminal | fzf, fd, bat, eza, zoxide, yazi, lazygit, ripgrep | busca, preview, `ls`, `cd` inteligente, arquivos, git |
 | Linguagens | **mise** | Go (latest) e Node (LTS) |
