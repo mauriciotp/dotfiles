@@ -188,6 +188,7 @@ function F.toggle(name)
 		end
 		hl.dispatch(hl.dsp.focus({ workspace = target }))
 		local windows = hl.get_windows() or {}
+		local brought -- a última janela trazida de outro workspace
 		for _, app in pairs(vars.toggles[name] or {}) do
 			local running = false
 			for _, w in ipairs(windows) do
@@ -196,12 +197,18 @@ function F.toggle(name)
 					local here = w.workspace and w.workspace.name == target
 					if app.move and not here then
 						hl.dispatch(hl.dsp.window.move({ window = "address:" .. w.address, workspace = target, follow = false }))
+						brought = w.address
 					end
 				end
 			end
 			if not running and app.command then
 				hl.dispatch(F.run(app.command))
 			end
+		end
+		-- o especial abriu antes de a janela chegar (vazio, sem nada para focar):
+		-- foca a janela trazida, senão o teclado não vai para ela
+		if brought then
+			hl.dispatch(hl.dsp.focus({ window = "address:" .. brought }))
 		end
 	end
 end
