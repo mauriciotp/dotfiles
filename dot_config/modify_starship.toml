@@ -6,11 +6,12 @@
 palette = "noctalia"
 # Prompt no estilo padrão do Starship (o do README): cada parte com a palavra de
 # ligação (on, via, is, took, in), em negrito, e o status do git entre colchetes.
-# Ícones do preset "nerd-font-symbols". Linha 1: usuário (só root/ssh), pasta, git,
+# Ícones: todos os do preset "nerd-font-symbols" (starship preset nerd-font-symbols),
+# gerados como escapes \uXXXX: são caracteres de uso privado que editores (e
+# ferramentas) apagam sem avisar. Linha 1: usuário (só root/ssh), pasta, git,
 # versão do projeto e linguagem (só dentro de projetos), k8s/docker (só onde fazem
 # sentido), sudo e duração do último comando. Linha 2: programas parados e a seta.
-# Ícones precisam de Nerd Font (o Ghostty usa JetBrainsMono Nerd Font). Ficam como
-# escapes \uXXXX porque são caracteres de uso privado que alguns editores apagam.
+# Precisa de Nerd Font (o Ghostty usa JetBrainsMono Nerd Font).
 # Cores: paleta "noctalia", gravada no fim do arquivo pelo template do Noctalia
 # (mesmos nomes da Catppuccin). O chezmoi mantém a paleta que estiver no arquivo;
 # sem ela (instalação nova), usa a Catppuccin Mocha de .chezmoitemplates.
@@ -27,34 +28,33 @@ $sudo\
 $cmd_duration
 $jobs$character"""
 
-# --- Usuário: só aparece como root ou por ssh ("root in pasta") ---
+# Usuário: só aparece como root ou por ssh ("root in pasta").
+# Programas parados (Ctrl+Z), na linha da seta: o jobs já vem ligado; faltava no format (S1).
+# Tempo do último comando: "took 3s", só se passou de 2 s (padrão).
+# git_state aparece só no meio de rebase/merge/cherry-pick (padrão).
 
 # --- Pasta ---
 [directory]
 style = "bold sky"
 truncation_length = 4       # mostra no máximo as 4 últimas pastas
-read_only = " \U000f033e"            # cadeado quando a pasta não é gravável
-repo_root_style = "bold blue"   # a pasta raiz do repositório git em destaque (Caelestia, S3)
+# sem destaque da raiz do repositório (S3, desfeito em 2026-11-11): o prompt fica
+# igual ao padrão do Starship. Para voltar: repo_root_style = "bold underline sky"
+read_only = " \U000f033e"
 
-# --- Programas parados (Ctrl+Z), na linha da seta ---
-# O jobs já vem ligado; faltava no format (S1). Símbolo a partir de 1, número a partir de 2.
-
-# --- sudo liberado (os minutos depois de digitar a senha): "as <chapéu>" ---
+# --- sudo liberado (os minutos depois de digitar a senha): "as <chapéu>" (S2) ---
 [sudo]
 disabled = false
-symbol = " "              # chapéu de mago (preset nerd-font-symbols) (S2)
 style = "bold red"
+symbol = "\uef01 "
 
 # --- Git: "on <branch> [status] +12 -3" ---
 [git_branch]
-symbol = " "
 style = "bold pink"
+symbol = "\uf418 "
 
 [git_commit]                 # só fora de um branch (detached HEAD): o hash e, se houver, a tag
 tag_disabled = false         # a tag vem desligada por padrão
-tag_symbol = "  "      # preset nerd-font-symbols
-
-# git_state aparece só no meio de rebase/merge/cherry-pick (padrão)
+tag_symbol = " \uf412 "
 
 # status entre colchetes, como no padrão: ? novo, ! alterado, + no stage, ⇡⇣ commits
 # para enviar/receber (aqui com a contagem)
@@ -69,22 +69,21 @@ diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 [git_metrics]
 disabled = false
 
-# --- Versão do projeto ("is <versão>", de package.json, Cargo.toml...) ---
+# --- Versão do projeto: "is <versão>" (package.json, Cargo.toml...) ---
 [package]
-symbol = "\U000f03d7 "      # preset nerd-font-symbols
-style = "bold peach"
+style = "bold 208"           # laranja, como o padrão (a paleta do Noctalia não tem laranja)
+symbol = "\U000f03d7 "
 
-# --- Linguagens ("via <ícone> <versão>"): só em pastas com arquivos delas ---
-# (package.json, go.mod, pyproject.toml, Cargo.toml...)
+# --- Linguagens: "via <ícone> <versão>", só em pastas com arquivos delas ---
 [nodejs]
-symbol = " "
+symbol = "\ue718 "
 
 [golang]
-symbol = " "
 style = "bold sapphire"
+symbol = "\ue627 "
 
 [python]
-symbol = " "
+symbol = "\ue235 "
 
 [rust]
 symbol = "\U000f1617 "
@@ -92,17 +91,298 @@ symbol = "\U000f1617 "
 # --- Containers ---
 # docker_context só aparece com Dockerfile/compose na pasta e contexto diferente de "default"
 [docker_context]
-symbol = " "
+symbol = "\uf308 "
 
 # k8s só em pastas de manifestos, para não poluir o prompt em todo lugar
 [kubernetes]
 disabled = false
-symbol = "\U000f10fe "
 style = "bold teal"
 format = 'via [$symbol$context( \($namespace\))]($style) '
 detect_files = ["kustomization.yaml", "Chart.yaml", "skaffold.yaml", "Tiltfile", "helmfile.yaml"]
 detect_folders = ["k8s", "kubernetes", "manifests", "charts"]
+symbol = "\U000f10fe "
 
-# --- Tempo do último comando: "took 3s" (padrão: só se passou de 2 s) ---
+# --- Os outros ícones do preset nerd-font-symbols (módulos fora do format acima,
+# ou que aparecem com o $all; ficam prontos se algum entrar) ---
+
+[aws]
+symbol = "\uf0ef "
+
+[azure]
+symbol = "\ue754 "
+
+[battery]
+full_symbol = "\U000f0079 "
+charging_symbol = "\U000f0084 "
+discharging_symbol = "\U000f0083 "
+unknown_symbol = "\U000f0091 "
+empty_symbol = "\U000f008e "
+
+[buf]
+symbol = "\uf49d "
+
+[bun]
+symbol = "\ue76f "
+
+[c]
+symbol = "\ue61e "
+
+[cpp]
+symbol = "\ue61d "
+
+[cmake]
+symbol = "\ue794 "
+
+[cobol]
+symbol = "\uf013 "
+
+[conda]
+symbol = "\ue715 "
+
+[container]
+symbol = "\uf4b7 "
+
+[crystal]
+symbol = "\ue62f "
+
+[dart]
+symbol = "\ue64c "
+
+[deno]
+symbol = "\ue7c0 "
+
+[direnv]
+symbol = "\ue613 "
+
+[dotnet]
+symbol = "\ue77f "
+
+[elixir]
+symbol = "\ue62d "
+
+[elm]
+symbol = "\ue62c "
+
+[erlang]
+symbol = "\uf23f "
+
+[fennel]
+symbol = "\ue6af "
+
+[fortran]
+symbol = "\ue7de "
+
+[fossil_branch]
+symbol = "\uf418 "
+
+[gcloud]
+symbol = "\U000f11f6 "
+
+[gleam]
+symbol = "\uf005 "
+
+[gradle]
+symbol = "\ue660 "
+
+[guix_shell]
+symbol = "\uf325 "
+
+[haskell]
+symbol = "\ue777 "
+
+[haxe]
+symbol = "\ue666 "
+
+[helm]
+symbol = "\ue7fb "
+
+[hg_branch]
+symbol = "\uf418 "
+
+[hostname]
+ssh_symbol = "\ueb01 "
+
+[java]
+symbol = "\ue738 "
+
+[jj_bookmark]
+symbol = "\uf418 "
+
+[julia]
+symbol = "\ue624 "
+
+[kotlin]
+symbol = "\ue634 "
+
+[lua]
+symbol = "\ue620 "
+
+[maven]
+symbol = "\ue674 "
+
+[memory_usage]
+symbol = "\U000f035b "
+
+[meson]
+symbol = "\U000f0537 "
+
+[mojo]
+symbol = "\U000f0238 "
+
+[nats]
+symbol = "\uf0e0 "
+
+[netns]
+symbol = "\U000f06f3 "
+
+[nim]
+symbol = "\ue677 "
+
+[nix_shell]
+symbol = "\uf313 "
+
+[ocaml]
+symbol = "\ue67a "
+
+[odin]
+symbol = "\U000f07e2 "
+
+[opa]
+symbol = "\uf132 "
+
+[openstack]
+symbol = "\ue856 "
+
+[os.symbols]
+AIX = "\ue8cc "
+AlmaLinux = "\uf31d "
+Alpaquita = "\ueaa2 "
+Alpine = "\uf300 "
+ALTLinux = "\uf31a "
+Amazon = "\uf270 "
+Android = "\uf17b "
+AOSC = "\uf301 "
+Arch = "\uf303 "
+Artix = "\uf31f "
+Bazzite = "\uf30a "
+Bluefin = "\uf31a "
+CachyOS = "\uf303 "
+CentOS = "\uf304 "
+Debian = "\uf306 "
+DragonFly = "\ue28e "
+Elementary = "\uf309 "
+Emscripten = "\ue6a1 "
+EndeavourOS = "\uf322 "
+Fedora = "\uf30a "
+FreeBSD = "\uf30c "
+Garuda = "\uf337 "
+Gentoo = "\uf30d "
+HardenedBSD = "\U000f078c "
+Hurd = "\ue779 "
+Illumos = "\uf326 "
+InstantOS = "\uf31a "
+Ios = "\U000f0037 "
+Kali = "\uf327 "
+KDENeon = "\uf331 "
+Linux = "\uf31a "
+Mabox = "\ueb29 "
+Macos = "\uf302 "
+Manjaro = "\uf312 "
+Mariner = "\uf1cd "
+MidnightBSD = "\uf186 "
+Mint = "\uf30e "
+NetBSD = "\uf024 "
+NixOS = "\uf313 "
+Nobara = "\uf380 "
+OpenBSD = "\uf328 "
+OpenCloudOS = "\uf31a "
+openEuler = "\uf31a "
+openSUSE = "\uf314 "
+OracleLinux = "\U000f0ea1 "
+PikaOS = "\uf31a "
+Pop = "\uf32a "
+Raspbian = "\uf315 "
+Redhat = "\U000f111b "
+RedHatEnterprise = "\U000f111b "
+Redox = "\U000f0018 "
+RockyLinux = "\uf32b "
+Solus = "\uf32d "
+SUSE = "\uf314 "
+Ubuntu = "\uf31b "
+Ultramarine = "\uf31a "
+Unknown = "\uf22d "
+Uos = "\uf321 "
+Void = "\uf32e "
+Windows = "\U000f0372 "
+Zorin = "\uf32f "
+
+[perl]
+symbol = "\ue67e "
+
+[php]
+symbol = "\ue608 "
+
+[pijul_channel]
+symbol = "\uf418 "
+
+[pixi]
+symbol = "\U000f03d7 "
+
+[pulumi]
+symbol = "\ue873 "
+
+[purescript]
+symbol = "\ue630 "
+
+[raku]
+symbol = "\U000f158a "
+
+[red]
+symbol = "\U000f137c "
+
+[rlang]
+symbol = "\U000f07d4 "
+
+[ruby]
+symbol = "\ue791 "
+
+[scala]
+symbol = "\ue737 "
+
+[shlvl]
+symbol = "\U000f0e4d "
+
+[singularity]
+symbol = "\uf4b7 "
+
+[solidity]
+symbol = "\ue8a6 "
+
+[spack]
+symbol = "\ue8aa "
+
+[status]
+symbol = "\uf467 "
+
+[swift]
+symbol = "\ue755 "
+
+[terraform]
+symbol = "\ue69a "
+
+[vlang]
+symbol = "\ue6ac "
+
+[typst]
+symbol = "\uf37f "
+
+[vagrant]
+symbol = "\ue8d0 "
+
+[xmake]
+symbol = "\ue794 "
+
+[zig]
+symbol = "\ue6a9 "
 
 {{ $palette }}
