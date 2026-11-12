@@ -11,9 +11,10 @@ launch_apps_as_systemd_services = true
 [bar.default]
 position  = "top"
 thickness = 34
-start     = ["launcher", "wallpaper", "workspaces"]
+start     = ["workspaces"]
 center    = ["clock"]
-end       = ["sysmon", "media", "tray", "notifications", "clipboard", "network", "bluetooth", "volume", "control-center", "session"]
+end       = ["media", "tray", "notifications", "clipboard", "bluetooth", "volume", "session"]
+background_opacity = 0.7
 
 # A barra aparece em todas as telas, inclusive na TV
 
