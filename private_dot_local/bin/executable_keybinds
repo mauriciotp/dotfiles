@@ -47,5 +47,4 @@ hyprctl binds -j | jq -r '
     # inteira (a busca aproximada casava letras soltas espalhadas pela linha);
     # 'super+s' (entre aspas simples) acha só essa tecla, sem SUPER+SHIFT...
     fzf --reverse --exact --ignore-case --tiebreak=begin,length \
-        --prompt="keybind › " \
-        --header="words in any order · 'super+s' = exactly that key · Esc closes" >/dev/null || true
+        --prompt="keybind › " >/dev/null || true
