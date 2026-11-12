@@ -181,7 +181,7 @@ hl.on("window.open", function(w)
 				height = math.floor(m.height / m.scale * 0.75)
 			end
 			local sel = "address:" .. w.address
-			hl.dispatch(hl.dsp.window.float({ window = sel, action = "set" }))
+			hl.dispatch(hl.dsp.window.float({ window = sel, action = "enable" }))
 			hl.dispatch(hl.dsp.window.resize({ window = sel, x = width, y = height }))
 			hl.dispatch(hl.dsp.window.center({ window = sel }))
 			return

@@ -155,7 +155,7 @@ bind("SUPER + T", "Window: float/tile", function()
 	local sel = "address:" .. w.address
 	if w.floating then
 		if w.pinned then
-			hl.dispatch(hl.dsp.window.pin({ window = sel, action = "unset" }))
+			hl.dispatch(hl.dsp.window.pin({ window = sel, action = "disable" }))
 		end
 		if F.has_tag(w, "pop") then
 			hl.dispatch(hl.dsp.window.tag({ window = sel, tag = "-pop" }))
@@ -169,22 +169,23 @@ bind("SUPER + semicolon", "Window: split ratio smaller", hl.dsp.layout("splitrat
 bind("SUPER + apostrophe", "Window: split ratio larger", hl.dsp.layout("splitratio +0.1"), repeating)
 
 -- Pop-out que vai e volta (Omarchy): flutua, centraliza, fixa em todos os
--- workspaces e ganha a tag "pop"; de novo, volta ao tiling. A recentralização
--- ao trocar de monitor fica em hyprland/rules.lua.
+-- workspaces e ganha a tag "pop"; de novo, volta ao tiling. Também desfaz o
+-- pop-out pequeno (SUPER+ALT+P), que fixa sem a tag. A recentralização ao
+-- trocar de monitor fica em hyprland/rules.lua.
 bind("SUPER + P", "Window: pop out / back in", function()
 	local w = hl.get_active_window()
 	if not w then
 		return
 	end
 	local sel = "address:" .. w.address
-	if F.has_tag(w, "pop") then
-		hl.dispatch(hl.dsp.window.pin({ window = sel, action = "unset" }))
-		hl.dispatch(hl.dsp.window.float({ window = sel, action = "unset" }))
+	if F.has_tag(w, "pop") or (w.floating and w.pinned) then
+		hl.dispatch(hl.dsp.window.pin({ window = sel, action = "disable" }))
+		hl.dispatch(hl.dsp.window.float({ window = sel, action = "disable" }))
 		hl.dispatch(hl.dsp.window.tag({ window = sel, tag = "-pop" }))
 	else
-		hl.dispatch(hl.dsp.window.float({ window = sel, action = "set" }))
+		hl.dispatch(hl.dsp.window.float({ window = sel, action = "enable" }))
 		hl.dispatch(hl.dsp.window.center({ window = sel }))
-		hl.dispatch(hl.dsp.window.pin({ window = sel, action = "set" }))
+		hl.dispatch(hl.dsp.window.pin({ window = sel, action = "enable" }))
 		hl.dispatch(hl.dsp.window.tag({ window = sel, tag = "+pop" }))
 	end
 end)
@@ -201,7 +202,7 @@ bind("SUPER + ALT + P", "Window: small pop-out in the corner", function()
 	local width = math.floor(math.max(200, w.size.x * scale))
 	local height = math.floor(math.max(150, w.size.y * scale))
 	local offset = math.min(mw, mh) * 0.03
-	hl.dispatch(hl.dsp.window.float({ window = sel, action = "set" }))
+	hl.dispatch(hl.dsp.window.float({ window = sel, action = "enable" }))
 	hl.dispatch(hl.dsp.window.resize({ window = sel, x = width, y = height }))
 	hl.dispatch(hl.dsp.window.move({
 		window = sel,
@@ -209,7 +210,7 @@ bind("SUPER + ALT + P", "Window: small pop-out in the corner", function()
 		y = math.floor(m.y + mh - height - offset),
 		relative = false,
 	}))
-	hl.dispatch(hl.dsp.window.pin({ window = sel, action = "set" }))
+	hl.dispatch(hl.dsp.window.pin({ window = sel, action = "enable" }))
 end)
 bind("SUPER + CTRL + backslash", "Window: center", hl.dsp.window.center())
 -- "normalizar": flutua em 55% × 70% da tela, centralizada (Caelestia)
@@ -218,7 +219,7 @@ bind("SUPER + CTRL + ALT + backslash", "Window: float at a normal size", functio
 	if not size then
 		return
 	end
-	hl.dispatch(hl.dsp.window.float({ action = "set" }))
+	hl.dispatch(hl.dsp.window.float({ action = "enable" }))
 	hl.dispatch(hl.dsp.window.resize(size))
 	hl.dispatch(hl.dsp.window.center())
 end)
