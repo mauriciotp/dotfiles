@@ -144,7 +144,25 @@ bind("SUPER + CTRL + F", "Window: fullscreen inside the tile", function()
 	local client = (w.fullscreen_client or 0) == 2 and 0 or 2
 	hl.dispatch(hl.dsp.window.fullscreen_state({ internal = w.fullscreen or 0, client = client, action = "set" }))
 end)
-bind("SUPER + T", "Window: float/tile", hl.dsp.window.float({ action = "toggle" }))
+-- Voltar ao tiling solta o pin sozinho, mas sem reavaliar as regras: a borda de
+-- janela fixada e a tag do pop-out (SUPER+P) ficavam. Por isso o pin e a tag
+-- saem antes, pelos dispatchers, que reavaliam as regras.
+bind("SUPER + T", "Window: float/tile", function()
+	local w = hl.get_active_window()
+	if not w then
+		return
+	end
+	local sel = "address:" .. w.address
+	if w.floating then
+		if w.pinned then
+			hl.dispatch(hl.dsp.window.pin({ window = sel, action = "unset" }))
+		end
+		if F.has_tag(w, "pop") then
+			hl.dispatch(hl.dsp.window.tag({ window = sel, tag = "-pop" }))
+		end
+	end
+	hl.dispatch(hl.dsp.window.float({ window = sel, action = "toggle" }))
+end)
 bind("SUPER + Y", "Window: split direction", hl.dsp.layout("togglesplit"))
 -- proporção da divisão em passos de 10% (dots-hyprland)
 bind("SUPER + semicolon", "Window: split ratio smaller", hl.dsp.layout("splitratio -0.1"), repeating)
