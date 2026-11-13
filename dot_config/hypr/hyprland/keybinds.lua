@@ -53,7 +53,8 @@ bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-bigpicture --deskt
 if cmd_present("heroic") then
 	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", vars.heroic))
 end
--- Big Picture no 10 da tela pedida (~/.local/bin/steam-bigpicture); de novo, fecha.
+-- Big Picture no workspace atual da tela pedida (~/.local/bin/steam-bigpicture);
+-- de novo, fecha.
 -- G: a Steam normal; B (de "box"): a Steam inteira dentro do gamescope, que na
 -- TV oferece HDR aos jogos. Com ALT, na TV (liga se estiver desligada)
 bind("SUPER + CTRL + SHIFT + G", "Games: Big Picture on the monitor", run(F.bin .. "steam-bigpicture --monitor"))
@@ -300,7 +301,7 @@ for _, d in ipairs({ { "Left", "l" }, { "Right", "r" }, { "Up", "u" }, { "Down",
 end
 
 -- ===== Workspaces e monitores (veja utils/workspaces.lua) =====
--- SUPER + 1…0: workspace da tela em foco (a tecla 0 é o 10, o dos jogos);
+-- SUPER + 1…0: workspace da tela em foco (a tecla 0 é o 10);
 -- com ALT, na próxima tela, em ciclo
 for slot = 1, 10 do
 	local key = slot % 10

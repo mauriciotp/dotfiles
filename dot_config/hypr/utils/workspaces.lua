@@ -6,7 +6,8 @@
 --   sem o QHD no variables.lua   monitor 1–10, TV 11–20
 --   com o QHD no variables.lua   QHD 1–10, monitor 11–20, TV 21–30
 -- A barra mostra 1–10 em todas (o nome do workspace é o número da tecla).
--- O SUPER+número vai ao número da tela em foco; o 10 de cada tela é o dos jogos.
+-- O SUPER+número vai ao número da tela em foco. Nenhum número é de jogo: tudo
+-- abre no workspace atual.
 --
 -- Quando uma tela desliga (a TV pelo SUPER+ALT+O), o Hyprland passa os
 -- workspaces dela para outra tela. Eles ficam com o mesmo id, aparecem como
@@ -20,7 +21,6 @@ local screens = require("variables").screens
 local W = {}
 
 local SLOTS = 10
-W.GAME_SLOT = 10 -- o 10 de cada tela recebe os jogos (hyprland/apps/games.lua)
 
 -- O nome é o número da tecla em qualquer bloco (o 13 se chama "3"). Cada id
 -- fica ligado à tela do bloco, e o primeiro é o que ela mostra ao ligar (sem
@@ -317,18 +317,21 @@ function W.target(role)
 	return active
 end
 
--- Foco no slot da tela de um papel: hyprctl eval 'require("utils.workspaces").go("tv", 10)'
+-- Foco na tela de um papel, no workspace que ela mostra; com slot, nesse
+-- número dela: hyprctl eval 'require("utils.workspaces").go("tv")'
 function W.go(role, slot)
 	local m = W.target(role)
 	if not m then
 		return
 	end
-	local id = W.id(slot or W.GAME_SLOT, m)
 	if not m.focused then
 		hl.dispatch(hl.dsp.focus({ monitor = m.name }))
 	end
-	hl.dispatch(hl.dsp.focus({ workspace = tostring(id) }))
-	place(id, W.blocks())
+	if slot then
+		local id = W.id(slot, m)
+		hl.dispatch(hl.dsp.focus({ workspace = tostring(id) }))
+		place(id, W.blocks())
+	end
 end
 
 -- ===== Eventos =====

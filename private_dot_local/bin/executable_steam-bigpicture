@@ -21,9 +21,10 @@
 #   SUPER+CTRL+SHIFT+ALT+B   Big Picture no gamescope, na TV (com HDR)
 #
 # Sem gamescope, o Big Picture é a Steam que já está aberta: ele aparece no
-# workspace 10 da tela pedida (hypr/hyprland/apps/steam.lua). O mesmo atalho com
-# o Big Picture aberto naquela tela o fecha; aberto em outra, o traz para ela.
-# O botão de Big Picture da própria Steam abre no 10 da tela onde ela está.
+# workspace que a tela pedida mostra agora, em tela cheia
+# (hypr/hyprland/apps/steam.lua). O mesmo atalho com o Big Picture aberto
+# naquela tela o fecha; aberto em outra, o traz para ela. O botão de Big
+# Picture da própria Steam abre onde a Steam está.
 #
 # Com gamescope: fecha a Steam do desktop (só pode haver uma), abre o gamescope
 # com o modo da tela e, quando a Steam fecha, reabre a Steam normal em segundo
@@ -39,7 +40,6 @@
 set -euo pipefail
 
 TV="HDMI-A-1"
-SLOT=10
 BIN="$HOME/.local/bin"
 SELF="$BIN/steam-bigpicture"
 
@@ -118,8 +118,9 @@ bp=$(hyprctl clients -j | jq -r --argjson mons "$(monitors)" '
         .monitor as $id | "\(.address) \($mons | map(select(.id == $id))[0].name // "")"
       end')
 
-# Foco no 10 da tela pedida: o Big Picture e o gamescope nascem nela
-hyprctl eval "require('utils.workspaces').go('$role', $SLOT)" >/dev/null
+# Foco na tela pedida, no workspace que ela mostra: o Big Picture e o
+# gamescope nascem nele
+hyprctl eval "require('utils.workspaces').go('$role')" >/dev/null
 target=$(monitors | jq -r '.[] | select(.focused) | .name')
 
 # ===== Sem gamescope =====
@@ -132,9 +133,11 @@ if ! $gamescope; then
         ws=$(hyprctl activeworkspace -j | jq -r '.id')
         exec hyprctl dispatch "hl.dsp.window.move({ window = \"address:$address\", workspace = \"$ws\", follow = true })" >/dev/null
     fi
-    # A janela pode ser a mesma da Steam aberta em outra tela: o apps/steam.lua
-    # usa este recado (a tela pedida) em vez da tela da janela
-    hyprctl eval "BIGPICTURE_TARGET = { name = '$target', at = os.time() }" >/dev/null
+    # A janela é a mesma da Steam, que pode estar em outro workspace; ao virar
+    # Big Picture ela pede foco e o Hyprland pula para lá. O apps/steam.lua usa
+    # este recado (o workspace de agora) para levá-la de volta
+    ws=$(hyprctl activeworkspace -j | jq -r '.id')
+    hyprctl eval "BIGPICTURE_TARGET = { name = '$target', ws = $ws, at = os.time() }" >/dev/null
     if pgrep -x steam >/dev/null; then
         exec steam steam://open/bigpicture
     fi

@@ -50,7 +50,7 @@ Se estiver perdido, vá direto para [Manutenção: o ciclo básico](#o-ciclo-bá
 | Editor | **Neovim** + LazyVim | tema catppuccin-mocha |
 | Ferramentas de terminal | fzf, fd, bat, eza, zoxide, yazi, lazygit, ripgrep | busca, preview, `ls`, `cd` inteligente, arquivos, git |
 | Linguagens | **mise** | Go (latest) e Node (LTS) |
-| Jogos | Steam, Heroic, gamescope, gamemode, MangoHud, GE-Proton | workspace 10 de cada tela, Big Picture onde você pedir, HDR na TV |
+| Jogos | Steam, Heroic, gamescope, gamemode, MangoHud, GE-Proton | tudo no workspace atual, Big Picture onde você pedir, HDR na TV |
 
 O hardware é uma placa NVIDIA (RTX 5080, `nvidia-open`), um monitor Full HD 144 Hz (`DP-2`) e uma TV LG C4 (`HDMI-A-1`) usada só para jogar.
 
@@ -79,7 +79,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   │   │                        animations, input, misc, execs, rules, keybinds
 │   │   │   └── apps/            o que é de um app só (jogos, Steam, Obsidian, PiP, Noctalia)
 │   │   └── utils/               functions.lua (bind, run, window, tags) e
-│   │                            workspaces.lua (1–10 por monitor, jogos no 10)
+│   │                            workspaces.lua (10 por tela: monitor 1–10, TV 11–20)
 │   ├── uwsm/env, env-hyprland   variáveis de ambiente da sessão (NVIDIA, Qt, PATH...)
 │   ├── noctalia/config.toml     config do Noctalia (tema, templates, notificações)
 │   ├── ghostty/                 config do terminal + tema
@@ -108,7 +108,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
-| `steam-bigpicture` | Steam Big Picture no workspace 10 da tela pedida, sem gamescope; com `--gamescope`, a Steam inteira dentro do gamescope (na TV, com HDR) | **SUPER+CTRL+SHIFT+G** no monitor, **+ALT** na TV; **SUPER+CTRL+SHIFT+B** e **+ALT** com gamescope; `--here` na tela em foco; `--sdr`, `--itm`, `--sdr-nits N` para o HDR do gamescope; `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). O mesmo atalho fecha o Big Picture (ou sai do gamescope). O HUD do gamescope é o mangoapp, oculto até o **SUPER+F12** |
+| `steam-bigpicture` | Steam Big Picture no workspace atual da tela pedida, em tela cheia, sem gamescope; com `--gamescope`, a Steam inteira dentro do gamescope (na TV, com HDR) | **SUPER+CTRL+SHIFT+G** no monitor, **+ALT** na TV; **SUPER+CTRL+SHIFT+B** e **+ALT** com gamescope; `--here` na tela em foco; `--sdr`, `--itm`, `--sdr-nits N` para o HDR do gamescope; `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). O mesmo atalho fecha o Big Picture (ou sai do gamescope). O HUD do gamescope é o mangoapp, oculto até o **SUPER+F12** |
 | `hdr` | roda um jogo com HDR quando ele abre na TV (Wine Wayland do GE-Proton); em outra tela, normal | opção de inicialização: `hdr gamemoderun %command%`; terminal: `hdr ./jogo`; Heroic: `hdr` no wrapper |
 | `gs-run` | roda um jogo dentro do gamescope, no modo da tela em foco; na TV, com HDR | opção de inicialização: `gs-run gamemoderun %command%`; `--sdr`, `--itm`, `--sdr-nits N` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
@@ -139,7 +139,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 ### Workspaces e monitores
 
 - **Dez workspaces por tela.** Cada tela tem um bloco de 10, na ordem de `screens.order` no `variables.lua`: monitor **1–10**, TV **11–20**. Com o QHD, ele fica com o 1–10, o monitor passa a 11–20 e a TV a 21–30 (as janelas mudam de número sozinhas). A barra mostra 1–10 em todas.
-- **Nenhum app tem número fixo:** a janela abre no workspace em que você está. A exceção são os **jogos, no 10 da tela em foco**.
+- **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive jogos, emuladores e o Big Picture.
 - **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra só os workspaces que têm janela.
 - **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
 
@@ -153,7 +153,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
   Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
-- **Jogos** vão sozinhos para o workspace 10 da tela onde abriram, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. O Big Picture vai para o 10 da tela onde abriu (`apps/steam.lua`).
+- **Jogos** abrem no workspace atual, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`). Com um jogo em tela cheia, a Steam do desktop aparece pela overlay (Shift+Tab) ou pelo SUPER+SHIFT+G, que tira o jogo da tela cheia; para não mexer no jogo, deixe-o num workspace e a Steam em outro (SUPER+SHIFT+número move o jogo sem tirá-lo da tela cheia).
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 
@@ -174,8 +174,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+S / M / D / R | especiais: scratchpad / Spotify / Discord / Obsidian (veja Workspaces) |
 | CTRL+SHIFT+Escape | especial do btop |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do gamescope), Heroic |
-| SUPER+CTRL+SHIFT+G | Big Picture no 10 do monitor; de novo, fecha; aberto em outra tela, traz para cá |
-| SUPER+CTRL+SHIFT+ALT+G | Big Picture no 10 da TV (liga a TV se preciso) |
+| SUPER+CTRL+SHIFT+G | Big Picture no workspace atual do monitor; de novo, fecha; aberto em outro lugar, traz para cá |
+| SUPER+CTRL+SHIFT+ALT+G | Big Picture no workspace que a TV mostra (liga a TV se preciso) |
 | SUPER+CTRL+SHIFT+B, +ALT | Big Picture dentro do gamescope, no monitor ou na TV (com HDR); de novo, sai para o desktop |
 | SUPER+F12 (gamescope) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
 | SUPER+Q ou SUPER+W | fechar janela; SUPER+CTRL+Q fecha todas do workspace; SUPER+SHIFT+ALT+Q mata a janela clicada (app travado) |
@@ -319,7 +319,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela vai para o workspace 10. O gamemode é ligado pelo próprio Lichii ao abrir o jogo (opção `enable_gamemode`, ligada por padrão, em `~/.config/eden/qt-config.ini`); para conferir, `gamemoded -s` com o jogo aberto.
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela abre no workspace atual. O gamemode é ligado pelo próprio Lichii ao abrir o jogo (opção `enable_gamemode`, ligada por padrão, em `~/.config/eden/qt-config.ini`); para conferir, `gamemoded -s` com o jogo aberto.
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 
