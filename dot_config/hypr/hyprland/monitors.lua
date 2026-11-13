@@ -47,8 +47,8 @@ hl.monitor({ output = "", mode = "preferred", position = "auto", scale = "auto" 
 hl.config({
 	-- Jogos XWayland em resolução nativa na TV (sem ampliação borrada)
 	xwayland = { force_zero_scaling = true },
-	-- VRR (G-Sync) só em tela cheia com conteúdo "game" ou "video" (a tag game,
-	-- em hyprland/apps/games.lua, marca content = "game"); navegador em tela cheia não pisca
+	-- VRR (G-Sync) só em tela cheia com conteúdo "game" ou "video" (as regras de
+	-- hyprland/apps/games.lua marcam content = "game"); navegador em tela cheia não pisca
 	misc = { vrr = 3 },
 	-- HDR: a tela troca para HDR sozinha quando um jogo HDR fica em tela cheia, e
 	-- volta ao SDR ao sair (o desktop continua em SDR). Os jogos pedem HDR pelo

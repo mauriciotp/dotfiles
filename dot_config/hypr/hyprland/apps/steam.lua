@@ -1,20 +1,20 @@
--- Steam: janelas extras, lista de amigos e Big Picture.
--- O Big Picture fica no workspace onde abriu, em tela cheia; pedido pelo
--- steam-bigpicture para outra tela, vai para o workspace que ela mostra.
+-- Steam: janelas flutuando e Big Picture em tela cheia.
+-- O Big Picture fica no workspace onde abriu; pedido pelo steam-bigpicture
+-- para outra tela, vai para o workspace que ela mostra.
 local F = require("utils.functions")
 
 local function is_big_picture(w)
 	return w and w.class == "steam" and w.title ~= nil and w.title:find("Big Picture", 1, true) ~= nil
 end
 
--- Propriedades do jogo, Configurações e chat são janelas XWayland sem pai:
--- flutuam (hyprland/rules.lua). O Big Picture fica de fora.
-F.single_main_window["steam"] = function(w)
-	return not is_big_picture(w)
-end
-
--- lista de amigos alta e estreita
-F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { float = true, size = { 460, 800 } })
+-- Toda janela da Steam já nasce flutuando, por regra (Omarchy,
+-- inbox/Referências/Omarchy/default/hypr/apps/steam.lua). Nada se move depois
+-- de abrir: antes, um evento tirava a janela do tiling depois que ela
+-- aparecia, e ela deslizava. A principal fica no centro; a lista de amigos,
+-- alta e estreita.
+F.window("steam", { class = "^steam$" }, { float = true })
+F.window("steam-main", { class = "^steam$", title = "^Steam$" }, { center = true, size = { 1100, 700 } })
+F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { size = { 460, 800 } })
 
 -- Big Picture: fica em tela cheia, como um console.
 -- Por evento, e não por regra: as regras só olham o título inicial (wiki,

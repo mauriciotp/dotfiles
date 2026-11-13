@@ -139,7 +139,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 ### Workspaces e monitores
 
 - **Dez workspaces por tela.** Cada tela tem um bloco de 10, na ordem de `screens.order` no `variables.lua`: monitor **1–10**, TV **11–20**. Com o QHD, ele fica com o 1–10, o monitor passa a 11–20 e a TV a 21–30 (as janelas mudam de número sozinhas). A barra mostra 1–10 em todas.
-- **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. Os jogos e emuladores abrem no primeiro workspace vazio da tela.
+- **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. A exceção são os jogos, que abrem no workspace "gaming".
 - **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra só os workspaces que têm janela.
 - **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
 
@@ -153,7 +153,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
   Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
-- **Jogos** abrem no primeiro workspace vazio da tela em foco, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, recomps e o ES-DE. Nos emuladores, só a janela principal com um jogo rodando, pelo título (no Lichii, o título ganha o nome do jogo); as outras janelas deles abrem no workspace atual, como qualquer app. Assim o jogo nunca nasce em cima da Steam: só cabe uma janela em tela cheia por workspace, e um jogo no workspace do Big Picture tiraria a tela cheia dele. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`). Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
+- **Jogos** abrem no workspace **gaming**, como no CachyOS. Ele nasce na tela em foco e some quando o último jogo fecha. Os jogos ganham VRR, permissão de tearing e tela que não apaga. As regras ficam em `hypr/hyprland/apps/games.lua`, sem tags nem eventos: uma lista de classes (`steam_app_*`, `gamescope`, `*.exe`, recomps) e, no Lichii, só a janela principal com um jogo rodando, pelo título. Assim o jogo nunca cai em cima do Big Picture: só cabe uma janela em tela cheia por workspace. As janelas da Steam nascem flutuando (`apps/steam.lua`, como no Omarchy), e o Big Picture fica em tela cheia no workspace onde abriu. Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 
@@ -387,7 +387,7 @@ Saves em `~/.local/share/hookshot`: copie antes de cada update.
 **Um recomp novo:**
 1. Baixe o builder só da página de releases do projeto e confira o `sha256`.
 2. Monte o jogo em `~/Games/Recomps/<projeto>`.
-3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista da tag `game` em `hypr/hyprland/apps/games.lua`.
+3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na variável `games` de `hypr/hyprland/apps/games.lua`.
 4. Copie o `.desktop.tmpl` do Hookshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
 5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
