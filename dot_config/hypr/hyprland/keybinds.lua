@@ -53,14 +53,13 @@ bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-bigpicture --deskt
 if cmd_present("heroic") then
 	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", vars.heroic))
 end
--- Big Picture no workspace atual da tela pedida (~/.local/bin/steam-bigpicture);
--- de novo, fecha.
--- G: a Steam normal; B (de "box"): a Steam inteira dentro do gamescope, que na
--- TV oferece HDR aos jogos. Com ALT, na TV (liga se estiver desligada)
-bind("SUPER + CTRL + SHIFT + G", "Games: Big Picture on the monitor", run(F.bin .. "steam-bigpicture --monitor"))
-bind("SUPER + CTRL + SHIFT + ALT + G", "Games: Big Picture on the TV", run(F.bin .. "steam-bigpicture --tv"))
-bind("SUPER + CTRL + SHIFT + B", "Games: Big Picture in gamescope on the monitor", run(F.bin .. "steam-bigpicture --monitor --gamescope"))
-bind("SUPER + CTRL + SHIFT + ALT + B", "Games: Big Picture in gamescope on the TV (HDR)", run(F.bin .. "steam-bigpicture --tv --gamescope"))
+-- Big Picture dentro do gamescope, na tela pedida (~/.local/bin/steam-bigpicture);
+-- de novo, sai para o desktop. Com ALT, na TV (liga se estiver desligada), que
+-- oferece HDR aos jogos. No gamescope, Big Picture e jogo são uma janela só para
+-- o Hyprland: não brigam pela tela cheia, como fariam no mesmo workspace. Sem
+-- gamescope, pelo terminal: steam-bigpicture --tv
+bind("SUPER + CTRL + SHIFT + G", "Games: Big Picture (gamescope) on the monitor", run(F.bin .. "steam-bigpicture --monitor --gamescope"))
+bind("SUPER + CTRL + SHIFT + ALT + G", "Games: Big Picture (gamescope) on the TV, HDR", run(F.bin .. "steam-bigpicture --tv --gamescope"))
 -- HUD do modo console (mangoapp): começa oculto, e o Shift_R+F12 só funciona
 -- com ele visível; no desktop, o HUD do jogo usa o Shift_R+F12. Só com o
 -- gamescope aberto: o recado fica na fila do mangoapp até alguém ler, e um

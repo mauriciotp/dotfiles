@@ -71,24 +71,8 @@ end
 
 hl.on("window.open", make_console)
 hl.on("window.title", make_console)
--- Um jogo aberto pelo Big Picture fica no mesmo workspace e tira o Big Picture
--- da tela cheia (só cabe uma por workspace). Quando o jogo fecha, o Big Picture
--- volta à tela cheia. Um tempo depois: no próprio evento a janela ainda conta.
 hl.on("window.close", function(w)
-	if not w then
-		return
+	if w then
+		was_big_picture[w.address] = nil
 	end
-	was_big_picture[w.address] = nil
-	if not (F.has_tag(w, "game") and w.workspace) then
-		return
-	end
-	local ws = w.workspace.id
-	hl.timer(function()
-		for _, other in ipairs(hl.get_windows()) do
-			if is_big_picture(other) and other.workspace and other.workspace.id == ws and (other.fullscreen or 0) == 0
-				and not other_fullscreen_on(ws, other) then
-				hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "set", window = "address:" .. other.address }))
-			end
-		end
-	end, { timeout = 500, type = "oneshot" })
 end)

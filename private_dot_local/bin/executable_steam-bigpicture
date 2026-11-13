@@ -15,10 +15,10 @@
 #     --sdr-nits N   brilho do conteúdo SDR dentro do HDR (padrão do gamescope: 400)
 #   --desktop     só abre ou foca a janela normal da Steam (SUPER+SHIFT+G)
 #
-#   SUPER+CTRL+SHIFT+G       Big Picture no monitor
-#   SUPER+CTRL+SHIFT+ALT+G   Big Picture na TV
-#   SUPER+CTRL+SHIFT+B       Big Picture no gamescope, no monitor
-#   SUPER+CTRL+SHIFT+ALT+B   Big Picture no gamescope, na TV (com HDR)
+#   SUPER+CTRL+SHIFT+G       Big Picture no gamescope, no monitor
+#   SUPER+CTRL+SHIFT+ALT+G   Big Picture no gamescope, na TV (com HDR)
+# Os atalhos usam só o gamescope: nele, Big Picture e jogo são uma janela só
+# para o Hyprland e não brigam pela tela cheia. Sem gamescope, só pelo terminal.
 #
 # Sem gamescope, o Big Picture é a Steam que já está aberta: ele aparece no
 # workspace que a tela pedida mostra agora, em tela cheia

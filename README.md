@@ -108,7 +108,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
-| `steam-bigpicture` | Steam Big Picture no workspace atual da tela pedida, em tela cheia, sem gamescope; com `--gamescope`, a Steam inteira dentro do gamescope (na TV, com HDR) | **SUPER+CTRL+SHIFT+G** no monitor, **+ALT** na TV; **SUPER+CTRL+SHIFT+B** e **+ALT** com gamescope; `--here` na tela em foco; `--sdr`, `--itm`, `--sdr-nits N` para o HDR do gamescope; `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). O mesmo atalho fecha o Big Picture (ou sai do gamescope). O HUD do gamescope é o mangoapp, oculto até o **SUPER+F12** |
+| `steam-bigpicture` | Steam Big Picture no workspace atual da tela pedida, em tela cheia, sem gamescope; com `--gamescope`, a Steam inteira dentro do gamescope (na TV, com HDR) | atalhos, sempre com gamescope: **SUPER+CTRL+SHIFT+G** no monitor, **+ALT** na TV (com HDR); sem gamescope, só pelo comando (`steam-bigpicture --tv`); `--here` na tela em foco; `--sdr`, `--itm`, `--sdr-nits N` para o HDR do gamescope; `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). O mesmo atalho fecha o Big Picture (ou sai do gamescope). O HUD do gamescope é o mangoapp, oculto até o **SUPER+F12** |
 | `hdr` | roda um jogo com HDR quando ele abre na TV (Wine Wayland do GE-Proton); em outra tela, normal | opção de inicialização: `hdr gamemoderun %command%`; terminal: `hdr ./jogo`; Heroic: `hdr` no wrapper |
 | `gs-run` | roda um jogo dentro do gamescope, no modo da tela em foco; na TV, com HDR | opção de inicialização: `gs-run gamemoderun %command%`; `--sdr`, `--itm`, `--sdr-nits N` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
@@ -153,7 +153,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
   Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
-- **Jogos** abrem no workspace atual, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`). Com um jogo em tela cheia, a Steam do desktop aparece pela overlay (Shift+Tab) ou pelo SUPER+SHIFT+G, que tira o jogo da tela cheia; para não mexer no jogo, deixe-o num workspace e a Steam em outro (SUPER+SHIFT+número move o jogo sem tirá-lo da tela cheia).
+- **Jogos** abrem no workspace atual, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. **Jogo e Steam nunca dividem um workspace:** se a Steam (normal ou Big Picture) está onde o jogo abriu, ele vai para o primeiro workspace vazio da mesma tela, porque dois apps em tela cheia no mesmo workspace brigam pela tela cheia. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`); pelos atalhos, ele roda dentro do gamescope, onde Big Picture e jogo são uma janela só. Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 
@@ -174,9 +174,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+S / M / D / R | especiais: scratchpad / Spotify / Discord / Obsidian (veja Workspaces) |
 | CTRL+SHIFT+Escape | especial do btop |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do gamescope), Heroic |
-| SUPER+CTRL+SHIFT+G | Big Picture no workspace atual do monitor; de novo, fecha; aberto em outro lugar, traz para cá |
-| SUPER+CTRL+SHIFT+ALT+G | Big Picture no workspace que a TV mostra (liga a TV se preciso) |
-| SUPER+CTRL+SHIFT+B, +ALT | Big Picture dentro do gamescope, no monitor ou na TV (com HDR); de novo, sai para o desktop |
+| SUPER+CTRL+SHIFT+G | Big Picture dentro do gamescope, no monitor; de novo, sai para o desktop |
+| SUPER+CTRL+SHIFT+ALT+G | Big Picture dentro do gamescope, na TV, com HDR (liga a TV se preciso) |
 | SUPER+F12 (gamescope) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
 | SUPER+Q ou SUPER+W | fechar janela; SUPER+CTRL+Q fecha todas do workspace; SUPER+SHIFT+ALT+Q mata a janela clicada (app travado) |
 | SUPER+F / ALT+F / T | tela cheia / maximizar / flutuar |
