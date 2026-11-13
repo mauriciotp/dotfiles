@@ -18,7 +18,7 @@ require("hyprland.execs")
 require("hyprland.rules")
 
 -- App novo com regra própria: crie o arquivo em hyprland/apps/ e ponha o nome aqui
-for _, app in ipairs({ "games", "steam", "discord", "pip", "noctalia" }) do
+for _, app in ipairs({ "games", "steam", "bitwarden", "discord", "pip", "noctalia" }) do
 	require("hyprland.apps." .. app)
 end
 

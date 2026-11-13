@@ -32,15 +32,6 @@ window("pinentry", "^pinentry-.*$", { float = true, center = true, size = { 520,
 -- escolher a tela ao compartilhar (xdg-desktop-portal-hyprland)
 window("share-picker", "^hyprland-share-picker$", { float = true, center = true, size = { 640, 480 } })
 
--- Popup da extensão do Bitwarden: flutua em 20% × 54% e sai preto em gravações
--- (Caelestia; no_screen_share do Omarchy). Firefox pelo título; Chrome e
--- derivados pela classe, que leva o id da extensão. Se o popup nascer com
--- outro título e escapar da regra, o "resizer" por evento do Caelestia é a
--- reserva (R12). R13, Q1
-local bitwarden = { float = true, center = true, size = { "monitor_w*0.2", "monitor_h*0.54" }, no_screen_share = true }
-window("bitwarden-firefox", { title = "^Extension: \\(Bitwarden Password Manager\\) - Bitwarden.*$" }, bitwarden)
-window("bitwarden-chromium", ".*nngceckbapebfimnlniiiahkandclblb.*", bitwarden)
-
 -- Aviso "está compartilhando a tela" do navegador: vai para um especial que
 -- nunca é aberto (Omarchy); o Firefox já mostra o controle na barra dele. Q5
 window("sharing-indicator", { title = ".*is sharing.*" }, { workspace = "special:sharing silent" })
