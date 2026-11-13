@@ -139,7 +139,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 ### Workspaces e monitores
 
 - **Dez workspaces por tela.** Cada tela tem um bloco de 10, na ordem de `screens.order` no `variables.lua`: monitor **1–10**, TV **11–20**. Com o QHD, ele fica com o 1–10, o monitor passa a 11–20 e a TV a 21–30 (as janelas mudam de número sozinhas). A barra mostra 1–10 em todas.
-- **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. Os jogos e emuladores abrem no primeiro workspace vazio da tela; as outras janelas do mesmo jogo ficam junto dele.
+- **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. Os jogos e emuladores abrem no primeiro workspace vazio da tela.
 - **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra só os workspaces que têm janela.
 - **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
 
@@ -153,7 +153,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
   Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
-- **Jogos** abrem no primeiro workspace vazio da tela em foco, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. Assim o jogo nunca nasce em cima da Steam: só cabe uma janela em tela cheia por workspace, e um jogo no workspace do Big Picture tiraria a tela cheia dele. Só a primeira janela de cada jogo vai para o vazio: as outras do mesmo processo ou da mesma classe (configurações de um emulador, o jogo que o launcher abre) voltam para o workspace dele. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`). Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
+- **Jogos** abrem no primeiro workspace vazio da tela em foco, com VRR e permissão de tearing. As regras ficam em `hypr/hyprland/apps/games.lua` (tag `game`): janelas `steam_app_*`, `gamescope`, `*.exe`, emuladores (e o ES-DE) e recomps. Assim o jogo nunca nasce em cima da Steam: só cabe uma janela em tela cheia por workspace, e um jogo no workspace do Big Picture tiraria a tela cheia dele. O Big Picture fica no workspace onde abriu, em tela cheia (`apps/steam.lua`). Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 

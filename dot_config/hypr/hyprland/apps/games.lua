@@ -33,38 +33,6 @@ F.create_tag("game", {
 	idle_inhibit = "always",
 })
 
--- Só a primeira janela de cada jogo fica no workspace vazio. As outras
--- (configurações de um emulador, o jogo que o launcher abre) voltam para o
--- workspace do jogo, com o foco junto. Uma janela é "do mesmo jogo" se já existe
--- uma janela com a tag game do mesmo processo ou da mesma classe. Duas sessões
--- do gamescope não contam como o mesmo jogo, e o ES-DE abrindo um emulador
--- também não (outro processo, outra classe).
--- Por evento, depois de a janela abrir: uma tag dada no window.open_early não
--- chega a tempo de mudar o workspace da regra (testado em 2026-11-13)
-hl.on("window.open", function(w)
-	if not (w and w.workspace and F.has_tag(w, "game")) then
-		return
-	end
-	for _, other in ipairs(hl.get_windows()) do
-		if
-			other.address ~= w.address
-			and other.mapped
-			and other.workspace
-			and F.has_tag(other, "game")
-			and (other.pid == w.pid or (other.class == w.class and w.class ~= "gamescope"))
-		then
-			if other.workspace.id ~= w.workspace.id then
-				hl.dispatch(hl.dsp.window.move({
-					window = "address:" .. w.address,
-					workspace = tostring(other.workspace.id),
-					follow = true,
-				}))
-			end
-			return
-		end
-	end
-end)
-
 F.window("game-confine-pointer", { tag = "game", fullscreen = true }, {
 	confine_pointer = true, -- o mouse não escapa para o outro monitor
 })
