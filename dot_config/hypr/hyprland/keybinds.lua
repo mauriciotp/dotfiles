@@ -1,10 +1,9 @@
 -- Todos os atalhos, um bloco por contexto. A tecla fica escrita na própria bind.
 -- Convenção (Omarchy), com os especiais no formato do Caelestia:
 --   SUPER + tecla                janelas, workspaces e workspaces especiais
---   SUPER + SHIFT + letra        abre um app (letra em inglês: B = Browser, F = Files...);
---                                exceções: capturas (S, A, C) e mudo (M)
+--   SUPER + SHIFT + letra        abre um app (letra em inglês: B = Browser, F = Files...)
 --   SUPER + SHIFT + ALT + letra  variante do mesmo app
---   SUPER + CTRL + tecla         sistema, shell e mídia; e a versão "mais forte"
+--   SUPER + CTRL + tecla         sistema, shell, capturas e mídia; e a versão "mais forte"
 --                                de uma ação de janela (fechar todas, trocar de
 --                                lugar, mover sem seguir)
 --   SUPER + ALT + tecla          variante da ação de SUPER + tecla
@@ -117,12 +116,14 @@ bind(
 )
 
 -- ===== Captura: telas (Noctalia) e seletor de cor =====
-bind({ "Print", "SUPER + SHIFT + S" }, "Capture: screenshot of a region", ipc("screenshot-region"))
-bind("SHIFT + Print", "Capture: screenshot of a window", ipc("screenshot-window"))
-bind("CTRL + Print", "Capture: screenshot of the screen", ipc("screenshot-fullscreen"))
-bind("SUPER + SHIFT + A", "Capture: screenshot with annotations", ipc("screenshot-annotate"))
+-- Em SUPER+CTRL, sem a tecla Print: o teclado (Skyloong GK75) não tem.
+-- S de screenshot, com SHIFT a tela inteira e com ALT a janela; E de editar
+bind("SUPER + CTRL + S", "Capture: screenshot of a region", ipc("screenshot-region"))
+bind("SUPER + CTRL + SHIFT + S", "Capture: screenshot of the screen", ipc("screenshot-fullscreen"))
+bind("SUPER + CTRL + ALT + S", "Capture: screenshot of a window", ipc("screenshot-window"))
+bind("SUPER + CTRL + E", "Capture: screenshot with annotations", ipc("screenshot-annotate"))
 -- a segunda vez cancela o seletor aberto (Omarchy)
-bind("SUPER + SHIFT + C", "Capture: color picker", "pkill hyprpicker || hyprpicker -a")
+bind("SUPER + CTRL + C", "Capture: color picker", "pkill hyprpicker || hyprpicker -a")
 
 -- ===== Janelas =====
 bind({ "SUPER + Q", "SUPER + W" }, "Window: close", hl.dsp.window.close())
@@ -378,9 +379,10 @@ bind("XF86AudioLowerVolume", "Media: volume down", ipc("volume-down"), { locked 
 -- de 1 em 1 (Omarchy)
 bind("ALT + XF86AudioRaiseVolume", "Media: volume up by 1", ipc("volume-up 1"), { locked = true, repeating = true })
 bind("ALT + XF86AudioLowerVolume", "Media: volume down by 1", ipc("volume-down 1"), { locked = true, repeating = true })
-bind({ "XF86AudioMute", "SUPER + SHIFT + M" }, "Media: mute", ipc("volume-mute"), locked)
-bind({ "XF86AudioMicMute", "SUPER + ALT + M" }, "Media: microphone mute", ipc("mic-mute"), locked)
--- sem teclas multimídia: CTRL+SUPER + espaço, igual, menos, backspace (Caelestia)
+-- sem teclas multimídia: SUPER+CTRL + M (mudo; com SHIFT, o microfone),
+-- espaço, igual, menos, BackSpace (Caelestia)
+bind({ "XF86AudioMute", "SUPER + CTRL + M" }, "Media: mute", ipc("volume-mute"), locked)
+bind({ "XF86AudioMicMute", "SUPER + CTRL + SHIFT + M" }, "Media: microphone mute", ipc("mic-mute"), locked)
 bind({ "XF86AudioPlay", "XF86AudioPause", "SUPER + CTRL + space" }, "Media: play/pause", ipc("media toggle"), locked)
 bind({ "XF86AudioNext", "SUPER + CTRL + equal" }, "Media: next", ipc("media next"), locked)
 bind({ "XF86AudioPrev", "SUPER + CTRL + minus" }, "Media: previous", ipc("media previous"), locked)

@@ -188,9 +188,9 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+Tab ou Page_Down | próximo workspace do monitor |
 | SUPER+O, SUPER+ALT+O | focar o outro monitor; ligar/desligar a TV |
 | SUPER+N | central de controle do Noctalia (SUPER+CTRL+A: áudio; SUPER+CTRL+B: bluetooth) |
-| SUPER+SHIFT+S | print de uma região |
+| SUPER+CTRL+S | print de uma região (com SHIFT, a tela inteira; com ALT, a janela; SUPER+CTRL+E, com anotações; SUPER+CTRL+C, seletor de cor) |
 | SUPER+V | histórico da área de transferência |
-| SUPER+SHIFT+M / SUPER+ALT+M | mudo / microfone mudo |
+| SUPER+CTRL+M / SUPER+CTRL+SHIFT+M | mudo / microfone mudo |
 | SUPER+Escape | bloquear a tela (SUPER+ALT+Escape: volta o bloqueio se o Noctalia cair) |
 | SUPER+SHIFT+Escape ou CTRL+ALT+Delete | menu de sessão |
 | SUPER+ALT+F1 | desliga todos os atalhos (VM, área de trabalho remota); de novo, liga |
