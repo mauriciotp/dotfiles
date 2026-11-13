@@ -25,12 +25,26 @@ F.tagged_rule("game", {
 	{ class = "^Lichii$", title = "^Lichii( \\| [^|]+){4,}$" },
 })
 
+-- Jogos do Proton pelo Wayland (o caminho do HDR, PROTON_ENABLE_WAYLAND=1): o
+-- winewayland do GE-Proton marca a janela com a xdg_tag "proton-game" (visto no
+-- winewayland.so, 2026-11-13), e a classe pode não ser nenhuma das de cima.
+-- Pelo XWayland, que é o padrão, não há marca: valem as classes (Reddit, 2026-07)
+F.tagged_rule("game", { { xdg_tag = "proton-game" } })
+
 F.create_tag("game", {
 	workspace = "r~10", -- o 10 da tela em foco
 	immediate = true, -- tearing permitido (chave geral em hyprland/general.lua)
 	content = "game", -- liga o VRR e o direct scanout (hyprland/monitors.lua)
 	-- a tela não apaga nem com o jogo em janela (o controle não conta como atividade)
 	idle_inhibit = "always",
+	-- sempre opaco, com ou sem foco: o inactive_opacity (variables.lua) deixaria
+	-- o jogo translúcido sem foco, e o Hyprland teria de desenhar o que está
+	-- atrás, com blur, e perderia o direct scanout
+	opaque = true,
+	-- continua desenhando quando você troca de workspace (o padrão é parar):
+	-- a partida online e a captura do OBS não congelam. O ritmo sem foco é o
+	-- misc.render_unfocused_fps (padrão 15 fps) (Mainstream, fork do end-4)
+	render_unfocused = true,
 })
 
 -- splash e launcher de jogo da Steam (título vazio ao abrir): flutuam no centro (CachyOS)
