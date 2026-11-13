@@ -148,10 +148,6 @@ function F.has_tag(w, tag)
 	return false
 end
 
--- Apps cujas janelas extras flutuam (preenchida em hyprland/apps/, usada em
--- hyprland/rules.lua)
-F.single_main_window = {}
-
 -- ===== Workspaces especiais =====
 
 -- Texto vira regex exata: "md.obsidian.Obsidian" → "^(md\.obsidian\.Obsidian)$"

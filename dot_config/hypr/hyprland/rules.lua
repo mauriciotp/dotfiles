@@ -94,6 +94,14 @@ tagged_rule("float", {
 	'Rename ".*"', -- renomear
 }, "title") -- R5
 
+-- Apps que abrem janelas extras sem janela-pai (configurações, propriedades,
+-- chat): todas as janelas flutuam, e a tag "tile" (abaixo) devolve a principal
+-- ao tiling pelo título inicial. Por regra, e não por evento: nada se move
+-- depois de abrir (inspirações em inbox/Desktop/Hyprland inspirações/).
+-- App novo assim: a classe aqui e a janela principal na lista "tile".
+tagged_rule("float", { "^steam$" }, "class") -- no tamanho que a Steam pede
+tagged_rule("float_60_70", { "^md\\.obsidian\\.Obsidian$" }, "class")
+
 -- tamanho fixo (875 × 600): mpv, imv e outros visualizadores, quando instalados
 -- tagged_rule("float_small", { "^(mpv|imv)$" }, "class")
 
@@ -109,11 +117,19 @@ tagged_rule("xwl_popup", {
 -- ({ tag = "terminal" }). Inclui as classes próprias (k9s, btop, float). Q2
 tagged_rule("terminal", { "^(com\\.mitchellh\\.ghostty|com\\.mauricio\\..+)$" }, "class")
 
--- navegadores Chromium (Chrome, Brave, Edge, Vivaldi): os web apps nascem
--- flutuando; a tag os põe no tiling (Omarchy). Q10
-tagged_rule("chromium_browser", {
+-- Tiling, mesmo que outra tag ou o próprio app peça para flutuar (a definição
+-- vem depois das de flutuar, e a última regra vence):
+-- navegadores Chromium (Chrome, Brave, Edge, Vivaldi), cujos web apps nascem
+-- flutuando (Omarchy). Q10
+tagged_rule("tile", {
 	"^((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)$",
 }, "class")
+-- a janela principal dos apps de janelas extras (acima). A Steam às vezes
+-- nasce flutuando sozinha (thinglab.org, 2026-01)
+tagged_rule("tile", {
+	{ class = "^steam$", initial_title = "^Steam$" },
+	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^Obsidian$" }, -- visto no hyprctl clients
+})
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
 -- Tag <especial>_app, uma por especial (music_app, communication_app...).
@@ -137,7 +153,7 @@ create_tag("xwl_popup", {
 	opaque = true,
 	rounding = math.min(10, vars.windowRounding), -- popups são pequenos
 })
-create_tag("chromium_browser", { tile = true })
+create_tag("tile", { tile = true }) -- depois das de flutuar: vence elas
 -- janela do pop-out (SUPER+P) com cantos menores (Omarchy). Q8
 create_tag("pop", { rounding = 8 })
 -- silent: o app aberto pelo launcher ou no login vai para o especial sem mostrá-lo
@@ -158,33 +174,4 @@ hl.on("window.move_to_workspace", function(w, ws)
 	hl.timer(function()
 		hl.dispatch(hl.dsp.window.center({ window = sel }))
 	end, { timeout = 1, type = "oneshot" })
-end)
-
--- ===== Apps que abrem janelas extras sem declarar a janela-pai =====
--- A primeira janela do app fica no tiling; as outras flutuam centralizadas.
--- A lista F.single_main_window é preenchida nos arquivos de cada app
--- (hyprland/apps/): true, ou uma função que recebe a janela e diz se a regra
--- vale para ela (e se ela conta como janela principal: o Big Picture não conta).
-hl.on("window.open", function(w)
-	local entry = F.single_main_window[w.class]
-	if not entry or w.floating or (type(entry) == "function" and not entry(w)) then
-		return
-	end
-	-- só conta janelas do mesmo app no tiling: splash e janelas flutuantes não contam
-	for _, other in ipairs(hl.get_windows()) do
-		local counts = type(entry) ~= "function" or entry(other)
-		if counts and other.address ~= w.address and other.class == w.class and other.mapped and not other.floating then
-			local m = w.monitor
-			local width, height = 1152, 810 -- reserva, se o monitor não vier no evento
-			if m then
-				width = math.floor(m.width / m.scale * 0.6)
-				height = math.floor(m.height / m.scale * 0.75)
-			end
-			local sel = "address:" .. w.address
-			hl.dispatch(hl.dsp.window.float({ window = sel, action = "enable" }))
-			hl.dispatch(hl.dsp.window.resize({ window = sel, x = width, y = height }))
-			hl.dispatch(hl.dsp.window.center({ window = sel }))
-			return
-		end
-	end
 end)
