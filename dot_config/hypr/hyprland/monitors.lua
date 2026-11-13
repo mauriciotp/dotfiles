@@ -32,6 +32,10 @@ hl.monitor({
 	mode = "1920x1080@144",
 	position = "0x1080",
 	scale = 1,
+	-- HDR só na TV: este monitor anuncia HDR, mas é da classe DisplayHDR 400
+	-- (400 nits pelo EDID), e a ArchWiki avisa que telas assim dão HDR ruim.
+	-- Com -1, o Hyprland nunca liga HDR aqui, nem para um jogo pedindo
+	supports_hdr = -1,
 })
 
 -- QHD: descomente e ajuste o modo e a posição quando ele chegar
@@ -46,6 +50,11 @@ hl.config({
 	-- VRR (G-Sync) só em tela cheia com conteúdo "game" ou "video" (a tag game,
 	-- em hyprland/apps/games.lua, marca content = "game"); navegador em tela cheia não pisca
 	misc = { vrr = 3 },
-	-- HDR: nunca trocar para HDR sozinho em tela cheia
-	render = { cm_auto_hdr = 0 },
+	-- HDR: a tela troca para HDR sozinha quando um jogo HDR fica em tela cheia, e
+	-- volta ao SDR ao sair (o desktop continua em SDR). Os jogos pedem HDR pelo
+	-- script ~/.local/bin/hdr (GE-Proton) ou pelo gamescope com --hdr-enabled
+	render = { cm_auto_hdr = 1 },
+	-- o gamescope espera a tela já em HDR antes de abrir; sem isto, a troca
+	-- automática pode dar tela branca e piscar (doc do Hyprland, quirks)
+	quirks = { prefer_hdr = 2 },
 })

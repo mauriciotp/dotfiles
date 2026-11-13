@@ -1,0 +1,53 @@
+#!/bin/bash
+# Roda um jogo com HDR quando ele abre na TV, sem gamescope.
+#
+# Uso:
+#   hdr gamemoderun %command%     opção de inicialização de um jogo da Steam
+#   hdr ./jogo                    terminal; no Heroic, "hdr" no campo do wrapper
+#   hdr --dry-run <comando>       só mostra o que rodaria
+#
+# Na TV (a tela em foco ao abrir, que é onde o jogo vai abrir), acrescenta:
+#   PROTON_ENABLE_WAYLAND=1  o Wine fala Wayland direto e vê o HDR da tela
+#   PROTON_FORCE_HDR=1       o jogo vê a TV como HDR. Sem isto, com a troca
+#                            automática do Hyprland (cm_auto_hdr), a TV está
+#                            em SDR quando o jogo abre, ele nunca pede HDR e a
+#                            TV nunca troca (README do GE-Proton, 2026-11-05)
+#   SDL_VIDEODRIVER=wayland  o mesmo para jogos nativos com SDL (ArchWiki HDR)
+# Em outra tela, roda o comando como está: o HDR é só na TV, e forçar HDR numa
+# tela SDR dá cores lavadas ou trava alguns jogos (README do GE-Proton).
+#
+# O HDR em si é ligado no menu do jogo. Precisa do GE-Proton ou do
+# Proton-CachyOS: os Protons da Valve não têm o driver Wayland do Wine, e por
+# eles o HDR só sai pelo gamescope (gs-run).
+set -euo pipefail
+
+TV="HDMI-A-1"
+
+dry=false
+if [[ ${1:-} == --dry-run ]]; then
+    dry=true
+    shift
+fi
+if (($# == 0)); then
+    echo "Usage: hdr [--dry-run] <command>" >&2
+    exit 1
+fi
+
+focused=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .name' || true)
+
+vars=()
+if [[ $focused == "$TV" ]]; then
+    if [[ " $* " == *"/steamapps/common/Proton"* ]]; then
+        notify-send -a hdr "Sem HDR neste Proton" \
+            "Os Protons da Valve não têm Wayland. Escolha o GE-Proton nas propriedades do jogo, ou use gs-run."
+    else
+        vars=(PROTON_ENABLE_WAYLAND=1 PROTON_FORCE_HDR=1 SDL_VIDEODRIVER=wayland)
+    fi
+fi
+
+if $dry; then
+    echo "screen: ${focused:-?}"
+    echo "env ${vars[*]} $*"
+    exit 0
+fi
+exec env "${vars[@]}" "$@"
