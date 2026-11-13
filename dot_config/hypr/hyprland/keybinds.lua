@@ -128,7 +128,7 @@ bind("SUPER + CTRL + C", "Capture: color picker", "pkill hyprpicker || hyprpicke
 -- ===== Janelas =====
 bind({ "SUPER + Q", "SUPER + W" }, "Window: close", hl.dsp.window.close())
 -- mata o processo da janela que você clicar, para app travado (dots-hyprland)
-bind("SUPER + SHIFT + ALT + Q", "Window: kill the clicked window (frozen app)", "hyprctl kill")
+bind("SUPER + CTRL + ALT + Q", "Window: kill the clicked window (frozen app)", "hyprctl kill")
 -- fecha as janelas do workspace em foco (Omarchy fecha as de todos). P3
 bind("SUPER + CTRL + Q", "Window: close all on this workspace", function()
 	local ws = hl.get_active_workspace()

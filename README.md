@@ -178,7 +178,7 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+CTRL+SHIFT+ALT+G | Big Picture no workspace que a TV mostra (liga a TV se preciso) |
 | SUPER+CTRL+SHIFT+B, +ALT | Big Picture dentro do gamescope, no monitor ou na TV (com HDR); de novo, sai para o desktop |
 | SUPER+F12 (gamescope) | mostrar/esconder o HUD do mangoapp, em qualquer jogo (começa escondido; com ele visível, o Shift direito+F12 também esconde) |
-| SUPER+Q ou SUPER+W | fechar janela; SUPER+CTRL+Q fecha todas do workspace; SUPER+SHIFT+ALT+Q mata a janela clicada (app travado) |
+| SUPER+Q ou SUPER+W | fechar janela; SUPER+CTRL+Q fecha todas do workspace; SUPER+CTRL+ALT+Q mata a janela clicada (app travado) |
 | SUPER+F / ALT+F / T | tela cheia / maximizar / flutuar |
 | SUPER+CTRL+F | tela cheia dentro do tile (o app acha que está em tela cheia) |
 | SUPER+P / ALT+P | pop-out que vai e volta (flutua, fixa em todos os workspaces) / pop-out pequeno no canto |
