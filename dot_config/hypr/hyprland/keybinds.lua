@@ -33,7 +33,7 @@ end
 if cmd_present("k9s") then
 	bind("SUPER + SHIFT + P", "Apps: k9s (pods)", app("^com\\.mauricio\\.k9s$", vars.k9s))
 end
-bind({ "SUPER + F1", "SUPER + slash" }, "Apps: keybinds cheatsheet", F.bin .. "keybinds --window")
+bind({ "SUPER + F1", "SUPER + slash" }, "Apps: keybinds cheatsheet", run(F.bin .. "keybinds --window"))
 
 -- ===== Workspaces especiais =====
 -- Abrem por cima de tudo; a mesma tecla esconde. Se o app não está rodando, abre;

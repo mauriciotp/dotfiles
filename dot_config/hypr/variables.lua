@@ -27,6 +27,9 @@ return {
 	obs = "obs",
 
 	-- ===== Aparência =====
+	-- conjunto de animações: um arquivo em hyprland/animations/ (smooth,
+	-- caelestia ou omarchy)
+	animations = "smooth",
 	windowGapsOut = 10, -- doc do Noctalia
 	workspaceGaps = 20, -- espaço entre workspaces na animação de troca. O1
 	windowRounding = 12,
