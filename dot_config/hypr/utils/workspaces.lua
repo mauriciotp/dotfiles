@@ -290,18 +290,6 @@ function W.move(slot, follow)
 	place(id, W.blocks())
 end
 
--- Primeiro workspace vazio da tela m (1–10 dela), sem contar o "except"; nil
--- se todos têm janela (hyprland/apps/games.lua)
-function W.first_free(m, except)
-	for slot = 1, SLOTS do
-		local id = W.id(slot, m)
-		local ws = hl.get_workspace(id)
-		if id ~= except and (not ws or (ws.windows or 0) == 0) then
-			return id
-		end
-	end
-end
-
 -- Tela de um papel, para os scripts (steam-bigpicture):
 --   "tv"       a TV (precisa estar ligada)
 --   "monitor"  a tela em foco, se não for a TV; senão a primeira ligada que não é a TV
