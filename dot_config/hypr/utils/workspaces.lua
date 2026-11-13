@@ -25,24 +25,24 @@ local SLOTS = 10
 -- O nome é o número da tecla em qualquer bloco (o 13 se chama "3"). Cada id
 -- fica ligado à tela do bloco, e o primeiro é o que ela mostra ao ligar (sem
 -- isto, a TV ligava num número livre qualquer, como o 3)
-local n = 0
+local configured = 0 -- telas configuradas até aqui (cada uma, um bloco)
 for _, key in ipairs(screens.order) do
 	-- screens também guarda tabelas (order, labels): só o nome da conexão conta
 	local name = screens[key]
 	if type(name) == "string" then
 		for slot = 1, SLOTS do
 			hl.workspace_rule({
-				workspace = tostring(n * SLOTS + slot),
+				workspace = tostring(configured * SLOTS + slot),
 				default_name = tostring(slot),
 				monitor = name,
 				default = slot == 1 or nil,
 			})
 		end
-		n = n + 1
+		configured = configured + 1
 	end
 end
 -- blocos das telas fora da lista (a VM): só o nome
-for id = n * SLOTS + 1, (n + 2) * SLOTS do
+for id = configured * SLOTS + 1, (configured + 2) * SLOTS do
 	hl.workspace_rule({ workspace = tostring(id), default_name = tostring((id - 1) % SLOTS + 1) })
 end
 
