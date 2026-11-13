@@ -9,15 +9,23 @@ F.tagged_rule("game", {
 	"^steam_app_.*$",
 	"^gamescope$",
 	"^.*\\.exe$",
-	-- Emuladores: a janela inteira conta como jogo (a lista de jogos também).
-	-- No X11 o Lichii se chama "Lichii" (visto no hyprctl clients);
-	-- no Wayland, pelo app id do .desktop.
-	"^[Ll]ichii$",
-	"^io\\.github\\.zortos293\\.lichii$",
 	-- Recomps (jogos recompilados para PC): a classe é o app id da janela
 	"^io\\.github\\.NotRexed\\.Hookshot$", -- Zelda: Ocarina of Time (Hookshot)
 	"^es-de$", -- ES-DE: o frontend conta como jogo, junto com os jogos que ele abre
 }, "class")
+
+-- Emuladores: só a janela principal, e só com um jogo rodando. O título dela
+-- ganha o nome do jogo (visto em 2026-11-13):
+--   sem jogo  "Lichii | build-160 | Clang 23.1.6"
+--   com jogo  "Lichii | build-160 | Clang 23.1.6 | Donkey Kong Bananza (64-bit) | Nvidia"
+-- A tag é dinâmica: entra quando o jogo começa e sai quando ele para. As outras
+-- janelas do emulador (configurações, a janela "Lichii" que abre junto do jogo)
+-- ficam sem a tag e abrem no workspace atual, como qualquer app. No X11 o Lichii
+-- se chama "Lichii"; no Wayland, pelo app id do .desktop
+F.tagged_rule("game", {
+	{ class = "^Lichii$", title = "^Lichii( \\| [^|]+){4,}$" },
+	{ class = "^io\\.github\\.zortos293\\.lichii$", title = "^Lichii( \\| [^|]+){4,}$" },
+})
 
 F.create_tag("game", {
 	-- primeiro workspace vazio da tela em foco (seletor emptym). Por regra, e não
