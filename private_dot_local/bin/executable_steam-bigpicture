@@ -1,0 +1,220 @@
+#!/bin/bash
+# Steam Big Picture na tela que você escolher, com ou sem gamescope.
+#
+# Uso (os atalhos ficam em hypr/hyprland/keybinds.lua):
+#   steam-bigpicture [tela] [--gamescope [hdr]]
+#   tela:
+#     --monitor   a tela em foco, se não for a TV; senão o monitor  (padrão)
+#     --tv        a TV (liga se estiver desligada; ela fica ligada depois)
+#     --here      a tela em foco, seja qual for
+#   --gamescope   a Steam inteira dentro do gamescope (o "modo console" antigo)
+#   hdr, só com --gamescope (na TV, o HDR já vem ligado; no monitor, desligado):
+#     --hdr          oferece HDR aos jogos (--hdr-enabled); o jogo liga no menu dele
+#     --sdr          sem HDR, mesmo que o jogo peça
+#     --itm          HDR "falso" para jogos SDR (--hdr-itm-enabled)
+#     --sdr-nits N   brilho do conteúdo SDR dentro do HDR (padrão do gamescope: 400)
+#   --desktop     só abre ou foca a janela normal da Steam (SUPER+SHIFT+G)
+#
+#   SUPER+CTRL+SHIFT+G       Big Picture no monitor
+#   SUPER+CTRL+SHIFT+ALT+G   Big Picture na TV
+#   SUPER+CTRL+SHIFT+B       Big Picture no gamescope, no monitor
+#   SUPER+CTRL+SHIFT+ALT+B   Big Picture no gamescope, na TV (com HDR)
+#
+# Sem gamescope, o Big Picture é a Steam que já está aberta: ele aparece no
+# workspace 10 da tela pedida (hypr/hyprland/apps/steam.lua). O mesmo atalho com
+# o Big Picture aberto naquela tela o fecha; aberto em outra, o traz para ela.
+# O botão de Big Picture da própria Steam abre no 10 da tela onde ela está.
+#
+# Com gamescope: fecha a Steam do desktop (só pode haver uma), abre o gamescope
+# com o modo da tela e, quando a Steam fecha, reabre a Steam normal em segundo
+# plano. Já no gamescope, o script fecha a Steam de dentro e deixa um recado
+# para a instância que roda o gamescope, que o lê quando a Steam fecha:
+#   o mesmo atalho          volta ao desktop
+#   outro atalho            faz o que ele pede (outra tela, ou sem gamescope)
+#   --desktop               volta ao desktop com a janela da Steam
+#
+# O Switch to Desktop do Big Picture não funciona fora do SteamOS: ele chama o
+# SteamOS Manager pelo D-Bus (com.steampowered.SteamOSManager1), que não existe
+# no Arch, e fica carregando.
+set -euo pipefail
+
+TV="HDMI-A-1"
+SLOT=10
+BIN="$HOME/.local/bin"
+SELF="$BIN/steam-bigpicture"
+
+usage() {
+    echo "Usage: steam-bigpicture [--monitor|--tv|--here] [--gamescope [--hdr|--sdr] [--itm] [--sdr-nits N]] | --desktop" >&2
+    exit "${1:-0}"
+}
+
+role=monitor
+gamescope=false
+desktop=false
+hdr=auto
+itm=false
+sdr_nits=""
+args=("$@")
+while (($#)); do
+    case $1 in
+        --monitor) role=monitor ;;
+        --tv) role=tv ;;
+        --here) role=here ;;
+        --gamescope) gamescope=true ;;
+        --desktop) desktop=true ;;
+        --hdr) hdr=on ;;
+        --sdr) hdr=off ;;
+        --itm) itm=true ;;
+        --sdr-nits)
+            [[ ${2:-} =~ ^[0-9]+$ ]] || usage 1
+            sdr_nits=$2
+            shift
+            ;;
+        -h | --help) usage ;;
+        *) usage 1 ;;
+    esac
+    shift
+done
+
+# Recados entre a instância nova e a que roda o gamescope
+state="${XDG_RUNTIME_DIR:-/tmp}/steam-bigpicture"
+mkdir -p "$state"
+
+# ===== Já no gamescope: deixa o recado e fecha a Steam de dentro =====
+if pgrep -f '^gamescope .*-- steam -tenfoot' >/dev/null; then
+    current=$(cat "$state/current" 2>/dev/null || true)
+    if $desktop; then
+        echo desktop >"$state/next"
+    elif $gamescope && [[ "--$role --gamescope" == "$current" ]]; then
+        echo background >"$state/next"
+    else
+        printf '%s\n' "${args[*]}" >"$state/next"
+    fi
+    exec steam -shutdown
+fi
+
+if $desktop; then
+    exec "$BIN/launch-or-focus" '^steam$' steam
+fi
+
+monitors() { hyprctl monitors -j; }
+tv_active() { monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; }
+
+# ===== A tela =====
+# TV pedida e desligada: liga (continua ligada depois, até o SUPER+ALT+O)
+if [[ $role == tv ]] && ! tv_active; then
+    if ! hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; then
+        notify-send -a steam-bigpicture "TV não conectada" "O Big Picture abre no monitor."
+        role=monitor
+    else
+        "$BIN/tv-toggle" on
+    fi
+fi
+
+# Big Picture aberto agora, antes de mexer no foco: "endereço tela"
+bp=$(hyprctl clients -j | jq -r --argjson mons "$(monitors)" '
+    [.[] | select(.class == "steam" and ((.title // "") | contains("Big Picture")))][0]
+    | if . == null then "" else
+        .monitor as $id | "\(.address) \($mons | map(select(.id == $id))[0].name // "")"
+      end')
+
+# Foco no 10 da tela pedida: o Big Picture e o gamescope nascem nela
+hyprctl eval "require('utils.workspaces').go('$role', $SLOT)" >/dev/null
+target=$(monitors | jq -r '.[] | select(.focused) | .name')
+
+# ===== Sem gamescope =====
+if ! $gamescope; then
+    if [[ -n $bp ]]; then
+        read -r address on <<<"$bp"
+        if [[ $on == "$target" ]]; then
+            exec steam steam://close/bigpicture
+        fi
+        ws=$(hyprctl activeworkspace -j | jq -r '.id')
+        exec hyprctl dispatch "hl.dsp.window.move({ window = \"address:$address\", workspace = \"$ws\", follow = true })" >/dev/null
+    fi
+    # A janela pode ser a mesma da Steam aberta em outra tela: o apps/steam.lua
+    # usa este recado (a tela pedida) em vez da tela da janela
+    hyprctl eval "BIGPICTURE_TARGET = { name = '$target', at = os.time() }" >/dev/null
+    if pgrep -x steam >/dev/null; then
+        exec steam steam://open/bigpicture
+    fi
+    if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
+        exec uwsm app -- steam -tenfoot
+    fi
+    exec steam -tenfoot
+fi
+
+# ===== Com gamescope =====
+# Modo da tela (pixels reais, sem a escala)
+read -r width height refresh < <(monitors | jq -r --arg m "$target" \
+    '.[] | select(.name == $m) | "\(.width) \(.height) \(.refreshRate | round)"')
+if [[ -z ${width:-} ]]; then
+    echo "Monitor $target not found." >&2
+    exit 1
+fi
+
+if pgrep -x steam >/dev/null; then
+    steam -shutdown >/dev/null 2>&1 || true
+    for _ in $(seq 60); do
+        pgrep -x steam >/dev/null || break
+        sleep 0.5
+    done
+    if pgrep -x steam >/dev/null; then
+        echo "Steam did not close." >&2
+        exit 1
+    fi
+fi
+
+# Limite de FPS: 3 abaixo da taxa da tela, dentro do VRR. O -r é a taxa da
+# tela virtual do jogo; o --framerate-limit só divide a taxa (144 / 141 daria 144).
+fps=$((refresh - 3))
+
+# HDR: na TV, ligado se ninguém pediu o contrário; no monitor, só com --hdr.
+# O --hdr-enabled só oferece HDR: quem liga é o jogo, no menu dele. Sem ele, um
+# jogo HDR sai convertido para SDR (gamescope --help, 3.17.0)
+hdr_flags=()
+if [[ $hdr == on || ($hdr == auto && $target == "$TV") ]]; then
+    hdr_flags+=(--hdr-enabled)
+    if $itm; then hdr_flags+=(--hdr-itm-enabled); fi
+    if [[ -n $sdr_nits ]]; then hdr_flags+=(--hdr-sdr-content-nits "$sdr_nits"); fi
+fi
+
+# HUD: o mangoapp lê uma cópia do MangoHud.conf (a Steam pode reescrever o
+# arquivo apontado; a cópia protege o original), com o no_display a mais: o
+# HUD começa oculto e o gamescope nem abre o mangoapp, então ele não custa
+# nada nem o Shift_R+F12 tem quem o receba (src/steamcompmgr.cpp,
+# mangoapp_instances_wanted). Quem mostra e esconde é o SUPER+F12
+# (mangohudctl toggle no_display, hypr/hyprland/keybinds.lua).
+hud="$state/MangoHud.conf"
+{ cat "$HOME/.config/MangoHud/MangoHud.conf"; echo no_display; } >"$hud" || true
+
+echo "--$role --gamescope" >"$state/current"
+rm -f "$state/next"
+
+# -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
+# -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
+# --mangoapp: o HUD em camada do gamescope (o mangohud normal aqui dentro não
+# é suportado, README do MangoHud). A variável vale para o gamescope e a Steam
+# de dentro, sem export: a Steam reaberta no fim não a herda.
+MANGOHUD_CONFIGFILE="$hud" \
+    gamescope -e -f --adaptive-sync --mangoapp "${hdr_flags[@]}" \
+    -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
+
+# A Steam fechou: o recado diz o que fazer (sem recado: saída pelo Big Picture)
+next=$(cat "$state/next" 2>/dev/null || echo background)
+rm -f "$state/current" "$state/next"
+
+case $next in
+    background) steam_args=(-silent) ;;
+    desktop) steam_args=() ;;
+    *)
+        # outro pedido (outra tela, ou sem gamescope): o próprio script o faz e
+        # abre a Steam do jeito certo
+        read -r -a again <<<"$next"
+        exec "$SELF" "${again[@]}"
+        ;;
+esac
+if command -v uwsm >/dev/null && uwsm check is-active >/dev/null 2>&1; then
+    exec uwsm app -- steam "${steam_args[@]}"
+fi
+exec steam "${steam_args[@]}"

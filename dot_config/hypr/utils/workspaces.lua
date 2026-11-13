@@ -289,6 +289,48 @@ function W.move(slot, follow)
 	place(id, W.blocks())
 end
 
+-- Tela de um papel, para os scripts (steam-bigpicture):
+--   "tv"       a TV (precisa estar ligada)
+--   "monitor"  a tela em foco, se não for a TV; senão a primeira ligada que não é a TV
+--   "here"     a tela em foco
+function W.target(role)
+	local active = hl.get_active_monitor()
+	if role == "here" then
+		return active
+	end
+	if role == "tv" then
+		for _, b in ipairs(W.blocks()) do
+			if b.key == "tv" then
+				return b.monitor
+			end
+		end
+		return nil
+	end
+	if active and active.name ~= screens.tv then
+		return active
+	end
+	for _, b in ipairs(active_blocks(W.blocks())) do
+		if b.key ~= "tv" then
+			return b.monitor
+		end
+	end
+	return active
+end
+
+-- Foco no slot da tela de um papel: hyprctl eval 'require("utils.workspaces").go("tv", 10)'
+function W.go(role, slot)
+	local m = W.target(role)
+	if not m then
+		return
+	end
+	local id = W.id(slot or W.GAME_SLOT, m)
+	if not m.focused then
+		hl.dispatch(hl.dsp.focus({ monitor = m.name }))
+	end
+	hl.dispatch(hl.dsp.focus({ workspace = tostring(id) }))
+	place(id, W.blocks())
+end
+
 -- ===== Eventos =====
 -- Um tempo depois do evento: mexer em monitores dentro dele pode travar o Hyprland
 local function later(fn)

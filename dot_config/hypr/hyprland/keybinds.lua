@@ -48,22 +48,25 @@ bind("SUPER + ALT + S", "Special: move window to scratchpad", hl.dsp.window.move
 bind("SUPER + CTRL + SHIFT + down", "Special: move window out to the workspace", hl.dsp.window.move({ workspace = "e+0" }))
 
 -- ===== Jogos =====
--- Steam normal; no modo console, sai dele para a janela da Steam
-bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-console --desktop"))
+-- Steam normal; no gamescope, sai dele para a janela da Steam
+bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-bigpicture --desktop"))
 if cmd_present("heroic") then
 	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", vars.heroic))
 end
--- modo console: Steam no Big Picture dentro do gamescope, na TV (~/.local/bin/steam-console)
-bind("SUPER + CTRL + SHIFT + G", "Games: Steam console mode on/off (gamescope)", run(F.bin .. "steam-console"))
--- variante: no monitor, com a TV desligada (alguém usando os apps da TV)
-bind("SUPER + CTRL + SHIFT + ALT + G", "Games: Steam console mode on the monitor", run(F.bin .. "steam-console --monitor"))
+-- Big Picture no 10 da tela pedida (~/.local/bin/steam-bigpicture); de novo, fecha.
+-- G: a Steam normal; B (de "box"): a Steam inteira dentro do gamescope, que na
+-- TV oferece HDR aos jogos. Com ALT, na TV (liga se estiver desligada)
+bind("SUPER + CTRL + SHIFT + G", "Games: Big Picture on the monitor", run(F.bin .. "steam-bigpicture --monitor"))
+bind("SUPER + CTRL + SHIFT + ALT + G", "Games: Big Picture on the TV", run(F.bin .. "steam-bigpicture --tv"))
+bind("SUPER + CTRL + SHIFT + B", "Games: Big Picture in gamescope on the monitor", run(F.bin .. "steam-bigpicture --monitor --gamescope"))
+bind("SUPER + CTRL + SHIFT + ALT + B", "Games: Big Picture in gamescope on the TV (HDR)", run(F.bin .. "steam-bigpicture --tv --gamescope"))
 -- HUD do modo console (mangoapp): começa oculto, e o Shift_R+F12 só funciona
 -- com ele visível; no desktop, o HUD do jogo usa o Shift_R+F12. Só com o
 -- gamescope aberto: o recado fica na fila do mangoapp até alguém ler, e um
 -- toque no desktop mudaria o HUD do próximo modo console
 bind(
 	"SUPER + F12",
-	"Games: show/hide the console mode HUD",
+	"Games: show/hide the gamescope HUD",
 	run("sh -c 'pgrep -f \"^gamescope .*--mangoapp\" >/dev/null && exec mangohudctl toggle no_display'")
 )
 
