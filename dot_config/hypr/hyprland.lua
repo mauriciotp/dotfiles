@@ -3,7 +3,9 @@
 -- Estrutura (Caelestia, com a pasta apps/ do Omarchy):
 --   variables.lua        apps, telas e valores (sem teclas)
 --   hyprland/            um arquivo por seção do Hyprland
---   hyprland/apps/       o que é de um app só: regra e evento juntos
+--   hyprland/apps/       o que só um app tem (tamanho exato, evento); as
+--                        categorias (flutuar, tiling) ficam nas listas de tag
+--                        de hyprland/rules.lua
 --   utils/               funções (bind, run, window, tags) e os workspaces por monitor
 require("hyprland.monitors")
 require("hyprland.general")

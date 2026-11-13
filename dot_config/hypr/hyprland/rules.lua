@@ -1,5 +1,7 @@
 -- Regras de janela que valem para mais de um app: regras gerais, tags e
--- workspaces. O que é de um app só fica em hyprland/apps/.
+-- workspaces. Um app entra numa categoria (flutuar, tiling, especial) pelas
+-- listas de tag daqui; o que só ele tem (tamanho exato, evento) fica em
+-- hyprland/apps/<app>.lua.
 local F = require("utils.functions")
 local vars = require("variables")
 local window, tagged_rule, create_tag = F.window, F.tagged_rule, F.create_tag

@@ -50,7 +50,7 @@ Se estiver perdido, vá direto para [Manutenção: o ciclo básico](#o-ciclo-bá
 | Editor | **Neovim** + LazyVim | tema catppuccin-mocha |
 | Ferramentas de terminal | fzf, fd, bat, eza, zoxide, yazi, lazygit, ripgrep | busca, preview, `ls`, `cd` inteligente, arquivos, git |
 | Linguagens | **mise** | Go (latest) e Node (LTS) |
-| Jogos | Steam, Heroic, gamescope, gamemode, MangoHud, GE-Proton | tudo no workspace atual, Big Picture onde você pedir, HDR na TV |
+| Jogos | Steam, Heroic, gamescope, gamemode, MangoHud, GE-Proton | jogos no 10 da tela em foco, Big Picture onde você pedir, HDR na TV |
 
 O hardware é uma placa NVIDIA (RTX 5080, `nvidia-open`), um monitor Full HD 144 Hz (`DP-2`) e uma TV LG C4 (`HDMI-A-1`) usada só para jogar.
 
@@ -319,7 +319,7 @@ icon=usr/share/icons/hicolor/256x256/apps/io.github.zortos293.lichii.png
 7z e ~/Games/Emulators/Apps/lichii.AppImage "$icon" -o"$HOME/.local/share/icons/hicolor/256x256/apps"
 ```
 
-O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. A janela abre no workspace atual. O gamemode é ligado pelo próprio Lichii ao abrir o jogo (opção `enable_gamemode`, ligada por padrão, em `~/.config/eden/qt-config.ini`); para conferir, `gamemoded -s` com o jogo aberto.
+O atalho abre o emulador em X11 (`QT_QPA_PLATFORM=xcb`), que funciona melhor que o Wayland. Aberto pelo menu, o Lichii fica no workspace atual; com um jogo rodando, a janela vira jogo pelo título (tag `game`), e aberto já com o jogo (pelo ES-DE) vai para o 10. O gamemode é ligado pelo próprio Lichii ao abrir o jogo (opção `enable_gamemode`, ligada por padrão, em `~/.config/eden/qt-config.ini`); para conferir, `gamemoded -s` com o jogo aberto.
 
 **Pastas dos jogos de emulador** (em inglês, uma por plataforma):
 

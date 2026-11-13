@@ -6,8 +6,8 @@
 --   sem o QHD no variables.lua   monitor 1–10, TV 11–20
 --   com o QHD no variables.lua   QHD 1–10, monitor 11–20, TV 21–30
 -- A barra mostra 1–10 em todas (o nome do workspace é o número da tecla).
--- O SUPER+número vai ao número da tela em foco. Nenhum número é de jogo: tudo
--- abre no workspace atual.
+-- O SUPER+número vai ao número da tela em foco. As janelas abrem no workspace
+-- atual; só os jogos têm número, o 10 da tela em foco (hyprland/apps/games.lua).
 --
 -- Quando uma tela desliga (a TV pelo SUPER+ALT+O), o Hyprland passa os
 -- workspaces dela para outra tela. Eles ficam com o mesmo id, aparecem como
@@ -104,14 +104,20 @@ function W.id(slot, m)
 	return slot
 end
 
--- Tela dona de um id, ou nil se o bloco é de uma tela desligada
-local function owner(id, list)
+-- Bloco de um id (o 13 é do bloco que começa no 10), ou nil se é de sobra
+local function block_of(id, list)
 	local base = id - slot_of(id)
 	for _, b in ipairs(list) do
 		if b.base == base then
-			return b.monitor
+			return b
 		end
 	end
+end
+
+-- Tela dona de um id, ou nil se o bloco é de uma tela desligada
+local function owner(id, list)
+	local b = block_of(id, list)
+	return b and b.monitor
 end
 
 -- ===== Estado: bloco de cada tela na última passada =====
@@ -147,12 +153,8 @@ end
 
 -- Rótulo da tela dona de um id ("TV"), para o nome na barra
 local function origin_label(id, list)
-	local base = id - slot_of(id)
-	for _, b in ipairs(list) do
-		if b.base == base then
-			return (screens.labels and screens.labels[b.key]) or b.key
-		end
-	end
+	local b = block_of(id, list)
+	return b and ((screens.labels and screens.labels[b.key]) or b.key)
 end
 
 -- ===== Ações =====

@@ -1,9 +1,12 @@
 -- Todos os atalhos, um bloco por contexto. A tecla fica escrita na própria bind.
 -- Convenção (Omarchy), com os especiais no formato do Caelestia:
 --   SUPER + tecla                janelas, workspaces e workspaces especiais
---   SUPER + SHIFT + letra        abre um app (letra em inglês: B = Browser, F = Files...)
+--   SUPER + SHIFT + letra        abre um app (letra em inglês: B = Browser, F = Files...);
+--                                exceções: capturas (S, A, C) e mudo (M)
 --   SUPER + SHIFT + ALT + letra  variante do mesmo app
---   SUPER + CTRL + tecla         sistema e shell
+--   SUPER + CTRL + tecla         sistema, shell e mídia; e a versão "mais forte"
+--                                de uma ação de janela (fechar todas, trocar de
+--                                lugar, mover sem seguir)
 --   SUPER + ALT + tecla          variante da ação de SUPER + tecla
 -- Descrição no formato "Categoria: ação" (dots-hyprland): a cola do SUPER+F1
 -- agrupa pela categoria.
@@ -230,14 +233,19 @@ bind("SUPER + CTRL + ALT + backslash", "Window: float at a normal size", functio
 end)
 
 -- Transparência da janela em foco: liga e desliga o opaque (Omarchy). Vale até
--- a janela fechar.
+-- a janela fechar. O jogo já nasce opaco (tag game, apps/games.lua): o
+-- primeiro toque nele o deixa transparente, em vez de não fazer nada.
 local opaque = {}
 bind("SUPER + BackSpace", "Window: transparency on/off", function()
 	local w = hl.get_active_window()
 	if not w then
 		return
 	end
-	opaque[w.address] = not opaque[w.address]
+	local now = opaque[w.address]
+	if now == nil then
+		now = F.has_tag(w, "game")
+	end
+	opaque[w.address] = not now
 	hl.dispatch(hl.dsp.window.set_prop({
 		window = "address:" .. w.address,
 		prop = "opaque",

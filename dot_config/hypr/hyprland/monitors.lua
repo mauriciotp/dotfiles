@@ -14,7 +14,7 @@ end
 if tv then
 	hl.monitor({
 		output = screens.tv,
-		mode = string.format("%dx%d@%.3f", tv.width, tv.height, tv.refresh_rate or tv.refreshRate or 60),
+		mode = string.format("%dx%d@%.3f", tv.width, tv.height, tv.refresh_rate or 60),
 		position = "0x0",
 		scale = tv.scale,
 	})
