@@ -56,7 +56,7 @@ end
 -- Big Picture na tela pedida (~/.local/bin/steam-bigpicture); de novo, fecha.
 -- G: a Steam normal, no workspace atual; B (de "box"): a Steam inteira dentro
 -- do gamescope, que na TV oferece HDR aos jogos. Com ALT, na TV (liga se
--- estiver desligada). Os jogos abrem no workspace "gaming" (apps/games.lua),
+-- estiver desligada). Os jogos abrem no 10 da tela (apps/games.lua),
 -- então não tiram a tela cheia do Big Picture
 bind("SUPER + CTRL + SHIFT + G", "Games: Big Picture on the monitor", run(F.bin .. "steam-bigpicture --monitor"))
 bind("SUPER + CTRL + SHIFT + ALT + G", "Games: Big Picture on the TV", run(F.bin .. "steam-bigpicture --tv"))
