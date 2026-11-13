@@ -27,8 +27,9 @@ local SLOTS = 10
 -- isto, a TV ligava num número livre qualquer, como o 3)
 local n = 0
 for _, key in ipairs(screens.order) do
+	-- screens também guarda tabelas (order, labels): só o nome da conexão conta
 	local name = screens[key]
-	if name then
+	if type(name) == "string" then
 		for slot = 1, SLOTS do
 			hl.workspace_rule({
 				workspace = tostring(n * SLOTS + slot),
@@ -66,7 +67,7 @@ function W.blocks()
 	local list, known, any = {}, {}, false
 	for _, key in ipairs(screens.order) do
 		local name = screens[key]
-		if name then
+		if type(name) == "string" then
 			known[name] = true
 			list[#list + 1] = { key = key, base = #list * SLOTS, monitor = on[name] }
 			any = any or on[name] ~= nil
