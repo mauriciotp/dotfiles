@@ -297,13 +297,14 @@ for _, d in ipairs({ { "Left", "l" }, { "Right", "r" }, { "Up", "u" }, { "Down",
 end
 
 -- ===== Workspaces e monitores (veja utils/workspaces.lua) =====
--- SUPER + 1…0: workspace do monitor em foco (a tecla 0 é o 10, jogos)
+-- SUPER + 1…0: workspace da tela em foco (a tecla 0 é o 10, o dos jogos);
+-- com ALT, na próxima tela, em ciclo
 for slot = 1, 10 do
 	local key = slot % 10
 	bind("SUPER + " .. key, "Workspace: go to " .. slot, function()
 		W.focus(slot)
 	end)
-	bind("SUPER + ALT + " .. key, "Workspace: go to " .. slot .. " on the other monitor", function()
+	bind("SUPER + ALT + " .. key, "Workspace: go to " .. slot .. " on the next screen", function()
 		W.focus(slot, true)
 	end)
 	bind("SUPER + SHIFT + " .. key, "Workspace: move window to " .. slot, function()
@@ -325,7 +326,7 @@ bind({ "SUPER + SHIFT + Page_Up", "SUPER + ALT + mouse_up" }, "Workspace: move w
 bind("SUPER + O", "Monitor: focus the other", hl.dsp.focus({ monitor = "+1" }))
 bind("SUPER + CTRL + SHIFT + O", "Monitor: move window to the other", hl.dsp.window.move({ monitor = "+1" }))
 bind("SUPER + CTRL + O", "Monitor: move workspace to the other", hl.dsp.workspace.move({ monitor = "+1" }))
-bind("SUPER + ALT + O", "Monitor: TV on/off (takes the games workspace)", F.bin .. "tv-toggle")
+bind("SUPER + ALT + O", "Monitor: TV on/off", F.bin .. "tv-toggle")
 
 -- ===== Tela: zoom e modo sem distração =====
 -- Zoom em passos de 0,3, entre 1 e 3 (dots-hyprland; teclas do Omarchy)

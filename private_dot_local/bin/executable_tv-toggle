@@ -1,5 +1,6 @@
 #!/bin/sh
-# Liga ou desliga a TV (LG C4) no Hyprland e leva o workspace 10 (jogos) junto.
+# Liga ou desliga a TV (LG C4) no Hyprland. Ela é uma tela como as outras, com
+# os seus 10 workspaces (hypr/utils/workspaces.lua).
 # Uso: tv-toggle [on|off]   (sem argumento: alterna)
 #
 # Por que existe: a TV em espera continua "conectada" pelo HDMI (o kernel mostra
@@ -7,12 +8,10 @@
 # Por isso o monitors.lua começa com a TV desativada e este script a liga quando
 # você vai jogar na cama.
 #
-#   on : ativa a TV no 4K de maior taxa, 144 Hz (scale 2), move o workspace 10 para ela e foca nele
-#   off: devolve o workspace 10 a outro monitor e desativa a TV
-# O workspaces.lua do Hyprland faz o mesmo quando as telas mudam; os movimentos
-# aqui garantem a ordem (jogo fora da TV antes de ela desligar).
+#   on : ativa a TV no 4K de maior taxa, 144 Hz (scale 2), e põe o foco nela
+#   off: desativa a TV. O Hyprland passa os workspaces dela para outra tela, e o
+#        workspaces.lua os devolve quando ela religa
 TV="HDMI-A-1"
-GAMES=10
 
 tv_active() { hyprctl monitors -j | grep -q "\"name\": \"$TV\""; }
 
@@ -38,18 +37,12 @@ tv_on() {
     mode=$(tv_mode)
     # disabled = false é obrigatório: sem ele, a regra disabled = true do monitors.lua continua valendo
     hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"$mode\", position = \"0x0\", scale = 2 })" >/dev/null
-    # espera a TV aparecer antes de mover o workspace (até 5 s)
+    # espera a TV aparecer antes de pôr o foco nela (até 5 s)
     for _ in 1 2 3 4 5 6 7 8 9 10; do tv_active && break; sleep 0.5; done
-    hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"$GAMES\", monitor = \"$TV\" })" >/dev/null
-    hyprctl dispatch "hl.dsp.focus({ workspace = $GAMES })" >/dev/null
+    hyprctl dispatch "hl.dsp.focus({ monitor = \"$TV\" })" >/dev/null
 }
 
 tv_off() {
-    # primeiro tira o workspace dos jogos da TV, para as janelas não ficarem órfãs
-    other=$(hyprctl monitors -j | jq -r --arg tv "$TV" '[.[] | select(.name != $tv)][0].name // empty')
-    if [ -n "$other" ]; then
-        hyprctl dispatch "hl.dsp.workspace.move({ workspace = \"$GAMES\", monitor = \"$other\" })" >/dev/null
-    fi
     hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })" >/dev/null
 }
 

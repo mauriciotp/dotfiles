@@ -1,6 +1,6 @@
 -- Jogos: Steam (steam_app_*), gamescope, jogos do Heroic/Lutris pelo Proton
--- (*.exe) e emuladores. Vão para o workspace 10, que fica na TV quando ela está
--- ligada pelo SUPER+ALT+O e no monitor quando não (utils/workspaces.lua).
+-- (*.exe) e emuladores. Vão para o workspace 10 da tela onde abriram, que é a
+-- tela em foco (utils/workspaces.lua).
 local F = require("utils.functions")
 local W = require("utils.workspaces")
 
@@ -21,7 +21,6 @@ F.tagged_rule("game", {
 }, "class")
 
 F.create_tag("game", {
-	workspace = tostring(W.GAMES),
 	immediate = true, -- tearing permitido (só em tela cheia; chave geral no hyprland/general.lua)
 	content = "game", -- liga o direct scanout automático e o VRR (hyprland/monitors.lua)
 	-- a tela não apaga nem bloqueia com um jogo aberto, mesmo em janela (o
@@ -29,6 +28,18 @@ F.create_tag("game", {
 	-- cheia (hyprland/rules.lua), que vem antes. Caelestia, H4
 	idle_inhibit = "always",
 })
+
+-- O 10 depende da tela, e a regra não sabe qual está em foco: por evento.
+-- Fica no 10 da tela da janela, com o foco junto, como a regra fazia.
+hl.on("window.open", function(w)
+	if not (w and w.monitor and F.has_tag(w, "game")) then
+		return
+	end
+	local id = W.id(W.GAME_SLOT, w.monitor)
+	if not (w.workspace and w.workspace.id == id) then
+		hl.dispatch(hl.dsp.window.move({ window = "address:" .. w.address, workspace = tostring(id), follow = true }))
+	end
+end)
 
 F.window("game-confine-pointer", { tag = "game", fullscreen = true }, {
 	confine_pointer = true, -- o mouse não escapa para o outro monitor

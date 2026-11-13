@@ -1,5 +1,6 @@
 -- Steam: janelas extras, lista de amigos e Big Picture.
--- Os jogos e o Big Picture vão para o 10 (na TV quando ela está ligada).
+-- O Big Picture vai para o 10 da tela onde abriu: a tela onde você clicou no
+-- botão da Steam, ou a que o steam-bigpicture pôs em foco.
 local F = require("utils.functions")
 local W = require("utils.workspaces")
 
@@ -23,9 +24,9 @@ F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { flo
 -- abre). E nunca toma a tela cheia de outra janela no 10: tirava a do jogo (lento).
 local was_big_picture = {}
 
-local function other_fullscreen_on_games(w)
+local function other_fullscreen_on(id, w)
 	for _, other in ipairs(hl.get_windows()) do
-		if other.address ~= w.address and other.workspace and other.workspace.id == W.GAMES and (other.fullscreen or 0) ~= 0 then
+		if other.address ~= w.address and other.workspace and other.workspace.id == id and (other.fullscreen or 0) ~= 0 then
 			return true
 		end
 	end
@@ -43,10 +44,11 @@ local function send_to_games(w)
 		return
 	end
 	local sel = "address:" .. w.address
-	if not (w.workspace and w.workspace.id == W.GAMES) then
-		hl.dispatch(hl.dsp.window.move({ window = sel, workspace = tostring(W.GAMES), follow = true }))
+	local id = W.id(W.GAME_SLOT, w.monitor)
+	if not (w.workspace and w.workspace.id == id) then
+		hl.dispatch(hl.dsp.window.move({ window = sel, workspace = tostring(id), follow = true }))
 	end
-	if (w.fullscreen or 0) == 0 and not other_fullscreen_on_games(w) then
+	if (w.fullscreen or 0) == 0 and not other_fullscreen_on(id, w) then
 		hl.dispatch(hl.dsp.window.fullscreen({ mode = "fullscreen", action = "set", window = sel }))
 	end
 end

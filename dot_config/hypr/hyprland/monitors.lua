@@ -3,12 +3,28 @@
 local screens = require("variables").screens
 
 -- TV em cima. Em espera ela continua "conectada" pelo HDMI, então começa
--- desativada e o tv-toggle a liga.
-hl.monitor({
-	output = screens.tv,
-	disabled = true,
-	-- bitdepth = 10, -- só se precisar: algumas capturas não aceitam 10 bits
-})
+-- desativada e o tv-toggle a liga. Num reload da config, se ela já estiver
+-- ligada, continua ligada no modo de agora (sem isto, o reload a desligava).
+local tv
+for _, m in ipairs(hl.get_monitors() or {}) do
+	if m.name == screens.tv then
+		tv = m
+	end
+end
+if tv then
+	hl.monitor({
+		output = screens.tv,
+		mode = string.format("%dx%d@%.3f", tv.width, tv.height, tv.refresh_rate or tv.refreshRate or 60),
+		position = "0x0",
+		scale = tv.scale,
+	})
+else
+	hl.monitor({
+		output = screens.tv,
+		disabled = true,
+		-- bitdepth = 10, -- só se precisar: algumas capturas não aceitam 10 bits
+	})
+end
 
 -- Monitor Full HD embaixo da TV
 hl.monitor({

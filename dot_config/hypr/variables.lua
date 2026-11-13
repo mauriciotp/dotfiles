@@ -6,8 +6,13 @@ return {
 	-- Nomes e modos: hyprctl monitors all
 	screens = {
 		current = "DP-2", -- Full HD 144 Hz com G-Sync
-		tv = "HDMI-A-1", -- LG OLED C4, ligada só para jogar (SUPER+ALT+O, script tv-toggle)
+		tv = "HDMI-A-1", -- LG OLED C4, ligada e desligada pelo SUPER+ALT+O (script tv-toggle)
 		qhd = nil, -- monitor QHD, quando chegar: ponha aqui o nome da conexão (ex.: "DP-1")
+		-- ordem dos blocos de 10 workspaces (utils/workspaces.lua): a primeira
+		-- tela configurada fica com o 1–10, a segunda com o 11–20...
+		order = { "qhd", "current", "tv" },
+		-- nome na barra dos workspaces de uma tela desligada ("TV 3")
+		labels = { qhd = "QHD", current = "Monitor", tv = "TV" },
 	},
 
 	-- ===== Apps =====
