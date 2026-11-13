@@ -184,6 +184,19 @@ local function renumber(from, to)
 	end
 end
 
+-- Posição de um workspace de sobra entre os de sobra da mesma tela (1, 2...).
+-- De sobra é o que tem um id fora de qualquer bloco
+local function overflow_rank(id, monitor_name, list)
+	local rank = 0
+	for _, ws in ipairs(hl.get_workspaces()) do
+		if ws.id and ws.id > 0 and ws.id <= id and not ws.special and ws.monitor and ws.monitor.name == monitor_name
+			and not origin_label(ws.id, list) then
+			rank = rank + 1
+		end
+	end
+	return math.max(rank, 1)
+end
+
 -- Leva o workspace à tela dona e acerta o nome na barra
 local function place(id, list)
 	local ws = hl.get_workspace(id)
@@ -193,9 +206,16 @@ local function place(id, list)
 	local m = owner(id, list)
 	local name = tostring(slot_of(id))
 	if not m then
-		-- tela desligada: fica onde o Hyprland o pôs, com o nome da tela de origem
 		local from = origin_label(id, list)
-		name = from and (from .. " " .. name) or name
+		if from then
+			-- tela desligada: fica onde o Hyprland o pôs, com o nome da tela de origem
+			name = from .. " " .. name
+		elseif ws.monitor then
+			-- de sobra: um jogo abriu com os 10 da tela ocupados, e o seletor
+			-- emptym (hyprland/apps/games.lua) pegou um id sem dono, como o 21.
+			-- Continua a contagem da tela: 11, 12...
+			name = tostring(SLOTS + overflow_rank(id, ws.monitor.name, list))
+		end
 	end
 	if ws.name ~= name then
 		hl.dispatch(hl.dsp.workspace.rename({ workspace = tostring(id), name = name }))
