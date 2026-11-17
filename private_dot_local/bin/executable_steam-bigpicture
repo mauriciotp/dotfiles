@@ -200,11 +200,16 @@ rm -f "$state/next"
 # Big Picture: o controle não conta como movimento do mouse, e o Hyprland só
 # esconde o cursor ao digitar (hide_on_key_press). Só dentro do gamescope; no
 # desktop o cursor continua como está (gamescope --help, 3.17.0)
+# --force-grab-cursor: mouse sempre relativo. Sem isto, num jogo que não esconde
+# o cursor (o Zelda, Longshot), o gamescope ficava no modo absoluto e desenhava
+# o cursor dele parado no canto superior esquerdo, sem seguir o mouse e sem o
+# -C escondê-lo (o do Hyprland se mexia livre por baixo, 2026-11-17). Com o
+# gamescope em foco o mouse fica nele; SUPER+O troca de tela pelo teclado.
 # --mangoapp: o HUD em camada do gamescope (o mangohud normal aqui dentro não
 # é suportado, README do MangoHud). A variável vale para o gamescope e a Steam
 # de dentro, sem export: a Steam reaberta no fim não a herda.
 MANGOHUD_CONFIGFILE="$hud" \
-    gamescope -e -f -C 3000 --adaptive-sync --mangoapp "${hdr_flags[@]}" \
+    gamescope -e -f -C 3000 --force-grab-cursor --adaptive-sync --mangoapp "${hdr_flags[@]}" \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
 # A Steam fechou: o recado diz o que fazer (sem recado: saída pelo Big Picture)
