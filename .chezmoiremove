@@ -1,3 +1,5 @@
 # arquivos que saíram do repositório: o chezmoi os apaga do home
 .local/bin/steam-console
-.config/hypr/hyprland/blurs
+.config/hypr/hyprland/toggles
+.config/hypr/hyprland/toggles.lua
+.local/bin/hypr-toggle

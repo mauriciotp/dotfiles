@@ -360,10 +360,22 @@ bind("SUPER + CTRL + ALT + Z", "Screen: reset zoom", function()
 	hl.config({ cursor = { zoom_factor = 1 } })
 end)
 
--- Toggles (Omarchy): cada um é um arquivo em hyprland/toggles/, ligado por uma
--- flag em ~/.local/state/hypr/ e mantido depois de um reload (hypr-toggle).
-bind("SUPER + SHIFT + BackSpace", "Screen: no gaps or borders on/off", F.bin .. "hypr-toggle no-gaps")
-bind("SUPER + CTRL + T", "Screen: toggles menu", F.bin .. "hypr-toggle --window")
+-- Sem margens e sem bordas (Omarchy, sem arquivo de estado: vale até o
+-- próximo reload). Guarda os valores de agora para voltar a eles.
+local saved_gaps
+bind("SUPER + SHIFT + BackSpace", "Screen: no gaps or borders on/off", function()
+	if saved_gaps then
+		hl.config({ general = saved_gaps })
+		saved_gaps = nil
+	else
+		saved_gaps = {
+			gaps_in = hl.get_config("general.gaps_in"),
+			gaps_out = hl.get_config("general.gaps_out"),
+			border_size = hl.get_config("general.border_size"),
+		}
+		hl.config({ general = { gaps_in = 0, gaps_out = 0, border_size = 0 } })
+	end
+end)
 
 -- ===== Mídia e volume pelo Noctalia (funcionam com a tela bloqueada) =====
 bind("XF86AudioRaiseVolume", "Media: volume up", ipc("volume-up"), { locked = true, repeating = true })

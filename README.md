@@ -80,11 +80,8 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   │   │   ├── animations/      conjuntos de animação (smooth, caelestia, omarchy,
 │   │   │   │                    spring, macos, snappy); o ativo se escolhe em
 │   │   │   │                    `animations` no variables.lua
-│   │   │   ├── apps/            o que é de um app só (jogos, Steam, Discord, Bitwarden,
-│   │   │   │                    Obsidian, PiP, Noctalia)
-│   │   │   ├── toggles/         efeitos que o hypr-toggle liga e desliga (sem margens,
-│   │   │   │                    sem animações, sem blur, cantos retos, vidro, opaco)
-│   │   │   └── toggles.lua      carrega os toggles ligados
+│   │   │   └── apps/            o que é de um app só (jogos, Steam, Discord, Bitwarden,
+│   │   │                        Obsidian, PiP, Noctalia)
 │   │   └── utils/               functions.lua (bind, run, window, tags) e
 │   │                            workspaces.lua (10 por tela: monitor 1–10, TV 11–20)
 │   ├── uwsm/env, env-hyprland   variáveis de ambiente da sessão (NVIDIA, Qt, PATH...)
@@ -119,7 +116,6 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `hdr` | roda um jogo com HDR quando ele abre na TV (Wine Wayland do GE-Proton); em outra tela, normal | opção de inicialização: `hdr gamemoderun %command%`; terminal: `hdr ./jogo`; Heroic: `hdr` no wrapper |
 | `gs-run` | roda um jogo dentro do gamescope, no modo da tela em foco; na TV, com HDR | opção de inicialização: `gs-run gamemoderun %command%`; `--sdr`, `--itm`, `--sdr-nits N` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
-| `hypr-toggle` | liga e desliga os toggles do Hyprland (`hypr/hyprland/toggles/`); o estado fica em `~/.local/state/hypr/` e sobrevive ao reload | **SUPER+CTRL+T** (menu), **SUPER+SHIFT+BackSpace** (`no-gaps`); `hypr-toggle list`, `hypr-toggle no-animations` |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
 
@@ -202,7 +198,6 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+Escape | bloquear a tela (SUPER+ALT+Escape: volta o bloqueio se o Noctalia cair) |
 | SUPER+SHIFT+Escape ou CTRL+ALT+Delete | menu de sessão |
 | SUPER+ALT+F1 | desliga todos os atalhos (VM, área de trabalho remota); de novo, liga |
-| SUPER+CTRL+T | menu de toggles (sem margens, sem animações, sem blur, cantos retos, vidro, opaco); SUPER+SHIFT+BackSpace liga/desliga só as margens |
 | SUPER+CTRL+R | recarregar a config do Hyprland |
 | SUPER+F1 ou SUPER+/ | cola de atalhos, agrupada por categoria |
 
@@ -689,7 +684,6 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | O quê | Por quê |
 |---|---|
 | `~/.config/gh/`, `~/.kube/`, `~/.ssh/` | credenciais |
-| `~/.local/state/hypr/` | toggles ligados pelo `hypr-toggle`: preferência do momento, não config |
 | `~/.local/state/noctalia/` | estado do Noctalia: o que a interface grava (tem prioridade sobre o `config.toml`), o catálogo de templates |
 | temas do GTK, OBS, Heroic e Obsidian | gerados pelo Noctalia e nunca estiveram no repositório |
 | plugins do tmux e do Neovim | baixados pelo TPM e pelo lazy.nvim |
