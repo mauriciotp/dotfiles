@@ -121,7 +121,9 @@ tagged_rule("tile", {
 -- nasce flutuando sozinha (thinglab.org, 2026-01)
 tagged_rule("tile", {
 	{ class = "^steam$", initial_title = "^Steam$" },
-	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^Obsidian$" }, -- visto no hyprctl clients
+	-- "Obsidian" (seletor de vaults) ou "<vault> - Obsidian <versão>" (abrindo
+	-- direto no vault: "SecondBrain - Obsidian 1.15.1", hyprctl clients 2026-11-16)
+	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^(.+ - )?Obsidian( [0-9.]+)?$" },
 })
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
