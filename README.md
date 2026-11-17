@@ -80,7 +80,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   │   │   ├── animations/      conjuntos de animação (smooth, caelestia, omarchy);
 │   │   │   │                    o ativo se escolhe em `animations` no variables.lua
 │   │   │   └── apps/            o que é de um app só (jogos, Steam, Discord, Bitwarden,
-│   │   │                        PiP, Noctalia)
+│   │   │                        Obsidian, PiP, Noctalia)
 │   │   └── utils/               functions.lua (bind, run, window, tags) e
 │   │                            workspaces.lua (10 por tela: monitor 1–10, TV 11–20)
 │   ├── uwsm/env, env-hyprland   variáveis de ambiente da sessão (NVIDIA, Qt, PATH...)

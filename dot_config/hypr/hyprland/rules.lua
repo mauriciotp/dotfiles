@@ -86,6 +86,9 @@ tagged_rule("float", {
 	".* Properties", -- propriedades de um arquivo
 	'Rename ".*"', -- renomear
 }, "title") -- R5
+-- diálogos modais ("tem certeza?", "salvar alterações?") de qualquer app, em
+-- qualquer idioma: a janela se declara modal, sem depender do título (HyDE)
+tagged_rule("float", { { modal = true } })
 
 -- Apps que abrem janelas extras sem janela-pai (configurações, propriedades,
 -- chat): todas as janelas flutuam, e a tag "tile" (abaixo) devolve a principal
@@ -121,9 +124,14 @@ tagged_rule("tile", {
 -- nasce flutuando sozinha (thinglab.org, 2026-01)
 tagged_rule("tile", {
 	{ class = "^steam$", initial_title = "^Steam$" },
-	-- "Obsidian" (seletor de vaults) ou "<vault> - Obsidian <versão>" (abrindo
-	-- direto no vault: "SecondBrain - Obsidian 1.15.1", hyprctl clients 2026-11-16)
-	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^(.+ - )?Obsidian( [0-9.]+)?$" },
+	-- Obsidian: "Obsidian" (aberto pelo seletor de vaults) ou "<vault> - Obsidian
+	-- <versão>" (aberto direto no vault: "SecondBrain - Obsidian 1.15.1"). Um "-"
+	-- só antes de "Obsidian": as janelas extras abrem como "Settings - <vault> -
+	-- Obsidian 1.15.1" e "Community plugins - <vault> - ..." e têm de flutuar
+	-- (eventos do Hyprland, 2026-11-17). Vault com "-" no nome abre flutuando.
+	-- O pop-out ("abrir em nova janela") nasce "Obsidian", como a principal:
+	-- esse é tratado por evento em hyprland/apps/obsidian.lua.
+	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^(Obsidian|[^-]+ - Obsidian [0-9.]+)$" },
 })
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
