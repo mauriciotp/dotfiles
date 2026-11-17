@@ -1,0 +1,26 @@
+{{- $game := joinPath .chezmoi.homeDir "Games/Recomps/mkw-recomp" -}}
+{{- $builder := joinPath .chezmoi.homeDir "Games/Recomps/Builders/mkw-recomp-0.1.13-x86_64.AppImage" -}}
+# Mario Kart World pelo mkw-recomp (recompilação nativa do jogo de Switch 2).
+# O jogo é montado no PC pelo AppImage, a partir da sua cópia, em
+# ~/Games/Recomps/mkw-recomp; nada do jogo entra no chezmoi.
+# - Exec: o AppImage com --play abre o jogo direto, sem a janela do launcher,
+#   com o gamemoderun (o mkw-recomp não liga o gamemode sozinho). Tem de ser o
+#   AppImage, e não o ~/.local/share/mkw-recomp/mkw: ele traz a libvpx.so.6,
+#   que o sistema não tem. Sem o --play, o mesmo AppImage abre o launcher
+#   (configurações, mods e atualização).
+# - O nome do AppImage leva a versão: se ela mudar, troque o $builder acima.
+# - O nome do arquivo é a classe da janela (XWayland): o Hyprland e o menu
+#   ligam a janela a esta entrada. Regra de jogo: hypr/hyprland/apps/games.lua.
+# - Icon: o mkw-recomp.png do AppImage, copiado para a pasta do jogo.
+# - TryExec: a entrada só aparece no menu depois que o jogo foi montado.
+[Desktop Entry]
+Type=Application
+Name=Mario Kart World
+GenericName=mkw-recomp (recomp)
+Comment=Static recompilation of Mario Kart World, built from your copy
+Icon={{ $game }}/mkw-recomp.png
+TryExec={{ $game }}/mkwgame.so
+Exec=gamemoderun {{ $builder }} --play
+Categories=Game;
+StartupWMClass=mkw-recomp
+Terminal=false

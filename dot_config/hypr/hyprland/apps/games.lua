@@ -13,6 +13,7 @@ F.tagged_rule("game", {
 	"^gamescope$",
 	"^.*\\.exe$", -- Proton do Heroic/Lutris
 	"^dev\\.magicbean\\.Longshot$", -- recomp: Zelda: Ocarina of Time (Longshot)
+	"^mkw-recomp$", -- recomp: Mario Kart World (mkw-recomp)
 }, "class")
 
 -- Emulador (Lichii): só a janela principal com um jogo rodando, pelo título,

@@ -365,6 +365,7 @@ Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder d
   Recomps/
     Builders/         AppImages dos builders, com o nome original (o launcher usa o arquivo para atualizar)
     Longshot/         Zelda: Ocarina of Time
+    mkw-recomp/       Mario Kart World
     <projeto>/        um por recomp
 ```
 
@@ -378,16 +379,29 @@ Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder d
 
 | Para quê | Como |
 |---|---|
-| jogar | a entrada **Zelda: Ocarina of Time** do menu (`dev.magicbean.Longshot.desktop`, deste repositório): abre o jogo direto, com `gamemoderun` (o Longshot não liga o gamemode sozinho) |
+| jogar | a entrada **Zelda: Ocarina of Time** do menu (`dev.magicbean.Longshot.desktop`, deste repositório): roda o AppImage com `--play`, que abre o jogo direto, com `gamemoderun` (o Longshot não liga o gamemode sozinho) |
 | atualizar | o AppImage em `~/Games/Recomps/Builders/`, que abre o launcher com o botão **Update** |
 
 Saves em `~/.local/share/longshot/save`, fora da pasta do jogo: copie antes de cada update. O launcher também importa saves do Hookshot e dos emuladores.
+
+**mkw-recomp (Mario Kart World):** o AppImage (de github.com/adriadam10/mkw-recomp) é o launcher e também o jogo: a pasta em `Recomps/` guarda só o que ele monta.
+
+1. Baixe o `mkw-recomp-*-x86_64.AppImage` para `~/Games/Recomps/Builders/` e rode (`chmod +x` antes).
+2. No launcher, escolha a pasta `~/Games/Recomps/mkw-recomp` e monte o jogo a partir do `.nup` em `~/Games/Emulators/Switch2/ROMs/`. O caminho fica em `game_dir`, no `~/.local/share/mkw-recomp/mkw.ini`.
+3. Copie o ícone para a pasta do jogo (a entrada do menu aponta para ele): `cd /tmp && ~/Games/Recomps/Builders/mkw-recomp-*.AppImage --appimage-extract mkw-recomp.png && cp squashfs-root/mkw-recomp.png ~/Games/Recomps/mkw-recomp/`.
+
+| Para quê | Como |
+|---|---|
+| jogar | a entrada **Mario Kart World** do menu (`mkw-recomp.desktop`, deste repositório): roda o AppImage com `--play`, que abre o jogo direto, com `gamemoderun` |
+| configurar, mods, atualizar | o AppImage em `~/Games/Recomps/Builders/`, que abre o launcher |
+
+O nome do AppImage leva a versão: se ela mudar, troque o `$builder` no `mkw-recomp.desktop.tmpl`. O mesmo vale para o Longshot (`dev.magicbean.Longshot.desktop.tmpl`).
 
 **Um recomp novo:**
 1. Baixe o builder só da página de releases do projeto e confira o `sha256`.
 2. Monte o jogo em `~/Games/Recomps/<projeto>`.
 3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista da tag `game` em `hypr/hyprland/apps/games.lua`.
-4. Copie o `.desktop.tmpl` do Longshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
+4. Copie o `.desktop.tmpl` do Longshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. O padrão do `Exec` é `gamemoderun <AppImage> --play`. Valide com `desktop-file-validate`.
 5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
 ---

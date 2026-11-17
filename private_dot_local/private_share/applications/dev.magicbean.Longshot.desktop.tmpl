@@ -1,12 +1,13 @@
 {{- $game := joinPath .chezmoi.homeDir "Games/Recomps/Longshot" -}}
+{{- $builder := joinPath .chezmoi.homeDir "Games/Recomps/Builders/LongshotLauncher-v1.0.0-rc.9-x86_64.AppImage" -}}
 # Zelda: Ocarina of Time pelo Longshot (recompilação nativa do remake de Switch 2,
 # sucessor do Hookshot). O jogo é montado no PC pelo Longshot Launcher, a partir
 # da sua cópia, em ~/Games/Recomps/Longshot; nada do jogo entra no chezmoi.
-# - Abre o jogo direto (bin/longshot), sem a janela do launcher, com o
-#   gamemoderun (o Longshot não liga o gamemode sozinho). O launcher, com o
-#   botão Update, é a entrada "Longshot" que o próprio launcher cria.
-# - Path: o script "longshot" da pasta do jogo entra nela antes de rodar o
-#   bin/longshot; aqui é o Path que faz isso.
+# - Exec: o padrão dos recomps, o AppImage com --play, que abre o jogo direto,
+#   sem a janela do launcher, com o gamemoderun (o Longshot não liga o gamemode
+#   sozinho). Sem o --play, o mesmo AppImage abre o launcher, com o botão Update.
+# - O nome do AppImage leva a versão: se ela mudar, troque o $builder acima
+#   (e o builder= do longshot_version.txt, na pasta do jogo).
 # - O nome do arquivo é o app id da janela (Wayland): o Hyprland e o menu ligam
 #   a janela a esta entrada. Regra de jogo: hypr/hyprland/apps/games.lua.
 # - TryExec: a entrada só aparece no menu depois que o jogo foi montado.
@@ -17,8 +18,7 @@ GenericName=Longshot (recomp)
 Comment=Native recompilation of the Switch 2 remake, built from your copy
 Icon={{ $game }}/longshot.png
 TryExec={{ $game }}/bin/longshot
-Exec=gamemoderun {{ $game }}/bin/longshot
-Path={{ $game }}
+Exec=gamemoderun {{ $builder }} --play
 Categories=Game;
 StartupWMClass=dev.magicbean.Longshot
 Terminal=false
