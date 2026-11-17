@@ -196,11 +196,15 @@ rm -f "$state/next"
 
 # -e: integração com a Steam (overlay em camada; evita a "lag bomb", ArchWiki)
 # -f: tela cheia pela flag (o atalho de tela cheia deixa lento, ArchWiki)
+# -C 3000: o cursor some depois de 3 s parado. Sem isto ele fica na tela do
+# Big Picture: o controle não conta como movimento do mouse, e o Hyprland só
+# esconde o cursor ao digitar (hide_on_key_press). Só dentro do gamescope; no
+# desktop o cursor continua como está (gamescope --help, 3.17.0)
 # --mangoapp: o HUD em camada do gamescope (o mangohud normal aqui dentro não
 # é suportado, README do MangoHud). A variável vale para o gamescope e a Steam
 # de dentro, sem export: a Steam reaberta no fim não a herda.
 MANGOHUD_CONFIGFILE="$hud" \
-    gamescope -e -f --adaptive-sync --mangoapp "${hdr_flags[@]}" \
+    gamescope -e -f -C 3000 --adaptive-sync --mangoapp "${hdr_flags[@]}" \
     -W "$width" -H "$height" -r "$fps" -- steam -tenfoot || true
 
 # A Steam fechou: o recado diz o que fazer (sem recado: saída pelo Big Picture)

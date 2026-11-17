@@ -55,7 +55,9 @@ if [[ -z ${width:-} ]]; then
 fi
 fps=$((refresh - 3))
 
-flags=(-f -W "$width" -H "$height" -r "$fps")
+# -C 3000: o cursor some depois de 3 s parado (o controle não o move), como no
+# steam-bigpicture
+flags=(-f -C 3000 -W "$width" -H "$height" -r "$fps")
 vars=()
 if [[ $hdr == on || ($hdr == auto && $screen == "$TV") ]]; then
     flags+=(--hdr-enabled)
