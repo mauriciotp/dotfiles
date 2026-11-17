@@ -1,0 +1,28 @@
+-- HyDE (optimized.lua): tudo curto (0,15 a 0,4 s), curvas do Material Design
+-- 3. Bom para a TV e para jogar. Sem a escala de velocidade do HyDE e sem a
+-- borda girando em loop (borderangle loop), que obriga a redesenhar sempre.
+hl.curve("winIn", { type = "bezier", points = { { 0.07, 0.88 }, { 0.04, 0.99 } } })
+hl.curve("wind", { type = "bezier", points = { { 0.05, 0.85 }, { 0.03, 0.97 } } })
+hl.curve("liner", { type = "bezier", points = { { 1, 1 }, { 1, 1 } } })
+hl.curve("md3_decel", { type = "bezier", points = { { 0.05, 0.80 }, { 0.10, 0.97 } } })
+hl.curve("menu_decel", { type = "bezier", points = { { 0.05, 0.82 }, { 0, 1 } } })
+hl.curve("menu_accel", { type = "bezier", points = { { 0.20, 0 }, { 0.82, 0.10 } } })
+hl.curve("easeOutCirc", { type = "bezier", points = { { 0, 0.48 }, { 0.38, 1 } } })
+
+hl.animation({ leaf = "fade", enabled = true, speed = 1.8, bezier = "md3_decel" })
+
+hl.animation({ leaf = "windowsIn", enabled = true, speed = 3.2, bezier = "winIn", style = "slide" })
+hl.animation({ leaf = "windowsOut", enabled = true, speed = 2.8, bezier = "easeOutCirc" })
+hl.animation({ leaf = "windowsMove", enabled = true, speed = 3.0, bezier = "wind", style = "slide" })
+
+hl.animation({ leaf = "border", enabled = true, speed = 1.6, bezier = "liner" })
+hl.animation({ leaf = "borderangle", enabled = false })
+
+-- painéis do Noctalia (layers)
+hl.animation({ leaf = "layersIn", enabled = true, speed = 1.8, bezier = "menu_decel", style = "slide" })
+hl.animation({ leaf = "layersOut", enabled = true, speed = 1.5, bezier = "menu_accel" })
+hl.animation({ leaf = "fadeLayersIn", enabled = true, speed = 1.6, bezier = "menu_decel" })
+hl.animation({ leaf = "fadeLayersOut", enabled = true, speed = 1.8, bezier = "menu_accel" })
+
+hl.animation({ leaf = "workspaces", enabled = true, speed = 4.0, bezier = "menu_decel", style = "slide" })
+hl.animation({ leaf = "specialWorkspace", enabled = true, speed = 2.3, bezier = "md3_decel", style = "slidefadevert 15%" })

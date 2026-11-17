@@ -30,7 +30,7 @@ return {
 
 	-- ===== Aparência =====
 	-- conjunto de animações: um arquivo em hyprland/animations/ (smooth,
-	-- caelestia ou omarchy)
+	-- caelestia, omarchy, spring, macos ou snappy; veja hyprland/animations.lua)
 	animations = "smooth",
 	windowGapsOut = 10, -- doc do Noctalia
 	workspaceGaps = 20, -- espaço entre workspaces na animação de troca. O1

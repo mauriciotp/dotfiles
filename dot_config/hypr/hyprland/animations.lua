@@ -5,4 +5,7 @@
 --   smooth     o próprio (padrão)
 --   caelestia  curvas do Material Design; painéis e o especial deslizam com fade
 --   omarchy    rápidas (0,1 a 0,3 s), e a troca de workspace sem animação
+--   spring     física de mola em janelas, bordas, painéis e workspaces (KoolDots)
+--   macos      janelas com mola (popin 90%); workspaces deslizam com fade (HyDE)
+--   snappy     tudo curto (0,15 a 0,4 s), para a TV e para jogar (HyDE, optimized)
 require("hyprland.animations." .. require("variables").animations)

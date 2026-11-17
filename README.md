@@ -77,8 +77,9 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   │   ├── create_noctalia.lua  cores das bordas (gerado pelo Noctalia)
 │   │   ├── hyprland/            um arquivo por seção: monitors, general, decoration,
 │   │   │                        animations, input, misc, execs, rules, keybinds
-│   │   │   ├── animations/      conjuntos de animação (smooth, caelestia, omarchy);
-│   │   │   │                    o ativo se escolhe em `animations` no variables.lua
+│   │   │   ├── animations/      conjuntos de animação (smooth, caelestia, omarchy,
+│   │   │   │                    spring, macos, snappy); o ativo se escolhe em
+│   │   │   │                    `animations` no variables.lua
 │   │   │   └── apps/            o que é de um app só (jogos, Steam, Discord, Bitwarden,
 │   │   │                        Obsidian, PiP, Noctalia)
 │   │   └── utils/               functions.lua (bind, run, window, tags) e
