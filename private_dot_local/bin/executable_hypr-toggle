@@ -1,0 +1,101 @@
+#!/bin/bash
+# Toggles e variante de blur do Hyprland (Omarchy, omarchy-hyprland-toggle; HyDE, blurs).
+# O estado fica em ~/.local/state/hypr/ e o hyprland/toggles.lua o carrega a
+# cada reload, então o efeito sobrevive ao SUPER+CTRL+R e ao tv-toggle.
+# Uso: hypr-toggle                       menu (fzf): Enter liga/desliga ou escolhe o blur
+#      hypr-toggle --window              o menu numa janela flutuante do Ghostty (SUPER+CTRL+T)
+#      hypr-toggle <nome> [on|off|toggle]  um toggle (hyprland/toggles/<nome>.lua)
+#      hypr-toggle blur <variante|default> a variante (hyprland/blurs/<variante>.lua);
+#                                        default volta ao blur do variables.lua
+#      hypr-toggle list                  estado de tudo
+set -euo pipefail
+
+config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
+state="${XDG_STATE_HOME:-$HOME/.local/state}/hypr"
+toggles_dir="$config/hyprland/toggles"
+blurs_dir="$config/hyprland/blurs"
+
+if [[ ${1:-} == --window ]]; then
+    exec ghostty --class=com.mauricio.float --title="Toggles" -e "$0"
+fi
+
+# primeira linha de comentário do arquivo, sem o "-- "
+describe() { sed -n '1s/^-- *//p' "$1"; }
+
+names() { find "$1" -maxdepth 1 -name '*.lua' -printf '%f\n' 2>/dev/null | sed 's/\.lua$//' | sort; }
+
+is_on() { [[ -f $state/toggles/$1 ]]; }
+
+# variante em uso: a escolhida pelo menu ou a do variables.lua
+current_blur() {
+    if [[ -s $state/blur ]]; then
+        head -1 "$state/blur"
+    else
+        sed -n 's/^[[:space:]]*blur = "\([^"]*\)".*/\1/p' "$config/variables.lua" | head -1
+    fi
+}
+
+reload() {
+    hyprctl reload >/dev/null
+    command -v notify-send >/dev/null && notify-send -a Hyprland -t 2500 "$1" || true
+}
+
+set_toggle() {
+    local name=$1 action=${2:-toggle}
+    [[ -f $toggles_dir/$name.lua ]] || { echo "toggle desconhecido: $name (veja: hypr-toggle list)" >&2; exit 1; }
+    if [[ $action == toggle ]]; then
+        is_on "$name" && action=off || action=on
+    fi
+    case $action in
+        on) mkdir -p "$state/toggles" && : >"$state/toggles/$name" ;;
+        off) rm -f "$state/toggles/$name" ;;
+        *) echo "ação inválida: $action (on, off ou toggle)" >&2; exit 1 ;;
+    esac
+    reload "$name: $action"
+}
+
+set_blur() {
+    local name=${1:?variante: hypr-toggle list}
+    if [[ $name == default ]]; then
+        rm -f "$state/blur"
+    else
+        [[ -f $blurs_dir/$name.lua ]] || { echo "variante desconhecida: $name (veja: hypr-toggle list)" >&2; exit 1; }
+        mkdir -p "$state" && echo "$name" >"$state/blur"
+    fi
+    reload "blur: $(current_blur)"
+}
+
+# uma linha por item: tipo, nome, marca e descrição, separados por tab
+items() {
+    local name blur
+    blur=$(current_blur)
+    for name in $(names "$toggles_dir"); do
+        printf 'toggle\t%s\t%s\t%s\n' "$name" "$(is_on "$name" && echo '[x]' || echo '[ ]')" "$(describe "$toggles_dir/$name.lua")"
+    done
+    for name in $(names "$blurs_dir"); do
+        printf 'blur\t%s\t%s\t%s\n' "$name" "$([[ $name == "$blur" ]] && echo '(•)' || echo '( )')" "$(describe "$blurs_dir/$name.lua")"
+    done
+}
+
+menu() {
+    # cores do Noctalia: aberto pelo Hyprland, o script não herda o FZF_DEFAULT_OPTS do zsh
+    local theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
+    # shellcheck source=/dev/null
+    [[ -r $theme ]] && source "$theme"
+    local line kind name
+    # depois de cada escolha o menu volta, com o estado novo; Esc sai
+    while line=$(items | fzf --reverse --exact --ignore-case --delimiter='\t' --with-nth=3,1,2,4 \
+        --prompt="toggle › " --header="Enter: liga/desliga o toggle ou usa o blur · Esc: sai"); do
+        kind=$(cut -f1 <<<"$line")
+        name=$(cut -f2 <<<"$line")
+        if [[ $kind == blur ]]; then set_blur "$name"; else set_toggle "$name"; fi
+    done
+}
+
+case ${1:-} in
+    "") menu ;;
+    list) items | cut -f1-3 | column -t -s $'\t' ;;
+    blur) set_blur "${2:-}" ;;
+    -h | --help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *) set_toggle "$1" "${2:-toggle}" ;;
+esac
