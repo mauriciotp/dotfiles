@@ -12,7 +12,7 @@ F.tagged_rule("game", {
 	"^steam_app_.*$", -- Steam
 	"^gamescope$",
 	"^.*\\.exe$", -- Proton do Heroic/Lutris
-	"^io\\.github\\.NotRexed\\.Hookshot$", -- recomp: Zelda: Ocarina of Time
+	"^dev\\.magicbean\\.Longshot$", -- recomp: Zelda: Ocarina of Time (Longshot)
 }, "class")
 
 -- Emulador (Lichii): só a janela principal com um jogo rodando, pelo título,

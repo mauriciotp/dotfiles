@@ -364,34 +364,30 @@ Um recomp é um jogo de console recompilado para rodar nativo no PC. O builder d
   Emulators/          emuladores e jogos por plataforma (veja a seção 6)
   Recomps/
     Builders/         AppImages dos builders, com o nome original (o launcher usa o arquivo para atualizar)
-    Hookshot/         Zelda: Ocarina of Time
+    Longshot/         Zelda: Ocarina of Time
     <projeto>/        um por recomp
 ```
 
-**Hookshot (Zelda: Ocarina of Time):**
+**Longshot (Zelda: Ocarina of Time):** o sucessor do Hookshot. O Longshot Launcher (AppImage, de longshot.magicbean.dev) monta o jogo e o atualiza.
 
-```sh
-mkdir -p ~/Games/Recomps/Builders && cd ~/Games/Recomps/Builders
-gh release download -R NotRexed/Hookshot -p '*-x86_64.AppImage'
-gh release view -R NotRexed/Hookshot --json assets --jq '.assets[] | .name + " " + .digest'
-sha256sum Hookshot-*-x86_64.AppImage       # tem que bater com o digest acima
-chmod +x Hookshot-*-x86_64.AppImage && ./Hookshot-*-x86_64.AppImage
-```
+1. Baixe o `LongshotLauncher-*-x86_64.AppImage` para `~/Games/Recomps/Builders/` e rode (`chmod +x` antes).
+2. Monte o jogo a partir do `.nup` em `~/Games/Emulators/Switch2/ROMs/`. O launcher cria a pasta `~/Games/Recomps/rc` (o nome do canal); com o launcher e o jogo fechados, renomeie para `Longshot` e troque o caminho em dois lugares:
+   - `"folder"` em `~/.local/share/longshot/launcher/builds.json`;
+   - `builder=` em `~/Games/Recomps/Longshot/longshot_version.txt` (o AppImage em `Builders/`).
+3. Apague as entradas que o launcher cria, `~/.local/share/applications/longshot.desktop` e a cópia em `~/Desktop`: elas abrem o launcher, e no menu fica só a do jogo.
 
-No builder, em **Save the game to**, troque o padrão para `~/Games/Recomps/Hookshot` e clique em **Build** (10 a 45 minutos). Depois aparecem duas entradas no menu:
+| Para quê | Como |
+|---|---|
+| jogar | a entrada **Zelda: Ocarina of Time** do menu (`dev.magicbean.Longshot.desktop`, deste repositório): abre o jogo direto, com `gamemoderun` (o Longshot não liga o gamemode sozinho) |
+| atualizar | o AppImage em `~/Games/Recomps/Builders/`, que abre o launcher com o botão **Update** |
 
-| Entrada | De onde vem | Para quê |
-|---|---|---|
-| Zelda: Ocarina of Time | este repositório (`io.github.NotRexed.Hookshot.desktop`) | jogar: abre o jogo direto, com `gamemoderun` |
-| Hookshot | criada pelo builder a cada build | o launcher, com o botão **Update** |
-
-Saves em `~/.local/share/hookshot`: copie antes de cada update.
+Saves em `~/.local/share/longshot/save`, fora da pasta do jogo: copie antes de cada update. O launcher também importa saves do Hookshot e dos emuladores.
 
 **Um recomp novo:**
 1. Baixe o builder só da página de releases do projeto e confira o `sha256`.
 2. Monte o jogo em `~/Games/Recomps/<projeto>`.
 3. Descubra a classe da janela (`hyprctl clients` com o jogo aberto) e acrescente na lista da tag `game` em `hypr/hyprland/apps/games.lua`.
-4. Copie o `.desktop.tmpl` do Hookshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
+4. Copie o `.desktop.tmpl` do Longshot em `private_dot_local/private_share/applications/`, com o nome `<classe>.desktop.tmpl`, e troque os caminhos. Valide com `desktop-file-validate`.
 5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
 ---
