@@ -107,7 +107,7 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 
 | Script | O que faz | Como se usa |
 |---|---|---|
-| `launch-or-focus` | foca a janela do app se já estiver aberta; senão, abre | usado pelos atalhos dos apps de janela única (OBS, k9s, Heroic) |
+| `launch-or-focus` | foca a janela do app se já estiver aberta; senão, abre | usado pelos atalhos dos apps de janela única (Discord, Obsidian, OBS, k9s, Heroic) |
 | `keybinds` | lista todos os atalhos do Hyprland num fzf pesquisável | **SUPER+F1** |
 | `tmux-sessionizer` | escolhe uma pasta do zoxide e abre/entra na sessão tmux dela | **Ctrl+Space f** no tmux |
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
@@ -144,17 +144,16 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - **Dez workspaces por tela.** Cada tela tem um bloco de 10, na ordem de `screens.order` no `variables.lua`: monitor **1–10**, TV **11–20**. Com o QHD, ele fica com o 1–10, o monitor passa a 11–20 e a TV a 21–30 (as janelas mudam de número sozinhas). A barra mostra 1–10 em todas.
 - **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. A exceção são os jogos, que abrem no 10 da tela.
 - **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra só os workspaces que têm janela.
-- **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
+- **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Só o que é de olhar e fechar fica num especial (como no Omarchy); os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
 
   | Tecla | Especial | App |
   |---|---|---|
   | SUPER+S | `scratch` | o que você mandar (SUPER+ALT+S); com outro especial aberto, a tecla fecha esse |
   | SUPER+M | `music` | Spotify |
-  | SUPER+D | `communication` | Discord |
-  | SUPER+R | `notes` | Obsidian |
   | CTRL+SHIFT+Escape | `sysmon` | btop |
 
   Para tirar uma janela do especial e pô-la no workspace normal: **SUPER+CTRL+SHIFT+↓**.
+- **Discord (SUPER+D) e Obsidian (SUPER+R)** são janelas normais: a tecla abre o app ou vai até a janela dele, onde ela estiver (`launch-or-focus`).
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
 - **Jogos** abrem no **10 da tela em foco** (SUPER+0), um workspace só deles: no monitor o 10, na TV o 10 dela (id 20). Eles ganham VRR, permissão de tearing e tela que não apaga. As regras ficam em `hypr/hyprland/apps/games.lua`, no padrão de tags, sem eventos (formato do CachyOS): a lista de classes da tag `game` (`steam_app_*`, `gamescope`, `*.exe`, recomps) e, no Lichii, só a janela principal com um jogo rodando, pelo título. Assim o jogo nunca cai em cima do Big Picture: só cabe uma janela em tela cheia por workspace. As janelas da Steam nascem flutuando (`apps/steam.lua`, como no Omarchy), e o Big Picture fica em tela cheia no workspace onde abriu. Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
@@ -174,7 +173,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+ALT+Return | terminal já no tmux (sessão `main`) |
 | SUPER+Space | launcher do Noctalia |
 | SUPER+SHIFT+B / F / N | navegador (sempre janela nova) / yazi / Neovim |
-| SUPER+S / M / D / R | especiais: scratchpad / Spotify / Discord / Obsidian (veja Workspaces) |
+| SUPER+S / M | especiais: scratchpad / Spotify (veja Workspaces) |
+| SUPER+D / R | Discord / Obsidian (abre ou vai até a janela) |
 | CTRL+SHIFT+Escape | especial do btop |
 | SUPER+SHIFT+G, SUPER+SHIFT+ALT+G | Steam (também sai do gamescope), Heroic |
 | SUPER+CTRL+SHIFT+G | Big Picture no workspace atual do monitor; de novo, fecha; aberto em outro lugar, traz para cá |
@@ -568,7 +568,7 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 #### Fazer um app flutuar, ou abrir num especial
 Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
 - **Flutuar:** acrescente a classe numa das listas de tag do `hypr/hyprland/rules.lua` (`float`, `float_60_70`...).
-- **Num especial:** acrescente o app na tabela `toggles` do `hypr/variables.lua`.
+- **Num especial** (só app de olhar e fechar, como música e btop): acrescente o app na tabela `toggles` do `hypr/variables.lua`. App de trabalhar junto com outras janelas fica num workspace normal, com uma tecla de `launch-or-focus` (`app(...)` no `keybinds.lua`).
 - **Regra só daquele app** (workspace fixo, foco, tamanho): crie `hypr/hyprland/apps/<app>.lua` com `F.window(...)` e ponha o nome na lista do `hypr/hyprland.lua`.
 
 #### Trocar o app padrão de um tipo de arquivo

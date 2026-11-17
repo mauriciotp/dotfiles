@@ -127,7 +127,7 @@ tagged_rule("tile", {
 })
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
--- Tag <especial>_app, uma por especial (music_app, communication_app...).
+-- Tag <especial>_app, uma por especial (music_app, sysmon_app).
 for special, apps in pairs(vars.toggles) do
 	for _, app in pairs(apps) do
 		tagged_rule(special .. "_app", { F.exact_regex(app.classes) }, "class")

@@ -1,6 +1,7 @@
 -- Todos os atalhos, um bloco por contexto. A tecla fica escrita na própria bind.
 -- Convenção (Omarchy), com os especiais no formato do Caelestia:
---   SUPER + tecla                janelas, workspaces e workspaces especiais
+--   SUPER + tecla                janelas, workspaces e workspaces especiais (e o
+--                                Discord e o Obsidian, que eram especiais)
 --   SUPER + SHIFT + letra        abre um app (letra em inglês: B = Browser, F = Files...)
 --   SUPER + SHIFT + ALT + letra  variante do mesmo app
 --   SUPER + CTRL + tecla         sistema, shell, capturas e mídia; e a versão "mais forte"
@@ -32,14 +33,17 @@ end
 if cmd_present("k9s") then
 	bind("SUPER + SHIFT + P", "Apps: k9s (pods)", app("^com\\.mauricio\\.k9s$", vars.k9s))
 end
+-- Discord e Obsidian: eram especiais (communication e notes) e viraram janelas
+-- normais (Omarchy). As teclas são as dos antigos especiais, sem SHIFT, pela
+-- memória muscular: abrem o app ou vão até a janela dele.
+bind("SUPER + D", "Apps: Discord", app("^(discord|vesktop)$", vars.discord))
+bind("SUPER + R", "Apps: Obsidian (notes)", app("^md\\.obsidian\\.Obsidian$", vars.obsidian))
 bind({ "SUPER + F1", "SUPER + slash" }, "Apps: keybinds cheatsheet", run(F.bin .. "keybinds --window"))
 
 -- ===== Workspaces especiais =====
 -- Abrem por cima de tudo; a mesma tecla esconde. Se o app não está rodando, abre;
 -- se está em outro workspace, traz (utils/functions.lua, toggle). Apps em variables.lua.
 bind("SUPER + M", "Special: music (Spotify)", toggle("music"))
-bind("SUPER + D", "Special: communication (Discord)", toggle("communication"))
-bind("SUPER + R", "Special: notes (Obsidian)", toggle("notes"))
 bind("CTRL + SHIFT + escape", "Special: system monitor (btop)", toggle("sysmon"))
 
 -- Scratchpad: especial vazio por cima de tudo; você manda as janelas.

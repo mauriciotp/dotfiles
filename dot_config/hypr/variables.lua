@@ -25,6 +25,8 @@ return {
 	k9s = "ghostty --class=com.mauricio.k9s -e k9s",
 	heroic = "heroic",
 	obs = "obs",
+	discord = "discord",
+	obsidian = "obsidian",
 
 	-- ===== Aparência =====
 	-- conjunto de animações: um arquivo em hyprland/animations/ (smooth,
@@ -53,19 +55,15 @@ return {
 	--   move     traz para o especial a janela que estiver em outro workspace
 	-- O scratchpad ("scratch") não está aqui: começa vazio e você manda as janelas.
 	-- Especial novo: uma entrada aqui e uma tecla em hyprland/keybinds.lua.
+	-- Só o que é de olhar e fechar (Omarchy): app de trabalhar junto com outras
+	-- janelas (Discord, Obsidian) fica num workspace normal, com uma tecla de
+	-- launch-or-focus (hyprland/keybinds.lua, Apps).
 	toggles = {
 		music = {
 			spotify = { classes = { "Spotify", "spotify" }, command = "spotify-launcher", move = true },
 		},
-		communication = {
-			discord = { classes = { "discord" }, command = "discord", move = true },
-			vesktop = { classes = { "vesktop" }, move = true },
-		},
 		sysmon = {
 			btop = { classes = { "com.mauricio.btop" }, command = "ghostty --class=com.mauricio.btop -e btop" },
-		},
-		notes = {
-			obsidian = { classes = { "md.obsidian.Obsidian" }, command = "obsidian", move = true },
 		},
 	},
 }
