@@ -5,7 +5,9 @@
 -- ordem de screens.order. O bloco não muda quando a tela desliga:
 --   sem o QHD no variables.lua   monitor 1–10, TV 11–20
 --   com o QHD no variables.lua   QHD 1–10, monitor 11–20, TV 21–30
--- A barra mostra 1–10 em todas (o nome do workspace é o número da tecla).
+-- A barra mostra 1–10 em todas (o nome do workspace é o número da tecla); os
+-- primeiros (persistentWorkspaces no variables.lua, 1–5) aparecem sempre,
+-- mesmo vazios.
 -- O SUPER+número vai ao número da tela em foco. As janelas abrem no workspace
 -- atual; só os jogos têm número, o 10 da tela em foco (hyprland/apps/games.lua).
 --
@@ -16,7 +18,8 @@
 -- dela mudam de número junto, com as janelas.
 -- Fixo pela configuração, e não pelas telas ligadas: o DP-2 pisca ao sair do
 -- repouso, e um bloco que dependesse disso trocaria a TV de lugar no meio.
-local screens = require("variables").screens
+local vars = require("variables")
+local screens = vars.screens
 
 local W = {}
 
@@ -36,6 +39,9 @@ for _, key in ipairs(screens.order) do
 				default_name = tostring(slot),
 				monitor = name,
 				default = slot == 1 or nil,
+				-- os primeiros existem sempre, mesmo vazios, e por isso aparecem
+				-- na barra (Omarchy, ml4w, KoolDots: 1–5; jinra, por regra)
+				persistent = slot <= vars.persistentWorkspaces or nil,
 			})
 		end
 		configured = configured + 1

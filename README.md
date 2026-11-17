@@ -144,7 +144,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 
 - **Dez workspaces por tela.** Cada tela tem um bloco de 10, na ordem de `screens.order` no `variables.lua`: monitor **1–10**, TV **11–20**. Com o QHD, ele fica com o 1–10, o monitor passa a 11–20 e a TV a 21–30 (as janelas mudam de número sozinhas). A barra mostra 1–10 em todas.
 - **Nenhum app tem número fixo:** a janela abre no workspace em que você está, inclusive o Big Picture. A exceção são os jogos, que abrem no 10 da tela.
-- **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra só os workspaces que têm janela.
+- **SUPER+número** vai para o workspace da tela em foco; a tecla 0 é o 10. **SUPER+ALT+número** vai à próxima tela, em ciclo. A barra mostra sempre o 1–5 de cada tela, mesmo vazios (regras `persistent`; a quantidade é `persistentWorkspaces` no `variables.lua`), e do 6 ao 10 só os que têm janela.
 - **Workspaces especiais** abrem por cima de tudo, e a mesma tecla os esconde. Se o app não está rodando, a tecla abre; se está em outro workspace, traz. Só o que é de olhar e fechar fica num especial (como no Omarchy); os apps de cada um ficam na tabela `toggles` do `hypr/variables.lua`:
 
   | Tecla | Especial | App |
