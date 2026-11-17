@@ -1,19 +1,16 @@
 #!/bin/bash
-# Toggles e variante de blur do Hyprland (Omarchy, omarchy-hyprland-toggle; HyDE, blurs).
+# Toggles do Hyprland (Omarchy, omarchy-hyprland-toggle).
 # O estado fica em ~/.local/state/hypr/ e o hyprland/toggles.lua o carrega a
 # cada reload, então o efeito sobrevive ao SUPER+CTRL+R e ao tv-toggle.
-# Uso: hypr-toggle                       menu (fzf): Enter liga/desliga ou escolhe o blur
-#      hypr-toggle --window              o menu numa janela flutuante do Ghostty (SUPER+CTRL+T)
+# Uso: hypr-toggle                         menu (fzf): Enter liga/desliga
+#      hypr-toggle --window                o menu numa janela flutuante do Ghostty (SUPER+CTRL+T)
 #      hypr-toggle <nome> [on|off|toggle]  um toggle (hyprland/toggles/<nome>.lua)
-#      hypr-toggle blur <variante|default> a variante (hyprland/blurs/<variante>.lua);
-#                                        default volta ao blur do variables.lua
-#      hypr-toggle list                  estado de tudo
+#      hypr-toggle list                    estado de todos
 set -euo pipefail
 
 config="${XDG_CONFIG_HOME:-$HOME/.config}/hypr"
 state="${XDG_STATE_HOME:-$HOME/.local/state}/hypr"
 toggles_dir="$config/hyprland/toggles"
-blurs_dir="$config/hyprland/blurs"
 
 if [[ ${1:-} == --window ]]; then
     exec ghostty --class=com.mauricio.float --title="Toggles" -e "$0"
@@ -22,23 +19,9 @@ fi
 # primeira linha de comentário do arquivo, sem o "-- "
 describe() { sed -n '1s/^-- *//p' "$1"; }
 
-names() { find "$1" -maxdepth 1 -name '*.lua' -printf '%f\n' 2>/dev/null | sed 's/\.lua$//' | sort; }
+names() { find "$toggles_dir" -maxdepth 1 -name '*.lua' -printf '%f\n' 2>/dev/null | sed 's/\.lua$//' | sort; }
 
 is_on() { [[ -f $state/toggles/$1 ]]; }
-
-# variante em uso: a escolhida pelo menu ou a do variables.lua
-current_blur() {
-    if [[ -s $state/blur ]]; then
-        head -1 "$state/blur"
-    else
-        sed -n 's/^[[:space:]]*blur = "\([^"]*\)".*/\1/p' "$config/variables.lua" | head -1
-    fi
-}
-
-reload() {
-    hyprctl reload >/dev/null
-    command -v notify-send >/dev/null && notify-send -a Hyprland -t 2500 "$1" || true
-}
 
 set_toggle() {
     local name=$1 action=${2:-toggle}
@@ -51,29 +34,15 @@ set_toggle() {
         off) rm -f "$state/toggles/$name" ;;
         *) echo "ação inválida: $action (on, off ou toggle)" >&2; exit 1 ;;
     esac
-    reload "$name: $action"
+    hyprctl reload >/dev/null
+    command -v notify-send >/dev/null && notify-send -a Hyprland -t 2500 "$name: $action" || true
 }
 
-set_blur() {
-    local name=${1:?variante: hypr-toggle list}
-    if [[ $name == default ]]; then
-        rm -f "$state/blur"
-    else
-        [[ -f $blurs_dir/$name.lua ]] || { echo "variante desconhecida: $name (veja: hypr-toggle list)" >&2; exit 1; }
-        mkdir -p "$state" && echo "$name" >"$state/blur"
-    fi
-    reload "blur: $(current_blur)"
-}
-
-# uma linha por item: tipo, nome, marca e descrição, separados por tab
+# uma linha por toggle: nome, marca e descrição, separados por tab
 items() {
-    local name blur
-    blur=$(current_blur)
-    for name in $(names "$toggles_dir"); do
-        printf 'toggle\t%s\t%s\t%s\n' "$name" "$(is_on "$name" && echo '[x]' || echo '[ ]')" "$(describe "$toggles_dir/$name.lua")"
-    done
-    for name in $(names "$blurs_dir"); do
-        printf 'blur\t%s\t%s\t%s\n' "$name" "$([[ $name == "$blur" ]] && echo '(•)' || echo '( )')" "$(describe "$blurs_dir/$name.lua")"
+    local name
+    for name in $(names); do
+        printf '%s\t%s\t%s\n' "$name" "$(is_on "$name" && echo '[x]' || echo '[ ]')" "$(describe "$toggles_dir/$name.lua")"
     done
 }
 
@@ -82,20 +51,17 @@ menu() {
     local theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
     # shellcheck source=/dev/null
     [[ -r $theme ]] && source "$theme"
-    local line kind name
+    local line
     # depois de cada escolha o menu volta, com o estado novo; Esc sai
-    while line=$(items | fzf --reverse --exact --ignore-case --delimiter='\t' --with-nth=3,1,2,4 \
-        --prompt="toggle › " --header="Enter: liga/desliga o toggle ou usa o blur · Esc: sai"); do
-        kind=$(cut -f1 <<<"$line")
-        name=$(cut -f2 <<<"$line")
-        if [[ $kind == blur ]]; then set_blur "$name"; else set_toggle "$name"; fi
+    while line=$(items | fzf --reverse --exact --ignore-case --delimiter='\t' --with-nth=2,1,3 \
+        --prompt="toggle › " --header="Enter: liga/desliga · Esc: sai"); do
+        set_toggle "$(cut -f1 <<<"$line")"
     done
 }
 
 case ${1:-} in
     "") menu ;;
-    list) items | cut -f1-3 | column -t -s $'\t' ;;
-    blur) set_blur "${2:-}" ;;
-    -h | --help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' ;;
+    list) items | cut -f1-2 | column -t -s $'\t' ;;
+    -h | --help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//' ;;
     *) set_toggle "$1" "${2:-toggle}" ;;
 esac

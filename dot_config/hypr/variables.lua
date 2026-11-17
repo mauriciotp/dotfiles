@@ -39,9 +39,6 @@ return {
 	blurXray = true, -- doc do Noctalia (as três do blur)
 	blurSize = 3,
 	blurPasses = 2,
-	-- variante de blur: um arquivo em hyprland/blurs/ (kawase é o padrão do
-	-- Hyprland). Para testar sem editar aqui: SUPER+CTRL+T (hypr-toggle)
-	blur = "kawase",
 	dimSpecial = 0.6, -- escurece o que está embaixo de um workspace especial aberto (Omarchy)
 
 	-- ===== Diversos =====

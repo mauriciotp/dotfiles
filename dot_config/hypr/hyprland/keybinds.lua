@@ -362,9 +362,8 @@ end)
 
 -- Toggles (Omarchy): cada um é um arquivo em hyprland/toggles/, ligado por uma
 -- flag em ~/.local/state/hypr/ e mantido depois de um reload (hypr-toggle).
--- O menu também troca a variante do blur (hyprland/blurs/).
 bind("SUPER + SHIFT + BackSpace", "Screen: no gaps or borders on/off", F.bin .. "hypr-toggle no-gaps")
-bind("SUPER + CTRL + T", "Screen: toggles and blur menu", F.bin .. "hypr-toggle --window")
+bind("SUPER + CTRL + T", "Screen: toggles menu", F.bin .. "hypr-toggle --window")
 
 -- ===== Mídia e volume pelo Noctalia (funcionam com a tela bloqueada) =====
 bind("XF86AudioRaiseVolume", "Media: volume up", ipc("volume-up"), { locked = true, repeating = true })

@@ -1,14 +1,10 @@
--- Toggles e blur, escolhidos fora da config (Omarchy, toggles; HyDE, blurs).
+-- Toggles, ligados e desligados fora da config (Omarchy).
 -- O estado fica em ~/.local/state/hypr/, fora do chezmoi, e quem mexe nele é o
 -- ~/.local/bin/hypr-toggle (SUPER+CTRL+T), que recarrega a config em seguida:
 --   toggles/<nome>  arquivo vazio = toggle ligado; carrega hyprland/toggles/<nome>.lua
---   blur            nome da variante (hyprland/blurs/<nome>.lua); sem ele, o
---                   blur do variables.lua
 -- Por arquivo, e não por hl.config na hora: o efeito sobrevive ao reload
 -- (SUPER+CTRL+R, tv-toggle). Carrega depois de decoration, animações, regras e
 -- apps, para vencer o que eles definem.
-local vars = require("variables")
-
 local state = (os.getenv("XDG_STATE_HOME") or (os.getenv("HOME") .. "/.local/state")) .. "/hypr"
 
 -- só nomes simples, e só os que existem na config: uma flag velha ou estranha
@@ -26,16 +22,6 @@ local function load(dir, name)
 	package.loaded[module] = nil
 	require(module)
 	return true
-end
-
--- blur: a variante escolhida pelo menu, senão a do variables.lua
-local f = io.open(state .. "/blur", "r")
-local chosen = f and f:read("*l")
-if f then
-	f:close()
-end
-if not load("blurs", chosen) then
-	load("blurs", vars.blur)
 end
 
 -- toggles ligados, em ordem alfabética (window-opaque vence window-glassy)

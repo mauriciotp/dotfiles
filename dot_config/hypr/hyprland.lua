@@ -7,7 +7,6 @@
 --                        categorias (flutuar, tiling) ficam nas listas de tag
 --                        de hyprland/rules.lua
 --   hyprland/toggles/    efeitos ligados e desligados pelo hypr-toggle (Omarchy)
---   hyprland/blurs/      variantes de blur (HyDE)
 --   utils/               funções (bind, run, window, tags) e os workspaces por monitor
 require("hyprland.monitors")
 require("hyprland.general")
@@ -24,8 +23,8 @@ for _, app in ipairs({ "games", "steam", "bitwarden", "discord", "obsidian", "pi
 	require("hyprland.apps." .. app)
 end
 
--- Toggles e variante de blur escolhidos pelo hypr-toggle (SUPER+CTRL+T): depois
--- de tudo que eles sobrescrevem
+-- Toggles ligados pelo hypr-toggle (SUPER+CTRL+T): depois de tudo que eles
+-- sobrescrevem
 require("hyprland.toggles")
 
 require("hyprland.keybinds")
