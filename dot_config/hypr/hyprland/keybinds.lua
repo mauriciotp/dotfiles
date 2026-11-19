@@ -139,7 +139,7 @@ bind("SUPER + CTRL + Q", "Window: close all on this workspace", function()
 	if not ws then
 		return
 	end
-	for _, w in ipairs(hl.get_windows()) do
+	for _, w in ipairs(hl.get_windows() or {}) do
 		if w.workspace and w.workspace.id == ws.id then
 			hl.dispatch(hl.dsp.window.close({ window = "address:" .. w.address }))
 		end

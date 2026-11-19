@@ -20,7 +20,7 @@ F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { siz
 local was_big_picture = {}
 
 local function other_fullscreen_on(id, w)
-	for _, other in ipairs(hl.get_windows()) do
+	for _, other in ipairs(hl.get_windows() or {}) do
 		if other.address ~= w.address and other.workspace and other.workspace.id == id and (other.fullscreen or 0) ~= 0 then
 			return true
 		end

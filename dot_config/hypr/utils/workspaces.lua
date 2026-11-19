@@ -167,7 +167,7 @@ end
 -- Quantos workspaces normais estão na tela
 local function count_on(monitor_name)
 	local n = 0
-	for _, ws in ipairs(hl.get_workspaces()) do
+	for _, ws in ipairs(hl.get_workspaces() or {}) do
 		if ws.id and ws.id > 0 and not ws.special and ws.monitor and ws.monitor.name == monitor_name then
 			n = n + 1
 		end
@@ -185,7 +185,7 @@ local function renumber(from, to)
 		return
 	end
 	-- o destino já existe: move janela por janela
-	for _, w in ipairs(hl.get_windows()) do
+	for _, w in ipairs(hl.get_windows() or {}) do
 		if w.workspace and w.workspace.id == from then
 			hl.dispatch(hl.dsp.window.move({ window = "address:" .. w.address, workspace = tostring(to), follow = false }))
 		end
@@ -259,7 +259,7 @@ function W.reconcile()
 	end
 	save_state(new)
 
-	for _, ws in ipairs(hl.get_workspaces()) do
+	for _, ws in ipairs(hl.get_workspaces() or {}) do
 		if ws.id and ws.id > 0 and not ws.special then
 			place(ws.id, list)
 		end
