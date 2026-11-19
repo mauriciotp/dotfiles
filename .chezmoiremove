@@ -1,8 +1,3 @@
-# arquivos que saíram do repositório: o chezmoi os apaga do home
-.local/bin/steam-console
-.config/hypr/hyprland/toggles
-.config/hypr/hyprland/toggles.lua
-.local/bin/hypr-toggle
-.config/nvim/lua/config/autocmds.lua
-.config/nvim/lua/config/keymaps.lua
-.config/nvim/lua/config/options.lua
+# Arquivos que saíram do repositório: o chezmoi os apaga do home no próximo
+# apply. Os dotfiles rodam num PC só: depois do apply, a entrada pode sair
+# daqui (o arquivo já foi apagado).
