@@ -165,11 +165,16 @@ end
 
 -- ===== Workspaces especiais =====
 
+-- Texto literal dentro de uma regex: "(Bitwarden)" → "\(Bitwarden\)"
+function F.escape_regex(text)
+	return (text:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?%{%}|\\]", "\\%0"))
+end
+
 -- Texto vira regex exata: "md.obsidian.Obsidian" → "^(md\.obsidian\.Obsidian)$"
 function F.exact_regex(names)
 	local escaped = {}
 	for i, name in ipairs(names) do
-		escaped[i] = (name:gsub("[%^%$%(%)%%%.%[%]%*%+%-%?%{%}|\\]", "\\%0"))
+		escaped[i] = F.escape_regex(name)
 	end
 	return "^(" .. table.concat(escaped, "|") .. ")$"
 end

@@ -20,14 +20,16 @@ F.window("bitwarden-chromium", ".*nngceckbapebfimnlniiiahkandclblb.*", {
 -- identifica a janela é um título que chega depois.
 -- A regra dinâmica entra com o título: sem animação (a janela não desliza do
 -- tiling até o centro) e preta no compartilhamento de tela.
-local firefox_title = "^Extension: \\(Bitwarden Password Manager\\) - Bitwarden"
-F.window("bitwarden-firefox", { class = "^firefox$", title = firefox_title }, { no_anim = true, no_screen_share = true })
+-- O começo do título, escrito uma vez: vira regex para a regra e é comparado
+-- como texto no evento.
+local TITLE = "Extension: (Bitwarden Password Manager) - Bitwarden"
+F.window("bitwarden-firefox", { class = "^firefox$", title = "^" .. F.escape_regex(TITLE) }, { no_anim = true, no_screen_share = true })
 
 hl.on("window.title", function(w)
 	if not w or w.floating or w.class ~= "firefox" then
 		return
 	end
-	if not (w.title or ""):find("^Extension: %(Bitwarden Password Manager%) %- Bitwarden") then
+	if (w.title or ""):sub(1, #TITLE) ~= TITLE then
 		return
 	end
 	local sel = "address:" .. w.address
