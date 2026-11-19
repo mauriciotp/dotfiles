@@ -240,7 +240,14 @@ end)
 -- Transparência da janela em foco: liga e desliga o opaque (Omarchy). Vale até
 -- a janela fechar. O jogo já nasce opaco (tag game, apps/games.lua): o
 -- primeiro toque nele o deixa transparente, em vez de não fazer nada.
+-- O endereço é reaproveitado depois que a janela fecha: sem limpar, uma janela
+-- nova herdaria o estado da antiga.
 local opaque = {}
+hl.on("window.close", function(w)
+	if w then
+		opaque[w.address] = nil
+	end
+end)
 bind("SUPER + BackSpace", "Window: transparency on/off", function()
 	local w = hl.get_active_window()
 	if not w then
