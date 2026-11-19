@@ -285,26 +285,24 @@ bind("SUPER + ALT + space", "Window: focus tiled/floating", function()
 	}))
 end)
 
--- Foco, mover e trocar: hjkl e setas
-local dirs = { h = "left", j = "down", k = "up", l = "right" }
-for key, dir in pairs(dirs) do
-	bind("SUPER + " .. key, "Window: focus " .. dir, hl.dsp.focus({ direction = dir }))
-	bind("SUPER + SHIFT + " .. key, "Window: move " .. dir, hl.dsp.window.move({ direction = dir }))
-	bind("SUPER + CTRL + " .. key, "Window: swap " .. dir, hl.dsp.window.swap({ direction = dir }))
-end
-for _, dir in ipairs({ "left", "down", "up", "right" }) do
-	bind("SUPER + " .. dir, "Window: focus " .. dir, hl.dsp.focus({ direction = dir }))
-	bind("SUPER + SHIFT + " .. dir, "Window: move " .. dir, hl.dsp.window.move({ direction = dir }))
-end
-
--- Redimensionar em % do tamanho da janela (Caelestia): segure SUPER+ALT+hjkl;
--- SUPER+menos/igual na largura, SUPER+SHIFT+menos/igual na altura (Omarchy)
+-- Foco, mover, trocar e redimensionar: hjkl e setas fazem o mesmo, com os
+-- mesmos modificadores. Redimensionar vai em % do tamanho da janela
+-- (Caelestia): segure SUPER+ALT+direção.
 local step = vars.resizePercent
 local resize = F.resize_active_window
-local grow = { h = { -step, 0 }, j = { 0, step }, k = { 0, -step }, l = { step, 0 } }
-for key, d in pairs(grow) do
-	bind("SUPER + ALT + " .. key, "Window: resize", resize(d[1], d[2]), repeating)
+local grow = { left = { -step, 0 }, down = { 0, step }, up = { 0, -step }, right = { step, 0 } }
+local keys_of = { left = { "h", "left" }, down = { "j", "down" }, up = { "k", "up" }, right = { "l", "right" } }
+for _, dir in ipairs({ "left", "down", "up", "right" }) do
+	local keys = keys_of[dir]
+	local function on(mods)
+		return { mods .. keys[1], mods .. keys[2] }
+	end
+	bind(on("SUPER + "), "Window: focus " .. dir, hl.dsp.focus({ direction = dir }))
+	bind(on("SUPER + SHIFT + "), "Window: move " .. dir, hl.dsp.window.move({ direction = dir }))
+	bind(on("SUPER + CTRL + "), "Window: swap " .. dir, hl.dsp.window.swap({ direction = dir }))
+	bind(on("SUPER + ALT + "), "Window: resize " .. dir, resize(grow[dir][1], grow[dir][2]), repeating)
 end
+-- SUPER+menos/igual na largura, SUPER+SHIFT+menos/igual na altura (Omarchy)
 bind("SUPER + minus", "Window: narrower", resize(-step, 0), repeating)
 bind("SUPER + equal", "Window: wider", resize(step, 0), repeating)
 bind("SUPER + SHIFT + minus", "Window: shorter", resize(0, -step), repeating)
@@ -320,11 +318,12 @@ bind("SUPER + G", "Group: on/off", hl.dsp.group.toggle())
 bind("SUPER + ALT + G", "Group: take window out", hl.dsp.window.move({ out_of_group = true }))
 -- travado, nenhuma janela entra ou sai do grupo (Caelestia)
 bind("SUPER + CTRL + G", "Group: lock/unlock", hl.dsp.group.lock({ action = "toggle" }))
-bind({ "SUPER + CTRL + Left", "SUPER + ALT + SHIFT + Tab" }, "Group: previous tab", hl.dsp.group.prev())
-bind({ "SUPER + CTRL + Right", "SUPER + ALT + Tab" }, "Group: next tab", hl.dsp.group.next())
--- entrar no grupo vizinho (Omarchy)
-for _, d in ipairs({ { "Left", "l" }, { "Right", "r" }, { "Up", "u" }, { "Down", "d" } }) do
-	bind("SUPER + ALT + " .. d[1], "Group: move window into the group " .. d[1]:lower(), hl.dsp.window.move({ into_group = d[2] }))
+bind("SUPER + ALT + SHIFT + Tab", "Group: previous tab", hl.dsp.group.prev())
+bind("SUPER + ALT + Tab", "Group: next tab", hl.dsp.group.next())
+-- entrar no grupo vizinho (Omarchy): SUPER+CTRL+SHIFT+hjkl. Só hjkl: a seta
+-- para baixo nessa combinação tira a janela do especial
+for _, d in ipairs({ { "h", "left" }, { "j", "down" }, { "k", "up" }, { "l", "right" } }) do
+	bind("SUPER + CTRL + SHIFT + " .. d[1], "Group: move window into the group " .. d[2], hl.dsp.window.move({ into_group = d[2]:sub(1, 1) }))
 end
 
 -- ===== Workspaces e monitores (veja utils/workspaces.lua) =====

@@ -188,6 +188,8 @@ A lista completa está sempre a um **SUPER+F1** de distância, porque ela é ger
 | SUPER+P / ALT+P | pop-out que vai e volta (flutua, fixa em todos os workspaces) / pop-out pequeno no canto |
 | SUPER+ALT+Space | alterna o foco entre janelas em tiling e flutuantes (de novo nas flutuantes: a próxima) |
 | SUPER+Z / X (segurando) | mover / redimensionar a janela com o mouse, sem botão |
+| SUPER+hjkl ou setas | focar a janela vizinha; com SHIFT, mover; com CTRL, trocar de lugar; com ALT, redimensionar (hjkl e setas fazem sempre o mesmo) |
+| SUPER+G | grupo (abas numa área): liga/desliga; SUPER+ALT+Tab / SUPER+ALT+SHIFT+Tab troca de aba; SUPER+CTRL+SHIFT+hjkl põe a janela no grupo vizinho |
 | SUPER+1…0 | workspace; com SHIFT, leva a janela junto; com CTRL, manda a janela e fica |
 | SUPER+Tab ou Page_Down | próximo workspace do monitor |
 | SUPER+O, SUPER+ALT+O | focar o outro monitor; ligar/desligar a TV |
