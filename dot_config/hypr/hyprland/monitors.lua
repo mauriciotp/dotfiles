@@ -60,7 +60,10 @@ hl.config({
 	-- HDR: a tela troca para HDR sozinha quando um jogo HDR fica em tela cheia, e
 	-- volta ao SDR ao sair (o desktop continua em SDR). Os jogos pedem HDR pelo
 	-- script ~/.local/bin/hdr (GE-Proton) ou pelo gamescope com --hdr-enabled
-	render = { cm_auto_hdr = 1 },
+	-- Direct scanout (o jogo vai direto à tela, sem o Hyprland compor) só para
+	-- conteúdo marcado como jogo (content = "game", hyprland/apps/games.lua);
+	-- volte para 0 se houver artefatos
+	render = { cm_auto_hdr = 1, direct_scanout = 2 },
 	-- o gamescope espera a tela já em HDR antes de abrir; sem isto, a troca
 	-- automática pode dar tela branca e piscar (doc do Hyprland, quirks)
 	quirks = { prefer_hdr = 2 },

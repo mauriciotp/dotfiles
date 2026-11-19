@@ -71,6 +71,3 @@ F.window("game-splash", { class = "^steam_app_.*$", initial_title = "^$" }, { fl
 
 -- jogo em tela cheia: o mouse não escapa para a outra tela
 F.window("game-confine-pointer", { tag = "game", fullscreen = true }, { confine_pointer = true })
-
--- Direct scanout só para conteúdo marcado como jogo; volte para 0 se houver artefatos
-hl.config({ render = { direct_scanout = 2 } })
