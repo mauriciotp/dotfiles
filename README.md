@@ -564,7 +564,7 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
    ```sh
    Hyprland --verify-config -c ~/.config/hypr/hyprland.lua
    ```
-4. Recarregue: **SUPER+CTRL+R** ou `hyprctl reload`. Isso desliga a TV no Hyprland; ligue de novo com SUPER+ALT+O.
+4. Recarregue: **SUPER+CTRL+R** ou `hyprctl reload`. A TV ligada continua ligada (o `monitors.lua` mantém o modo de agora).
 5. Confira se não sobrou erro: `hyprctl configerrors`.
 
 #### Fazer um app flutuar, ou abrir num especial
