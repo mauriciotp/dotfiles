@@ -16,17 +16,26 @@ return {
 	},
 
 	-- ===== Apps =====
+	-- Abrem sempre uma janela nova (run, hyprland/keybinds.lua)
 	terminal = "ghostty",
 	tmuxTerminal = "ghostty -e tmux new-session -A -s main",
 	browser = "firefox",
 	privateBrowser = "firefox --private-window",
 	fileExplorer = "ghostty -e yazi",
 	editor = "ghostty -e nvim",
-	k9s = "ghostty --class=com.mauricio.k9s -e k9s",
-	heroic = "heroic",
-	obs = "obs",
-	discord = "discord",
-	obsidian = "obsidian",
+
+	-- Apps de janela única: o atalho foca a janela que existe ou abre o app
+	-- (launch-or-focus). Formato dos especiais (toggles, abaixo):
+	--   classes  as classes exatas da janela (hyprctl clients); viram a regex do
+	--            atalho e das regras (F.app_class, utils/functions.lua)
+	--   command  como abrir
+	apps = {
+		obsidian = { classes = { "md.obsidian.Obsidian" }, command = "obsidian" },
+		discord = { classes = { "discord", "vesktop" }, command = "discord" },
+		obs = { classes = { "com.obsproject.Studio" }, command = "obs" },
+		heroic = { classes = { "heroic" }, command = "heroic" },
+		k9s = { classes = { "com.mauricio.k9s" }, command = "ghostty --class=com.mauricio.k9s -e k9s" },
+	},
 
 	-- ===== Aparência =====
 	-- conjunto de animações: um arquivo em hyprland/animations/ (smooth,

@@ -8,7 +8,7 @@
 -- tiling. Configurações, plugins e ajuda flutuam pela regra (hyprland/rules.lua).
 local F = require("utils.functions")
 
-local CLASS = "md.obsidian.Obsidian"
+local CLASS = require("variables").apps.obsidian.classes[1]
 
 -- "<nota> - <vault> - Obsidian 1.15.1" ou "<vault> - Obsidian 1.15.1" → vault
 local function vault_of(title)

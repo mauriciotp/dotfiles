@@ -3,4 +3,4 @@
 -- apps, hyprland/misc.lua). Omarchy faz o mesmo com o Telegram. Q7
 local F = require("utils.functions")
 
-F.window("discord-no-focus-steal", "^(discord|vesktop)$", { focus_on_activate = false })
+F.window("discord-no-focus-steal", F.app_class("discord"), { focus_on_activate = false })

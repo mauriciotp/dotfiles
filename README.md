@@ -570,7 +570,7 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 #### Fazer um app flutuar, ou abrir num especial
 Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
 - **Flutuar:** acrescente a classe numa das listas de tag do `hypr/hyprland/rules.lua` (`float`, `float_60_70`...).
-- **Num especial** (só app de olhar e fechar, como música e btop): acrescente o app na tabela `toggles` do `hypr/variables.lua`. App de trabalhar junto com outras janelas fica num workspace normal, com uma tecla de `launch-or-focus` (`app(...)` no `keybinds.lua`).
+- **Num especial** (só app de olhar e fechar, como música e btop): acrescente o app na tabela `toggles` do `hypr/variables.lua`. App de trabalhar junto com outras janelas fica num workspace normal, com uma tecla de `launch-or-focus`: acrescente o app na tabela `apps` do `hypr/variables.lua` (classes e comando) e uma linha `bind(..., open_app("<nome>"))` no `keybinds.lua`. As regras do app usam a mesma classe com `F.app_class("<nome>")`.
 - **Regra só daquele app** (workspace fixo, foco, tamanho): crie `hypr/hyprland/apps/<app>.lua` com `F.window(...)` e ponha o nome na lista do `hypr/hyprland.lua`.
 
 #### Trocar o app padrão de um tipo de arquivo

@@ -15,13 +15,14 @@
 -- Como rodar um comando:
 --   run(cmd)           app ou script que abre app: vira unidade do uwsm (cgroup
 --                      próprio, sai no journal, sobrevive a um reinício do shell)
---   app(classe, cmd)   app de janela única: foca a que existe ou abre
+--   open_app(nome)     app de janela única (variables.lua, apps): foca a que
+--                      existe ou abre
 --   "texto"            comando rápido, que faz algo e sai (pkill, hyprctl,
 --                      mangohudctl): roda direto, pelo sh, sem criar unidade
 local F = require("utils.functions")
 local W = require("utils.workspaces")
 local vars = require("variables")
-local bind, run, app, ipc, cmd_present, toggle = F.bind, F.run, F.app, F.ipc, F.cmd_present, F.toggle
+local bind, run, open_app, ipc, cmd_present, toggle = F.bind, F.run, F.open_app, F.ipc, F.cmd_present, F.toggle
 local locked = { locked = true }
 local repeating = { repeating = true }
 
@@ -35,15 +36,15 @@ bind("SUPER + SHIFT + ALT + B", "Apps: browser, private window", run(vars.privat
 bind("SUPER + SHIFT + F", "Apps: files (yazi)", run(vars.fileExplorer))
 bind("SUPER + SHIFT + N", "Apps: Neovim", run(vars.editor))
 if cmd_present("obs") then
-	bind("SUPER + SHIFT + R", "Apps: OBS (record)", app("^com\\.obsproject\\.Studio$", vars.obs))
+	bind("SUPER + SHIFT + R", "Apps: OBS (record)", open_app("obs"))
 end
 if cmd_present("k9s") then
-	bind("SUPER + SHIFT + P", "Apps: k9s (pods)", app("^com\\.mauricio\\.k9s$", vars.k9s))
+	bind("SUPER + SHIFT + P", "Apps: k9s (pods)", open_app("k9s"))
 end
 -- Discord e Obsidian: eram especiais (communication e notes) e viraram janelas
 -- normais (Omarchy): abrem o app ou vão até a janela dele
-bind("SUPER + SHIFT + D", "Apps: Discord", app("^(discord|vesktop)$", vars.discord))
-bind("SUPER + SHIFT + O", "Apps: Obsidian (notes)", app("^md\\.obsidian\\.Obsidian$", vars.obsidian))
+bind("SUPER + SHIFT + D", "Apps: Discord", open_app("discord"))
+bind("SUPER + SHIFT + O", "Apps: Obsidian (notes)", open_app("obsidian"))
 bind({ "SUPER + F1", "SUPER + slash" }, "Apps: keybinds cheatsheet", run(F.bin .. "keybinds --window"))
 
 -- ===== Workspaces especiais =====
@@ -63,7 +64,7 @@ bind("SUPER + CTRL + SHIFT + down", "Special: move window out to the workspace",
 -- Steam normal; no gamescope, sai dele para a janela da Steam
 bind("SUPER + SHIFT + G", "Games: Steam", run(F.bin .. "steam-bigpicture --desktop"))
 if cmd_present("heroic") then
-	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", app("^heroic$", vars.heroic))
+	bind("SUPER + SHIFT + ALT + G", "Games: Heroic", open_app("heroic"))
 end
 -- Big Picture na tela pedida (~/.local/bin/steam-bigpicture); de novo, fecha.
 -- G: a Steam normal, no workspace atual; B (de "box"): a Steam inteira dentro

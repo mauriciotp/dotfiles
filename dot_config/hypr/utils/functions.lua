@@ -45,6 +45,21 @@ function F.app(class, cmd)
 	return hl.dsp.exec_cmd(string.format("%slaunch-or-focus '%s' %s", F.bin, class, cmd))
 end
 
+-- Regex exata das classes de um app de janela única (variables.lua, apps), para
+-- atalhos e regras: app_class("obsidian") → "^(md\.obsidian\.Obsidian)$"
+function F.app_class(name)
+	local a = require("variables").apps[name]
+	if not a then
+		error("unknown app in variables.lua (apps): " .. tostring(name), 2)
+	end
+	return F.exact_regex(a.classes)
+end
+
+-- Atalho de um app de janela única de variables.lua (apps): foca ou abre
+function F.open_app(name)
+	return F.app(F.app_class(name), require("variables").apps[name].command)
+end
+
 -- Comando do IPC do Noctalia (docs.noctalia.dev → IPC)
 function F.ipc(cmd)
 	return hl.dsp.exec_cmd("noctalia msg " .. cmd)

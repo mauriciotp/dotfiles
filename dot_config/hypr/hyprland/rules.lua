@@ -97,7 +97,7 @@ tagged_rule("float", { { modal = true } })
 -- flutuar" no vault de inspirações, 2026-11-17).
 -- App novo assim: a classe aqui e a janela principal na lista "tile".
 tagged_rule("float", { "^steam$" }, "class") -- no tamanho que a Steam pede
-tagged_rule("float_60_70", { "^md\\.obsidian\\.Obsidian$" }, "class")
+tagged_rule("float_60_70", { F.app_class("obsidian") }, "class")
 
 -- tamanho fixo (875 × 600): mpv, imv e outros visualizadores, quando instalados
 -- tagged_rule("float_small", { "^(mpv|imv)$" }, "class")
@@ -128,7 +128,7 @@ tagged_rule("tile", {
 	-- (eventos do Hyprland, 2026-11-17). Vault com "-" no nome abre flutuando.
 	-- O pop-out ("abrir em nova janela") nasce "Obsidian", como a principal:
 	-- esse é tratado por evento em hyprland/apps/obsidian.lua.
-	{ class = "^md\\.obsidian\\.Obsidian$", initial_title = "^(Obsidian|[^-]+ - Obsidian [0-9.]+)$" },
+	{ class = F.app_class("obsidian"), initial_title = "^(Obsidian|[^-]+ - Obsidian [0-9.]+)$" },
 })
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
