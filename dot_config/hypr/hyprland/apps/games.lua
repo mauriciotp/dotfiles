@@ -34,6 +34,20 @@ F.tagged_rule("game", { { xdg_tag = "proton-game" } })
 
 F.create_tag("game", {
 	workspace = "r~10", -- o 10 da tela em foco
+-- Nem todo .exe é jogo: instaladores, desinstaladores, atualizadores e os
+-- launchers das lojas (Battle.net, EA, Ubisoft, GOG, Rockstar) também rodam pelo
+-- Wine, e não devem ir para o 10 nem impedir a tela de apagar. Esta regra tira a
+-- tag que a lista acima deu; vem depois dela e antes da definição. (?i): o Wine
+-- mantém a caixa do nome do arquivo (Setup.exe, setup.exe). Launcher novo que
+-- vire "jogo": acrescente o nome aqui.
+hl.window_rule({
+	name = "game-not-wine-tools",
+	match = {
+		class = [[(?i)^(.*(setup|install|unins|redist|update|launcher|crashreport).*|battle\.net|eadesktop|origin|upc|galaxyclient|socialclubhelper)\.exe$]],
+	},
+	tag = "-game",
+})
+
 	immediate = true, -- tearing permitido (chave geral em hyprland/general.lua)
 	content = "game", -- liga o VRR e o direct scanout (hyprland/monitors.lua)
 	-- a tela não apaga nem com o jogo em janela (o controle não conta como atividade)
