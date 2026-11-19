@@ -3,7 +3,9 @@
 -- (github.com/CachyOS/cachyos-hyprland-settings, config/windowrules.conf).
 -- Os jogos vão para o 10 da tela em foco (SUPER+0), um workspace só deles.
 -- Assim o jogo nunca cai em cima do Big Picture (só cabe uma janela em tela
--- cheia por workspace).
+-- cheia por workspace). O gamescope ganha os efeitos de jogo, mas fica onde
+-- abriu: o Big Picture no gamescope (steam-bigpicture) nasce no workspace que a
+-- tela pedida mostra (decisão de 2026-11-18).
 local F = require("utils.functions")
 
 -- Quem recebe a tag. Jogo novo: acrescente a classe, exatamente como o
@@ -32,8 +34,6 @@ F.tagged_rule("game", {
 -- Pelo XWayland, que é o padrão, não há marca: valem as classes (Reddit, 2026-07)
 F.tagged_rule("game", { { xdg_tag = "proton-game" } })
 
-F.create_tag("game", {
-	workspace = "r~10", -- o 10 da tela em foco
 -- Nem todo .exe é jogo: instaladores, desinstaladores, atualizadores e os
 -- launchers das lojas (Battle.net, EA, Ubisoft, GOG, Rockstar) também rodam pelo
 -- Wine, e não devem ir para o 10 nem impedir a tela de apagar. Esta regra tira a
@@ -48,6 +48,7 @@ hl.window_rule({
 	tag = "-game",
 })
 
+F.create_tag("game", {
 	immediate = true, -- tearing permitido (chave geral em hyprland/general.lua)
 	content = "game", -- liga o VRR e o direct scanout (hyprland/monitors.lua)
 	-- a tela não apaga nem com o jogo em janela (o controle não conta como atividade)
@@ -61,6 +62,9 @@ hl.window_rule({
 	-- misc.render_unfocused_fps (padrão 15 fps) (Mainstream, fork do end-4)
 	render_unfocused = true,
 })
+
+-- o 10 da tela em foco, menos o gamescope (veja o topo)
+F.window("game-workspace", { tag = "game", class = "negative:^gamescope$" }, { workspace = "r~10" })
 
 -- splash e launcher de jogo da Steam (título vazio ao abrir): flutuam no centro (CachyOS)
 F.window("game-splash", { class = "^steam_app_.*$", initial_title = "^$" }, { float = true, center = true })
