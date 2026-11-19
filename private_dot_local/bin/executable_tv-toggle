@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Liga ou desliga a TV (LG C4) no Hyprland. Ela é uma tela como as outras, com
 # os seus 10 workspaces (hypr/utils/workspaces.lua).
 # Uso: tv-toggle [on|off]   (sem argumento: alterna)
@@ -11,6 +11,8 @@
 #   on : ativa a TV no 4K de maior taxa, 144 Hz (scale 2), e põe o foco nela
 #   off: desativa a TV. O Hyprland passa os workspaces dela para outra tela, e o
 #        workspaces.lua os devolve quando ela religa
+set -euo pipefail
+
 TV="HDMI-A-1"
 
 tv_active() { hyprctl monitors -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; }
@@ -24,9 +26,9 @@ tv_active() { hyprctl monitors -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)
 tv_mode() {
     best=$(hyprctl monitors all -j |
         jq -r --arg tv "$TV" '.[] | select(.name == $tv) | .availableModes[]' |
-        sed 's/Hz$//' | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1)
+        sed 's/Hz$//' | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1) || true
     rate=${best#*@}
-    if [ -z "$best" ] || [ "${rate%.*}" -lt 120 ]; then
+    if [[ -z $best ]] || ((${rate%.*} < 120)); then
         notify-send -a tv-toggle "TV em ${best:-preferred}" \
             "O driver não oferece 4K@144 nesta sessão. Tire e recoloque o cabo HDMI com a TV ligada."
     fi
@@ -46,8 +48,12 @@ tv_off() {
     hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })" >/dev/null
 }
 
-case "$1" in
-    on)  tv_on ;;
+case ${1:-} in
+    on) tv_on ;;
     off) tv_off ;;
-    *)   if tv_active; then tv_off; else tv_on; fi ;;
+    "") if tv_active; then tv_off; else tv_on; fi ;;
+    *)
+        echo "Usage: tv-toggle [on|off]" >&2
+        exit 1
+        ;;
 esac
