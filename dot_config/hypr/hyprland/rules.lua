@@ -93,7 +93,8 @@ tagged_rule("float", { { modal = true } })
 -- Apps que abrem janelas extras sem janela-pai (configurações, propriedades,
 -- chat): todas as janelas flutuam, e a tag "tile" (abaixo) devolve a principal
 -- ao tiling pelo título inicial. Por regra, e não por evento: nada se move
--- depois de abrir (inspirações em inbox/Desktop/Hyprland inspirações/).
+-- depois de abrir (Caelestia, dots-hyprland; comparativo "janelas que deveriam
+-- flutuar" no vault de inspirações, 2026-11-17).
 -- App novo assim: a classe aqui e a janela principal na lista "tile".
 tagged_rule("float", { "^steam$" }, "class") -- no tamanho que a Steam pede
 tagged_rule("float_60_70", { "^md\\.obsidian\\.Obsidian$" }, "class")

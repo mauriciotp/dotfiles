@@ -14,8 +14,9 @@ palette = "noctalia"
 # Precisa de Nerd Font (o Ghostty usa JetBrainsMono Nerd Font).
 # Cores: só nomes da paleta "noctalia", gravada no fim do arquivo pelo template do
 # Noctalia (mesmos nomes da Catppuccin, cada um ligado a uma cor do tema do terminal),
-# para tudo mudar junto com o tema. Nada de número fixo (208) nem nome fora da paleta. O chezmoi mantém a paleta que estiver no arquivo;
-# sem ela (instalação nova), usa a Catppuccin Mocha de .chezmoitemplates.
+# para tudo mudar junto com o tema. Nada de número fixo (208) nem nome fora da
+# paleta. O chezmoi mantém a paleta que estiver no arquivo; sem ela (instalação
+# nova), usa a Catppuccin Mocha de .chezmoitemplates.
 # Só o que muda o padrão (starship print-config --default).
 
 format = """

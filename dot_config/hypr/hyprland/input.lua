@@ -11,8 +11,8 @@ hl.config({
 	binds = {
 		-- SUPER+roda troca de workspace a cada clique, sem a pausa de 300 ms. H5
 		scroll_event_delay = 0,
-		-- trocar de workspace fecha o especial aberto: com cinco especiais, evita
-		-- ficar com um aberto por cima (dots-hyprland, Omarchy). O5
+		-- trocar de workspace fecha o especial aberto (música, btop ou scratchpad):
+		-- evita ficar com um aberto por cima (dots-hyprland, Omarchy). O5
 		hide_special_on_workspace_change = true,
 	},
 

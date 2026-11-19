@@ -1,6 +1,6 @@
 -- Jogos: a lista diz quem recebe a tag "game"; a definição diz o que a tag
 -- faz (o padrão de tags do hyprland/rules.lua). Sem eventos, como no CachyOS
--- (inbox/Referências/CachyOS/hypr/config/windowrules.lua).
+-- (github.com/CachyOS/cachyos-hyprland-settings, config/windowrules.conf).
 -- Os jogos vão para o 10 da tela em foco (SUPER+0), um workspace só deles.
 -- Assim o jogo nunca cai em cima do Big Picture (só cabe uma janela em tela
 -- cheia por workspace).
