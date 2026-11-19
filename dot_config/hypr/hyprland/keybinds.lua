@@ -12,6 +12,12 @@
 -- Descrição no formato "Categoria: ação" (dots-hyprland): a cola do SUPER+F1
 -- agrupa pela categoria.
 -- Atalho novo: uma linha no bloco certo, bind(tecla, descrição, ação).
+-- Como rodar um comando:
+--   run(cmd)           app ou script que abre app: vira unidade do uwsm (cgroup
+--                      próprio, sai no journal, sobrevive a um reinício do shell)
+--   app(classe, cmd)   app de janela única: foca a que existe ou abre
+--   "texto"            comando rápido, que faz algo e sai (pkill, hyprctl,
+--                      mangohudctl): roda direto, pelo sh, sem criar unidade
 local F = require("utils.functions")
 local W = require("utils.workspaces")
 local vars = require("variables")
@@ -75,7 +81,7 @@ bind("SUPER + CTRL + SHIFT + ALT + B", "Games: Big Picture in gamescope on the T
 bind(
 	"SUPER + F12",
 	"Games: show/hide the gamescope HUD",
-	run("sh -c 'pgrep -f \"^gamescope .*--mangoapp\" >/dev/null && exec mangohudctl toggle no_display'")
+	"pgrep -f '^gamescope .*--mangoapp' >/dev/null && mangohudctl toggle no_display"
 )
 
 -- ===== Shell (Noctalia): launcher, painéis, notificações =====
