@@ -110,10 +110,6 @@ tagged_rule("xwl_popup", {
 	{ class = "^steam$", title = "^$" },
 })
 
--- terminais: uma definição só do que é terminal, para outras regras usarem
--- ({ tag = "terminal" }). Inclui as classes próprias (k9s, btop, float). Q2
-tagged_rule("terminal", { "^(com\\.mitchellh\\.ghostty|com\\.mauricio\\..+)$" }, "class")
-
 -- Tiling, mesmo que outra tag ou o próprio app peça para flutuar (a definição
 -- vem depois das de flutuar, e a última regra vence):
 -- navegadores Chromium (Chrome, Brave, Edge, Vivaldi), cujos web apps nascem
