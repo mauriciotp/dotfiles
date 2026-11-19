@@ -25,35 +25,42 @@ local W = {}
 
 local SLOTS = 10
 
+-- Posição de um id no bloco dele (o 13 é o slot 3)
+local function slot_of(id)
+	return (id - 1) % SLOTS + 1
+end
+
+-- Telas configuradas em variables.lua, na ordem de screens.order: { key, name }.
+-- screens também guarda tabelas (order, labels): só o nome da conexão conta.
+-- A lista é da configuração e só muda num reload.
+local configured = {}
+for _, key in ipairs(screens.order) do
+	local name = screens[key]
+	if type(name) == "string" then
+		configured[#configured + 1] = { key = key, name = name }
+	end
+end
+
 -- O nome é o número da tecla em qualquer bloco (o 13 se chama "3"). Cada id
 -- fica ligado à tela do bloco, e o primeiro é o que ela mostra ao ligar (sem
 -- isto, a TV ligava num número livre qualquer, como o 3)
-local configured = 0 -- telas configuradas até aqui (cada uma, um bloco)
-for _, key in ipairs(screens.order) do
-	-- screens também guarda tabelas (order, labels): só o nome da conexão conta
-	local name = screens[key]
-	if type(name) == "string" then
-		for slot = 1, SLOTS do
-			hl.workspace_rule({
-				workspace = tostring(configured * SLOTS + slot),
-				default_name = tostring(slot),
-				monitor = name,
-				default = slot == 1 or nil,
-				-- os primeiros existem sempre, mesmo vazios, e por isso aparecem
-				-- na barra (Omarchy, ml4w, KoolDots: 1–5; jinra, por regra)
-				persistent = slot <= vars.persistentWorkspaces or nil,
-			})
-		end
-		configured = configured + 1
+for i, s in ipairs(configured) do
+	local base = (i - 1) * SLOTS
+	for slot = 1, SLOTS do
+		hl.workspace_rule({
+			workspace = tostring(base + slot),
+			default_name = tostring(slot),
+			monitor = s.name,
+			default = slot == 1 or nil,
+			-- os primeiros existem sempre, mesmo vazios, e por isso aparecem
+			-- na barra (Omarchy, ml4w, KoolDots: 1–5; jinra, por regra)
+			persistent = slot <= vars.persistentWorkspaces or nil,
+		})
 	end
 end
 -- blocos das telas fora da lista (a VM): só o nome
-for id = configured * SLOTS + 1, (configured + 2) * SLOTS do
-	hl.workspace_rule({ workspace = tostring(id), default_name = tostring((id - 1) % SLOTS + 1) })
-end
-
-local function slot_of(id)
-	return (id - 1) % SLOTS + 1
+for id = #configured * SLOTS + 1, (#configured + 2) * SLOTS do
+	hl.workspace_rule({ workspace = tostring(id), default_name = tostring(slot_of(id)) })
 end
 
 -- ===== Blocos =====
@@ -71,13 +78,10 @@ end
 function W.blocks()
 	local on = active_monitors()
 	local list, known, any = {}, {}, false
-	for _, key in ipairs(screens.order) do
-		local name = screens[key]
-		if type(name) == "string" then
-			known[name] = true
-			list[#list + 1] = { key = key, base = #list * SLOTS, monitor = on[name] }
-			any = any or on[name] ~= nil
-		end
+	for _, s in ipairs(configured) do
+		known[s.name] = true
+		list[#list + 1] = { key = s.key, base = #list * SLOTS, monitor = on[s.name] }
+		any = any or on[s.name] ~= nil
 	end
 	local next_base = any and #list * SLOTS or 0
 	for name, m in pairs(on) do
@@ -100,9 +104,10 @@ local function active_blocks(list)
 	return out
 end
 
--- Id do slot (1–10) na tela m
-function W.id(slot, m)
-	for _, b in ipairs(W.blocks()) do
+-- Id do slot (1–10) na tela m. list: os blocos já calculados (W.blocks), para
+-- quem já os tem não calcular de novo
+function W.id(slot, m, list)
+	for _, b in ipairs(list or W.blocks()) do
 		if m and b.monitor and b.monitor.name == m.name then
 			return b.base + slot
 		end
@@ -285,7 +290,7 @@ function W.focus(slot, on_other)
 	if on_other then
 		m = next_screen(m, list)
 	end
-	local id = W.id(slot, m)
+	local id = W.id(slot, m, list)
 	if not hl.get_workspace(id) and m and not m.focused then
 		hl.dispatch(hl.dsp.focus({ monitor = m.name }))
 	end
@@ -295,9 +300,10 @@ end
 
 -- Move a janela ativa para o slot na tela em foco
 function W.move(slot, follow)
-	local id = W.id(slot, hl.get_active_monitor())
+	local list = W.blocks()
+	local id = W.id(slot, hl.get_active_monitor(), list)
 	hl.dispatch(hl.dsp.window.move({ workspace = tostring(id), follow = follow }))
-	place(id, W.blocks())
+	place(id, list)
 end
 
 -- Move a janela ativa para o slot vizinho (delta = 1 ou -1) da tela em foco,
@@ -348,9 +354,10 @@ function W.go(role, slot)
 		hl.dispatch(hl.dsp.focus({ monitor = m.name }))
 	end
 	if slot then
-		local id = W.id(slot, m)
+		local list = W.blocks()
+		local id = W.id(slot, m, list)
 		hl.dispatch(hl.dsp.focus({ workspace = tostring(id) }))
-		place(id, W.blocks())
+		place(id, list)
 	end
 end
 
