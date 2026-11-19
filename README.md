@@ -159,7 +159,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo Big Picture no gamescope (`steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 
-**Numa máquina com outras telas, edite `screens` no `variables.lua` e os modos em `hyprland/monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
+**Numa máquina com outras telas, edite `screens` no `variables.lua` e os modos em `hyprland/monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`. Os scripts (`tv-toggle`, `hdr`, `steam-bigpicture`) não têm o nome da TV escrito: o `monitors.lua` grava os nomes em `$XDG_RUNTIME_DIR/hypr-screens.env` a cada carga da config, e eles leem dali. A posição e a escala da TV ligada também ficam no `monitors.lua` (`tv_on`), usado pelo `tv-toggle`.
 
 ### Atalhos principais
 

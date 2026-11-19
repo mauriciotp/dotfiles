@@ -39,7 +39,12 @@
 # no Arch, e fica carregando.
 set -euo pipefail
 
-TV="HDMI-A-1"
+# Nome da TV: do variables.lua do Hyprland, que o hypr/hyprland/monitors.lua
+# grava em $XDG_RUNTIME_DIR/hypr-screens.env a cada carga da config.
+screens="${XDG_RUNTIME_DIR:-/tmp}/hypr-screens.env"
+[[ -r $screens ]] || { echo "Screen names not found ($screens). Is Hyprland running?" >&2; exit 1; }
+# shellcheck source=/dev/null
+source "$screens"
 BIN="$HOME/.local/bin"
 SELF="$BIN/steam-bigpicture"
 

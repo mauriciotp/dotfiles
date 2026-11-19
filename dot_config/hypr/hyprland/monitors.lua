@@ -1,6 +1,13 @@
 -- Monitores. Os nomes das conexões ficam em variables.lua (screens);
 -- o utils/workspaces.lua usa a mesma tabela para saber quem é o principal.
+-- Também é daqui que os scripts tiram o nome e o layout da TV (veja o fim).
 local screens = require("variables").screens
+
+local M = {}
+
+-- Layout da TV ligada: em cima do monitor, com escala 2 no 4K. O modo (4K de
+-- maior taxa) quem escolhe é o tv-toggle, pela lista do driver.
+local TV_POSITION, TV_SCALE = "0x0", 2
 
 -- TV em cima. Em espera ela continua "conectada" pelo HDMI, então começa
 -- desativada e o tv-toggle a liga. Num reload da config, se ela já estiver
@@ -15,7 +22,7 @@ if tv then
 	hl.monitor({
 		output = screens.tv,
 		mode = string.format("%dx%d@%.3f", tv.width, tv.height, tv.refresh_rate or 60),
-		position = "0x0",
+		position = TV_POSITION,
 		scale = tv.scale,
 	})
 else
@@ -58,3 +65,28 @@ hl.config({
 	-- automática pode dar tela branca e piscar (doc do Hyprland, quirks)
 	quirks = { prefer_hdr = 2 },
 })
+
+-- ===== Para os scripts =====
+-- Ligar e desligar a TV (tv-toggle):
+--   hyprctl eval "require('hyprland.monitors').tv_on('3840x2160@143.99')"
+-- disabled = false é obrigatório: sem ele, a regra disabled = true de cima
+-- continua valendo.
+function M.tv_on(mode)
+	hl.monitor({ output = screens.tv, disabled = false, mode = mode or "preferred", position = TV_POSITION, scale = TV_SCALE })
+end
+
+function M.tv_off()
+	hl.monitor({ output = screens.tv, disabled = true })
+end
+
+-- Nomes das telas para os scripts em shell (tv-toggle, hdr, steam-bigpicture):
+-- o hyprctl eval não devolve valores, então o Lua grava um arquivo que eles
+-- leem com source. Regravado a cada carga da config; a fonte continua sendo o
+-- variables.lua.
+local env = io.open((os.getenv("XDG_RUNTIME_DIR") or "/tmp") .. "/hypr-screens.env", "w")
+if env then
+	env:write(string.format("TV='%s'\nMONITOR='%s'\n", screens.tv or "", screens.current or ""))
+	env:close()
+end
+
+return M

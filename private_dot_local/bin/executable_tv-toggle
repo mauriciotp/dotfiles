@@ -8,12 +8,18 @@
 # Por isso o monitors.lua começa com a TV desativada e este script a liga quando
 # você vai jogar na cama.
 #
-#   on : ativa a TV no 4K de maior taxa, 144 Hz (scale 2), e põe o foco nela
+#   on : ativa a TV no 4K de maior taxa, 144 Hz, e põe o foco nela (posição e
+#        escala no hypr/hyprland/monitors.lua)
 #   off: desativa a TV. O Hyprland passa os workspaces dela para outra tela, e o
 #        workspaces.lua os devolve quando ela religa
 set -euo pipefail
 
-TV="HDMI-A-1"
+# Nome da TV: do variables.lua do Hyprland, que o hypr/hyprland/monitors.lua
+# grava em $XDG_RUNTIME_DIR/hypr-screens.env a cada carga da config.
+screens="${XDG_RUNTIME_DIR:-/tmp}/hypr-screens.env"
+[[ -r $screens ]] || { echo "Screen names not found ($screens). Is Hyprland running?" >&2; exit 1; }
+# shellcheck source=/dev/null
+source "$screens"
 
 tv_active() { hyprctl monitors -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; }
 
@@ -37,15 +43,15 @@ tv_mode() {
 
 tv_on() {
     mode=$(tv_mode)
-    # disabled = false é obrigatório: sem ele, a regra disabled = true do monitors.lua continua valendo
-    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = false, mode = \"$mode\", position = \"0x0\", scale = 2 })" >/dev/null
+    # posição e escala: hypr/hyprland/monitors.lua (tv_on)
+    hyprctl eval "require('hyprland.monitors').tv_on('$mode')" >/dev/null
     # espera a TV aparecer antes de pôr o foco nela (até 5 s)
     for _ in 1 2 3 4 5 6 7 8 9 10; do tv_active && break; sleep 0.5; done
     hyprctl dispatch "hl.dsp.focus({ monitor = \"$TV\" })" >/dev/null
 }
 
 tv_off() {
-    hyprctl eval "hl.monitor({ output = \"$TV\", disabled = true })" >/dev/null
+    hyprctl eval "require('hyprland.monitors').tv_off()" >/dev/null
 }
 
 case ${1:-} in

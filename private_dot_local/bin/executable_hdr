@@ -21,7 +21,13 @@
 # eles o HDR só sai pelo Big Picture no gamescope (steam-bigpicture --gamescope).
 set -euo pipefail
 
-TV="HDMI-A-1"
+# Nome da TV: do variables.lua do Hyprland, que o hypr/hyprland/monitors.lua
+# grava em $XDG_RUNTIME_DIR/hypr-screens.env a cada carga da config. Sem o
+# arquivo, o jogo roda como está, sem HDR (o hdr não pode impedir o jogo de abrir).
+TV=""
+screens="${XDG_RUNTIME_DIR:-/tmp}/hypr-screens.env"
+# shellcheck source=/dev/null
+[[ -r $screens ]] && source "$screens"
 
 dry=false
 if [[ ${1:-} == --dry-run ]]; then
