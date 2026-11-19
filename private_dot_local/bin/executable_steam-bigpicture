@@ -104,7 +104,7 @@ tv_active() { monitors | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/nul
 # TV pedida e desligada: liga (continua ligada depois, até o SUPER+ALT+O)
 if [[ $role == tv ]] && ! tv_active; then
     if ! hyprctl monitors all -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; then
-        notify-send -a steam-bigpicture "TV não conectada" "O Big Picture abre no monitor."
+        notify-send -a steam-bigpicture "TV not connected" "Big Picture will open on the monitor."
         role=monitor
     else
         "$BIN/tv-toggle" on

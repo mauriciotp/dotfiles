@@ -38,8 +38,8 @@ focused=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused) | .nam
 vars=()
 if [[ $focused == "$TV" ]]; then
     if [[ " $* " == *"/steamapps/common/Proton"* ]]; then
-        notify-send -a hdr "Sem HDR neste Proton" \
-            "Os Protons da Valve não têm Wayland. Escolha o GE-Proton nas propriedades do jogo, ou use gs-run."
+        notify-send -a hdr "No HDR with this Proton" \
+            "Valve's Protons have no Wayland driver. Pick GE-Proton in the game's properties, or use gs-run."
     else
         vars=(PROTON_ENABLE_WAYLAND=1 PROTON_FORCE_HDR=1 SDL_VIDEODRIVER=wayland)
     fi

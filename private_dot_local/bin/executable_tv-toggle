@@ -29,8 +29,8 @@ tv_mode() {
         sed 's/Hz$//' | grep '^3840x2160@' | sort -t@ -k2 -rn | head -n 1) || true
     rate=${best#*@}
     if [[ -z $best ]] || ((${rate%.*} < 120)); then
-        notify-send -a tv-toggle "TV em ${best:-preferred}" \
-            "O driver não oferece 4K@144 nesta sessão. Tire e recoloque o cabo HDMI com a TV ligada."
+        notify-send -a tv-toggle "TV at ${best:-preferred}" \
+            "The driver offers no 4K@144 this session. Unplug and replug the HDMI cable with the TV on."
     fi
     echo "${best:-preferred}"
 }
