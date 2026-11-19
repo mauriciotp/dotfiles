@@ -5,6 +5,7 @@ set -euo pipefail
 
 # cores do Noctalia: o popup do tmux não herda o FZF_DEFAULT_OPTS do zsh
 theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
+# shellcheck source=/dev/null
 [[ -r $theme ]] && source "$theme"
 
 if (($# > 0)); then

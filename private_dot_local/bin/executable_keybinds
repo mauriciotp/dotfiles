@@ -12,6 +12,7 @@ fi
 
 # cores do Noctalia: aberto pelo Hyprland, o script não herda o FZF_DEFAULT_OPTS do zsh
 theme="${XDG_CONFIG_HOME:-$HOME/.config}/fzf/themes/noctalia.sh"
+# shellcheck source=/dev/null
 [[ -r $theme ]] && source "$theme"
 
 # modmask é uma máscara de bits: SHIFT=1 CAPS=2 CTRL=4 ALT=8 SUPER=64
