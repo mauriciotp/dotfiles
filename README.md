@@ -443,9 +443,9 @@ chezmoi edit --apply ~/.config/tmux/tmux.conf
 chezmoi git -- status
 chezmoi git -- diff
 
-# 4. commit (mensagem em inglês, um commit por mudança)
+# 4. commit (mensagem em português, "Área: o que mudou"; um commit por mudança)
 chezmoi git -- add -A
-chezmoi git -- commit -m "tmux: describe the change"
+chezmoi git -- commit -m "tmux: descreva a mudança"
 
 # 5. enviar para o GitHub (depois da busca de segredos, veja abaixo)
 chezmoi git -- push
