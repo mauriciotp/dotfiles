@@ -3,6 +3,8 @@
 # Focar a janela também leva até o workspace dela.
 # Uso: launch-or-focus <regex-da-classe> <comando...>
 #   ex.: launch-or-focus '^md\.obsidian\.Obsidian$' obsidian
+# A regex diferencia maiúsculas, como as regras do Hyprland: use a classe
+# exatamente como o hyprctl clients mostra.
 # Baseado no omarchy-launch-or-focus (github.com/omacom/omarchy).
 set -euo pipefail
 
@@ -16,7 +18,7 @@ shift
 
 # Entre várias janelas do app, foca a usada por último (menor focusHistoryID)
 address=$(hyprctl clients -j | jq -r --arg p "$pattern" '
-    [.[] | select(.class | test($p; "i"))] | sort_by(.focusHistoryID) | first | .address // empty')
+    [.[] | select((.class // "") | test($p))] | sort_by(.focusHistoryID) | first | .address // empty')
 
 if [[ -n $address ]]; then
     hyprctl dispatch "hl.dsp.focus({ window = \"address:$address\" })" >/dev/null
