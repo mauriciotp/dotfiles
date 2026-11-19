@@ -18,7 +18,7 @@
 #
 # O HDR em si é ligado no menu do jogo. Precisa do GE-Proton ou do
 # Proton-CachyOS: os Protons da Valve não têm o driver Wayland do Wine, e por
-# eles o HDR só sai pelo gamescope (gs-run).
+# eles o HDR só sai pelo Big Picture no gamescope (steam-bigpicture --gamescope).
 set -euo pipefail
 
 TV="HDMI-A-1"
@@ -39,7 +39,7 @@ vars=()
 if [[ $focused == "$TV" ]]; then
     if [[ " $* " == *"/steamapps/common/Proton"* ]]; then
         notify-send -a hdr "No HDR with this Proton" \
-            "Valve's Protons have no Wayland driver. Pick GE-Proton in the game's properties, or use gs-run."
+            "Valve's Protons have no Wayland driver. Pick GE-Proton in the game's properties, or play from Big Picture in gamescope."
     else
         vars=(PROTON_ENABLE_WAYLAND=1 PROTON_FORCE_HDR=1 SDL_VIDEODRIVER=wayland)
     fi

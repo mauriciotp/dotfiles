@@ -114,7 +114,6 @@ O `.zprofile` abre o Hyprland sozinho ao fazer login no **tty1**.
 | `tv-toggle` | liga/desliga a TV no Hyprland, no 4K de maior taxa que o driver oferecer | **SUPER+ALT+O**, ou `tv-toggle on\|off` |
 | `steam-bigpicture` | Steam Big Picture no workspace atual da tela pedida, em tela cheia, sem gamescope; com `--gamescope`, a Steam inteira dentro do gamescope (na TV, com HDR) | **SUPER+CTRL+SHIFT+G** no monitor, **+ALT** na TV; **SUPER+CTRL+SHIFT+B** e **+ALT** com gamescope (na TV, com HDR); `--here` na tela em foco; `--sdr`, `--itm`, `--sdr-nits N` para o HDR do gamescope; `--desktop` abre a Steam normal (**SUPER+SHIFT+G**). O mesmo atalho fecha o Big Picture (ou sai do gamescope). O HUD do gamescope é o mangoapp, oculto até o **SUPER+F12** |
 | `hdr` | roda um jogo com HDR quando ele abre na TV (Wine Wayland do GE-Proton); em outra tela, normal | opção de inicialização: `hdr gamemoderun %command%`; terminal: `hdr ./jogo`; Heroic: `hdr` no wrapper |
-| `gs-run` | roda um jogo dentro do gamescope, no modo da tela em foco; na TV, com HDR | opção de inicialização: `gs-run gamemoderun %command%`; `--sdr`, `--itm`, `--sdr-nits N` |
 | `update-ge-proton` | baixa a versão mais nova do GE-Proton para a Steam | `update-ge-proton` (depois reinicie a Steam) |
 
 A função de shell **`tdl`** (em `aliases.zsh`) monta um layout de trabalho no tmux: Neovim à esquerda, a IA à direita (padrão `claude`) e um terminal embaixo. Uso: `tdl` ou `tdl claude`.
@@ -157,7 +156,7 @@ Ficam de fora o Neovim, que usa o plugin `catppuccin-mocha` direto, e o tmux, qu
 - **Discord (SUPER+SHIFT+D) e Obsidian (SUPER+SHIFT+O)** são janelas normais: a tecla abre o app ou vai até a janela dele, onde ela estiver (`launch-or-focus`).
 - **A TV começa desligada no Hyprland** porque, em espera, ela continua "conectada" pelo HDMI. **SUPER+ALT+O** (`tv-toggle`) a liga e desliga; ela é uma tela como as outras. Ao desligar, os workspaces dela com janelas vão para o monitor, aparecem como "TV 3" e voltam quando ela religa. Um reload da config não a desliga.
 - **Jogos** abrem no **10 da tela em foco** (SUPER+0), um workspace só deles: no monitor o 10, na TV o 10 dela (id 20). Eles ganham VRR, permissão de tearing e tela que não apaga. As regras ficam em `hypr/hyprland/apps/games.lua`, no padrão de tags, sem eventos (formato do CachyOS): a lista de classes da tag `game` (`steam_app_*`, `gamescope`, `*.exe`, recomps) e, no Lichii, só a janela principal com um jogo rodando, pelo título. Dos `.exe`, instaladores, atualizadores e launchers de loja (Battle.net, EA, Ubisoft, GOG, Rockstar) não contam como jogo. O gamescope ganha os efeitos de jogo, mas fica no workspace onde abriu: o Big Picture no gamescope nasce no workspace que a tela pedida mostra. Assim o jogo nunca cai em cima do Big Picture: só cabe uma janela em tela cheia por workspace. As janelas da Steam nascem flutuando (`apps/steam.lua`, como no Omarchy), e o Big Picture fica em tela cheia no workspace onde abriu. Com um jogo aberto, a Steam do desktop aparece pela overlay (Shift+Tab) ou trocando de workspace.
-- **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo gamescope (`gs-run`, `steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
+- **HDR só na TV:** o Hyprland troca a TV para HDR quando um jogo HDR fica em tela cheia e volta ao SDR ao sair (`cm_auto_hdr`); o monitor nunca liga HDR (`supports_hdr = -1`). O jogo pede HDR pelo `hdr` (GE-Proton) ou pelo Big Picture no gamescope (`steam-bigpicture --gamescope`); o HDR em si se liga no menu do jogo.
 - **Monitor QHD futuro:** ponha a conexão em `screens.qhd` no `variables.lua` e o modo em `hyprland/monitors.lua`; `utils/workspaces.lua` renumera o resto sozinho.
 
 **Numa máquina com outras telas, edite `screens` no `variables.lua` e os modos em `hyprland/monitors.lua`.** Os nomes das conexões aparecem em `hyprctl monitors all`.
@@ -614,7 +613,7 @@ As duas formas leem o mesmo `~/.config/MangoHud/MangoHud.conf`. Logs: Shift esqu
 |---|---|
 | o jogo tem limitador próprio | **141** no menu do jogo (o melhor: não acrescenta atraso) |
 | não tem (Proton) | opções de inicialização: `DXVK_FRAME_RATE=141 VKD3D_FRAME_RATE=141 gamemoderun %command%` (DXVK: DX9 a DX11; VKD3D: DX12) |
-| gamescope | nada: o `steam-bigpicture --gamescope` e o `gs-run` passam `-r` = taxa − 3 ao gamescope |
+| gamescope | nada: o `steam-bigpicture --gamescope` passa `-r` = taxa − 3 ao gamescope |
 | emuladores e recomps | nada: os jogos rodam a 30 ou 60 |
 
 Com o MangoHud ligado, confira: FPS estável perto de 141, e o menu do monitor mostrando a frequência acompanhando o FPS (o VRR agindo).
