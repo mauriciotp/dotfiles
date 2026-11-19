@@ -13,7 +13,7 @@
 #        workspaces.lua os devolve quando ela religa
 TV="HDMI-A-1"
 
-tv_active() { hyprctl monitors -j | grep -q "\"name\": \"$TV\""; }
+tv_active() { hyprctl monitors -j | jq -e --arg tv "$TV" 'any(.[]; .name == $tv)' >/dev/null; }
 
 # Modo: o 4K de maior taxa que o driver oferecer (144 Hz na C4). A taxa exata
 # muda entre detecções (143.98, 143.99), então não dá para fixar o texto.
