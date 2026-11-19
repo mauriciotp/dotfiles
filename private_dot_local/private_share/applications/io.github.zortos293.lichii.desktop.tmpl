@@ -1,10 +1,11 @@
-{{- $app := joinPath .chezmoi.homeDir "Games/Emulators/Apps/lichii.AppImage" -}}
+{{- $app := joinPath .chezmoi.homeDir .lichii.appimage -}}
 # Lichii (emulador de Switch, fork do Eden) pelo menu de apps.
 # O AppImage fica fora do chezmoi, em ~/Games/Emulators/Apps/lichii.AppImage
 # (os jogos de Switch 2 ficam em ~/Games/Emulators/Switch2/):
 # para atualizar, baixe a versão nova por cima desse arquivo.
 # - Sem gamemoderun: o próprio Lichii liga o gamemode ao abrir o jogo
 #   (enable_gamemode=true em ~/.config/eden/qt-config.ini, o padrão).
+# - Caminho e QT_QPA_PLATFORM=xcb em .chezmoidata.toml (o ES-DE usa os mesmos).
 # - QT_QPA_PLATFORM=xcb: X11 pelo XWayland, como recomenda o manual do Eden
 #   (desempenho pior e bugs no Wayland). Para testar no Wayland, tire essa variável.
 [Desktop Entry]
@@ -14,7 +15,7 @@ GenericName=Switch Emulator
 Comment=Nintendo Switch emulator (Eden fork)
 Icon=io.github.zortos293.lichii
 TryExec={{ $app }}
-Exec=env QT_QPA_PLATFORM=xcb {{ $app }} %f
+Exec=env {{ .lichii.env }} {{ $app }} %f
 Categories=Game;Emulator;
 MimeType=application/x-nx-nro;application/x-nx-nso;application/x-nx-nsp;application/x-nx-xci;
 StartupWMClass=Lichii

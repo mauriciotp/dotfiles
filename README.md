@@ -60,8 +60,10 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 
 ```
 .
+├── .chezmoidata.toml            dados que mais de um template usa (caminho do Lichii)
 ├── .chezmoiexternal.toml        clona o TPM (plugins do tmux)
 ├── .chezmoiignore               arquivos do repo que NÃO vão para ~ (este README)
+├── .chezmoiremove               arquivos que saíram do repo e devem sumir de ~
 ├── .chezmoitemplates/
 │   └── starship-palette.toml    paleta Catppuccin Mocha padrão do Starship
 ├── run_onchange_after_bat-cache.sh.tmpl   monta o cache de temas do bat

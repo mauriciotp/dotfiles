@@ -1,0 +1,9 @@
+# Dados para os templates do chezmoi (arquivos .tmpl): {{ .lichii.appimage }}.
+# Só o que mais de um template usa; o resto fica no próprio template.
+
+# Lichii (emulador de Switch): a entrada do menu
+# (private_share/applications/io.github.zortos293.lichii.desktop.tmpl) e as
+# regras do ES-DE (ES-DE/custom_systems/es_find_rules.xml.tmpl)
+[lichii]
+appimage = "Games/Emulators/Apps/lichii.AppImage" # relativo ao home
+env = "QT_QPA_PLATFORM=xcb" # X11 pelo XWayland, como recomenda o manual do Eden

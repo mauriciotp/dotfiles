@@ -5,10 +5,10 @@
 <ruleList>
     <!-- Lichii (fork do Eden): o AppImage fica em ~/Games/Emulators/Apps.
          Depois do "|" vem o comando de verdade: o Lichii roda em X11 (xcb),
-         como na entrada do menu. -->
+         como na entrada do menu (caminho e variável em .chezmoidata.toml). -->
     <emulator name="LICHII">
         <rule type="staticpath">
-            <entry>~/Games/Emulators/Apps/lichii.AppImage|env QT_QPA_PLATFORM=xcb {{ .chezmoi.homeDir }}/Games/Emulators/Apps/lichii.AppImage</entry>
+            <entry>~/{{ .lichii.appimage }}|env {{ .lichii.env }} {{ joinPath .chezmoi.homeDir .lichii.appimage }}</entry>
         </rule>
     </emulator>
 </ruleList>
