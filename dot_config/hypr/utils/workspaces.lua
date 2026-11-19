@@ -300,6 +300,15 @@ function W.move(slot, follow)
 	place(id, W.blocks())
 end
 
+-- Move a janela ativa para o slot vizinho (delta = 1 ou -1) da tela em foco,
+-- em ciclo (do 10 vai ao 1). O "+1" do Hyprland é o número absoluto: do 10 do
+-- monitor iria ao 11, que é da TV.
+function W.move_by(delta, follow)
+	local ws = hl.get_active_workspace()
+	local slot = (ws and ws.id and ws.id > 0) and slot_of(ws.id) or 1
+	W.move((slot - 1 + delta) % SLOTS + 1, follow)
+end
+
 -- Tela de um papel, para os scripts (steam-bigpicture):
 --   "tv"       a TV (precisa estar ligada)
 --   "monitor"  a tela em foco, se não for a TV; senão a primeira ligada que não é a TV
