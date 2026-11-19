@@ -4,7 +4,7 @@
 -- hyprland/apps/<app>.lua.
 local F = require("utils.functions")
 local vars = require("variables")
-local window, tagged_rule, create_tag = F.window, F.tagged_rule, F.create_tag
+local window, tagged_rule = F.window, F.tagged_rule
 
 -- ===== Regras gerais =====
 
@@ -57,7 +57,8 @@ hl.layer_rule({ name = "no-anim-pickers", match = { namespace = "^(hyprpicker|se
 
 -- ===== Listas por tag =====
 -- Para um app ganhar o comportamento de uma tag, acrescente a classe dele na
--- lista (como o hyprctl clients mostra, em regex).
+-- lista (como o hyprctl clients mostra, em regex). O que a tag faz está em
+-- hyprland/tags.lua; listas de um app só ficam em hyprland/apps/<app>.lua.
 
 -- Tags de tamanho (Caelestia): flutua, centraliza e ocupa uma % da tela.
 -- float_50_60, float_60_70 e float_70_80; "float" só flutua; "float_small"
@@ -91,13 +92,11 @@ tagged_rule("float", {
 tagged_rule("float", { { modal = true } })
 
 -- Apps que abrem janelas extras sem janela-pai (configurações, propriedades,
--- chat): todas as janelas flutuam, e a tag "tile" (abaixo) devolve a principal
--- ao tiling pelo título inicial. Por regra, e não por evento: nada se move
--- depois de abrir (Caelestia, dots-hyprland; comparativo "janelas que deveriam
--- flutuar" no vault de inspirações, 2026-11-17).
--- App novo assim: a classe aqui e a janela principal na lista "tile".
-tagged_rule("float", { "^steam$" }, "class") -- no tamanho que a Steam pede
-tagged_rule("float_60_70", { F.app_class("obsidian") }, "class")
+-- chat), como a Steam e o Obsidian: todas as janelas flutuam, e a tag "tile"
+-- devolve a principal ao tiling pelo título inicial. Por regra, e não por
+-- evento: nada se move depois de abrir (Caelestia, dots-hyprland; comparativo
+-- "janelas que deveriam flutuar" no vault de inspirações, 2026-11-17). As duas
+-- listas ficam no arquivo do app (hyprland/apps/steam.lua, obsidian.lua).
 
 -- tamanho fixo (875 × 600): mpv, imv e outros visualizadores, quando instalados
 -- tagged_rule("float_small", { "^(mpv|imv)$" }, "class")
@@ -117,19 +116,6 @@ tagged_rule("xwl_popup", {
 tagged_rule("tile", {
 	"^((google-)?[cC]hrom(e|ium)|[bB]rave-browser|[mM]icrosoft-edge|Vivaldi-stable|helium)$",
 }, "class")
--- a janela principal dos apps de janelas extras (acima). A Steam às vezes
--- nasce flutuando sozinha (thinglab.org, 2026-01)
-tagged_rule("tile", {
-	{ class = "^steam$", initial_title = "^Steam$" },
-	-- Obsidian: "Obsidian" (aberto pelo seletor de vaults) ou "<vault> - Obsidian
-	-- <versão>" (aberto direto no vault: "SecondBrain - Obsidian 1.15.1"). Um "-"
-	-- só antes de "Obsidian": as janelas extras abrem como "Settings - <vault> -
-	-- Obsidian 1.15.1" e "Community plugins - <vault> - ..." e têm de flutuar
-	-- (eventos do Hyprland, 2026-11-17). Vault com "-" no nome abre flutuando.
-	-- O pop-out ("abrir em nova janela") nasce "Obsidian", como a principal:
-	-- esse é tratado por evento em hyprland/apps/obsidian.lua.
-	{ class = F.app_class("obsidian"), initial_title = "^(Obsidian|[^-]+ - Obsidian [0-9.]+)$" },
-})
 
 -- workspaces especiais: as classes vêm da tabela toggles do variables.lua.
 -- Tag <especial>_app, uma por especial (music_app, sysmon_app).
@@ -137,28 +123,6 @@ for special, apps in pairs(vars.toggles) do
 	for _, app in pairs(apps) do
 		tagged_rule(special .. "_app", { F.exact_regex(app.classes) }, "class")
 	end
-end
-
--- ===== Definição das tags =====
--- Sempre depois das listas: a regra da tag só enxerga as tags já dadas acima.
-create_tag("float", { float = true })
-create_tag("float_50_60", { float = true, center = true, size = { "monitor_w*0.5", "monitor_h*0.6" } })
-create_tag("float_60_70", { float = true, center = true, size = { "monitor_w*0.6", "monitor_h*0.7" } })
-create_tag("float_70_80", { float = true, center = true, size = { "monitor_w*0.7", "monitor_h*0.8" } })
-create_tag("float_small", { float = true, center = true, size = { 875, 600 } })
-create_tag("xwl_popup", {
-	no_dim = true,
-	no_shadow = true,
-	no_blur = true,
-	opaque = true,
-	rounding = math.min(10, vars.windowRounding), -- popups são pequenos
-})
-create_tag("tile", { tile = true }) -- depois das de flutuar: vence elas
--- janela do pop-out (SUPER+P) com cantos menores (Omarchy). Q8
-create_tag("pop", { rounding = 8 })
--- silent: o app aberto pelo launcher ou no login vai para o especial sem mostrá-lo
-for special in pairs(vars.toggles) do
-	create_tag(special .. "_app", { workspace = "special:" .. special .. " silent" })
 end
 
 -- ===== Pop-out (SUPER+P, hyprland/keybinds.lua) =====

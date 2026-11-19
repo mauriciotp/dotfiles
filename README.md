@@ -78,12 +78,14 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   │   ├── dot_luarc.json       o Neovim completa e valida a API hl
 │   │   ├── create_noctalia.lua  cores das bordas (gerado pelo Noctalia)
 │   │   ├── hyprland/            um arquivo por seção: monitors, general, decoration,
-│   │   │                        animations, input, misc, execs, rules, keybinds
+│   │   │                        animations, input, misc, execs, rules, tags, keybinds
+│   │   │                        (rules: regras gerais e listas de tag por categoria;
+│   │   │                        tags: o que cada tag faz, carregado depois dos apps)
 │   │   │   ├── animations/      conjuntos de animação (smooth, caelestia, omarchy,
 │   │   │   │                    spring, macos, snappy); o ativo se escolhe em
 │   │   │   │                    `animations` no variables.lua
-│   │   │   └── apps/            o que é de um app só (jogos, Steam, Discord, Bitwarden,
-│   │   │                        Obsidian, PiP, Noctalia)
+│   │   │   └── apps/            o que é de um app só, inclusive as listas de tag dele
+│   │   │                        (jogos, Steam, Discord, Bitwarden, Obsidian, PiP, Noctalia)
 │   │   └── utils/               functions.lua (bind, run, window, tags) e
 │   │                            workspaces.lua (10 por tela: monitor 1–10, TV 11–20)
 │   ├── uwsm/env, env-hyprland   variáveis de ambiente da sessão (NVIDIA, Qt, PATH...)
@@ -571,7 +573,8 @@ chezmoi add ~/.local/bin/meu-script      # se ele já for executável, entra com
 
 #### Fazer um app flutuar, ou abrir num especial
 Descubra a classe da janela com `hyprctl clients` (campo `class:`). As regras diferenciam maiúsculas de minúsculas.
-- **Flutuar:** acrescente a classe numa das listas de tag do `hypr/hyprland/rules.lua` (`float`, `float_60_70`...).
+- **Flutuar:** acrescente a classe numa das listas de tag do `hypr/hyprland/rules.lua` (`float`, `float_60_70`...). O que cada tag faz está em `hypr/hyprland/tags.lua`.
+- **App com janelas extras sem janela-pai** (configurações, chat), como a Steam e o Obsidian: no `hypr/hyprland/apps/<app>.lua`, `F.tagged_rule("float", ...)` para todas as janelas e `F.tagged_rule("tile", ...)` para a principal, pelo título inicial.
 - **Num especial** (só app de olhar e fechar, como música e btop): acrescente o app na tabela `toggles` do `hypr/variables.lua`. App de trabalhar junto com outras janelas fica num workspace normal, com uma tecla de `launch-or-focus`: acrescente o app na tabela `apps` do `hypr/variables.lua` (classes e comando) e uma linha `bind(..., open_app("<nome>"))` no `keybinds.lua`. As regras do app usam a mesma classe com `F.app_class("<nome>")`.
 - **Regra só daquele app** (workspace fixo, foco, tamanho): crie `hypr/hyprland/apps/<app>.lua` com `F.window(...)` e ponha o nome na lista do `hypr/hyprland.lua`.
 

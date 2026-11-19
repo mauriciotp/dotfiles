@@ -1,12 +1,16 @@
--- Steam: lista de amigos e Big Picture em tela cheia. As janelas extras
--- flutuam e a principal fica no tiling pelas tags float e tile
--- (hyprland/rules.lua). O Big Picture fica no workspace onde abriu; pedido
+-- Steam: janelas extras flutuando, lista de amigos e Big Picture em tela cheia. O Big Picture fica no workspace onde abriu; pedido
 -- pelo steam-bigpicture para outra tela, vai para o workspace que ela mostra.
 local F = require("utils.functions")
 
 local function is_big_picture(w)
 	return w and w.class == "steam" and w.title ~= nil and w.title:find("Big Picture", 1, true) ~= nil
 end
+
+-- Janelas extras (amigos, configurações, jogos da biblioteca) flutuam no tamanho
+-- que a Steam pede; a principal ("Steam") volta ao tiling. A Steam às vezes nasce
+-- flutuando sozinha (thinglab.org, 2026-01). Tags definidas em hyprland/tags.lua.
+F.tagged_rule("float", { "^steam$" }, "class")
+F.tagged_rule("tile", { { class = "^steam$", initial_title = "^Steam$" } })
 
 -- lista de amigos alta e estreita (Omarchy)
 F.window("steam-friends", { class = "^steam$", title = "^Friends List$" }, { size = { 460, 800 } })

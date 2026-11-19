@@ -5,10 +5,23 @@
 -- iguais (wiki, Window Rules: static effects). Por evento, como no Bitwarden:
 -- quando o título real chega, das janelas do mesmo vault a primeira aberta é a
 -- principal (fica no tiling) e as outras flutuam. Outro vault continua no
--- tiling. Configurações, plugins e ajuda flutuam pela regra (hyprland/rules.lua).
+-- tiling. Configurações, plugins e ajuda flutuam pela regra (abaixo).
 local F = require("utils.functions")
 
 local CLASS = require("variables").apps.obsidian.classes[1]
+
+-- Todas as janelas flutuam em 60% × 70%, e a principal volta ao tiling pelo
+-- título inicial (tags definidas em hyprland/tags.lua). A principal nasce
+-- "Obsidian" (aberta pelo seletor de vaults) ou "<vault> - Obsidian <versão>"
+-- (aberta direto no vault: "SecondBrain - Obsidian 1.15.1"). Um "-" só antes de
+-- "Obsidian": as janelas extras abrem como "Settings - <vault> - Obsidian
+-- 1.15.1" e "Community plugins - <vault> - ..." e têm de flutuar (eventos do
+-- Hyprland, 2026-11-17). Vault com "-" no nome abre flutuando. O pop-out
+-- nasce "Obsidian", como a principal: esse é tratado pelo evento abaixo.
+F.tagged_rule("float_60_70", { F.app_class("obsidian") }, "class")
+F.tagged_rule("tile", {
+	{ class = F.app_class("obsidian"), initial_title = "^(Obsidian|[^-]+ - Obsidian [0-9.]+)$" },
+})
 
 -- "<nota> - <vault> - Obsidian 1.15.1" ou "<vault> - Obsidian 1.15.1" → vault
 local function vault_of(title)

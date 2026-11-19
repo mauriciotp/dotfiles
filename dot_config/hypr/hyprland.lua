@@ -3,9 +3,10 @@
 -- Estrutura (Caelestia, com a pasta apps/ do Omarchy):
 --   variables.lua        apps, telas e valores (sem teclas)
 --   hyprland/            um arquivo por seção do Hyprland
---   hyprland/apps/       o que só um app tem (tamanho exato, evento); as
---                        categorias (flutuar, tiling) ficam nas listas de tag
---                        de hyprland/rules.lua
+--   hyprland/rules.lua   regras gerais e as listas de tag por categoria
+--   hyprland/apps/       o que só um app tem (listas de tag dele, tamanho, evento)
+--   hyprland/tags.lua    o que cada tag faz; depois dos dois, porque a regra
+--                        de uma tag só enxerga as tags dadas antes dela
 --   utils/               funções (bind, run, window, tags) e os workspaces por monitor
 require("hyprland.monitors")
 require("hyprland.general")
@@ -21,6 +22,7 @@ require("hyprland.rules")
 for _, app in ipairs({ "games", "steam", "bitwarden", "discord", "obsidian", "pip", "noctalia" }) do
 	require("hyprland.apps." .. app)
 end
+require("hyprland.tags")
 
 require("hyprland.keybinds")
 
