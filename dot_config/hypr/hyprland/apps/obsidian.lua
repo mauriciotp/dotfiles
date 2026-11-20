@@ -91,6 +91,9 @@ hl.on("window.title", function(w)
 			end
 		end
 	end
+	if not main then
+		return -- a lista não trouxe a janela (fechou no meio do caminho)
+	end
 	for _, other in ipairs(same) do
 		if other.address ~= main.address and not other.floating and not floated[other.address] then
 			floated[other.address] = true
