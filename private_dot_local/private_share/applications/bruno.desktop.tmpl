@@ -1,0 +1,25 @@
+{{- $app := joinPath .chezmoi.homeDir "Applications/bruno.AppImage" -}}
+# Bruno (cliente de APIs) pelo menu de apps. O AppImage fica fora do chezmoi, em
+# ~/Applications/bruno.AppImage, com nome fixo: para atualizar, baixe a versão
+# nova por cima desse arquivo. Ícone extraído do AppImage (README, Bruno).
+# - fuse2: o AppImage do Bruno usa o runtime antigo, que precisa da libfuse.so.2.
+# - --ozone-platform=x11: X11 pelo XWayland. No Wayland, o Bruno 4.3.0
+#   (Electron 37) não abre a janela: com a RTX 5080, a GPU do Electron cai
+#   em loop ("Cannot create bo"), e sem a GPU a janela também não aparece
+#   (testado em 2026-11-20). Numa versão com Electron mais novo, teste sem a flag.
+# - Sem --no-sandbox (o .desktop do pacote usa): o Arch libera user namespaces
+#   sem privilégio, e o sandbox do Chromium funciona.
+# - O nome do arquivo é a classe da janela (bruno, no X11).
+# - TryExec: a entrada só aparece no menu com o AppImage no lugar.
+[Desktop Entry]
+Type=Application
+Name=Bruno
+GenericName=API Client
+Comment=Opensource API Client for Exploring and Testing APIs
+Icon=bruno
+TryExec={{ $app }}
+Exec={{ $app }} --ozone-platform=x11 %U
+Categories=Development;
+MimeType=x-scheme-handler/bruno;
+StartupWMClass=bruno
+Terminal=false

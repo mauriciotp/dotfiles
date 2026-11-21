@@ -101,7 +101,7 @@ No chezmoi, o nome de cada arquivo no repositório diz onde ele vai parar: `dot_
 │   └── MangoHud/                HUD de FPS nos jogos
 └── private_dot_local/
     ├── bin/                     ~/.local/bin: scripts próprios (abaixo)
-    └── private_share/applications/   atalhos de menu do Lichii, dos recomps e do yazi no Ghostty
+    └── private_share/applications/   atalhos de menu do Lichii, dos recomps, do Bruno e do yazi no Ghostty
 ```
 
 **zsh por assunto** (`dot_config/zsh/conf.d/`): `options`, `history`, `completion`, `vi-mode`, `aliases`, `tools` (starship, zoxide, fzf, mise, bat como `man`) e `plugins` (autosuggestions e syntax-highlighting, sempre por último). O `.zshrc` carrega todos em ordem.
@@ -249,7 +249,7 @@ sudo pacman -S --needed \
   zsh zsh-autosuggestions zsh-syntax-highlighting starship zoxide \
   fzf fd ripgrep bat eza yazi lazygit neovim tmux ghostty \
   hyprland uwsm xdg-desktop-portal-hyprland noctalia wl-clipboard \
-  ttf-jetbrains-mono-nerd mise 7zip \
+  ttf-jetbrains-mono-nerd mise 7zip fuse2 \
   steam gamescope gamemode mangohud
 ```
 
@@ -411,6 +411,24 @@ O nome do AppImage leva a versão: se ela mudar, troque o `$builder` no `mkw-rec
 5. Se o jogo foi montado em outro lugar: com ele fechado, `mv` da pasta para `~/Games/Recomps/<projeto>`, e troque o caminho na configuração do builder e na entrada que o builder criou.
 
 ---
+
+### 8. Bruno (opcional)
+
+Cliente de APIs (bruno.com), em AppImage fora do repositório. O atalho de menu só aparece com o arquivo no lugar. O AppImage precisa do `fuse2` (lista de pacotes acima):
+
+```sh
+mkdir -p ~/Applications
+mv ~/Downloads/bruno_*_x86_64_linux.AppImage ~/Applications/bruno.AppImage
+chmod +x ~/Applications/bruno.AppImage
+
+# ícones: extraídos do próprio AppImage (SquashFS), sem executá-lo
+for s in 16 24 32 48 64 128 256 512; do
+  7z e ~/Applications/bruno.AppImage "usr/share/icons/hicolor/${s}x${s}/apps/bruno.png" \
+    -o"$HOME/.local/share/icons/hicolor/${s}x${s}/apps"
+done
+```
+
+Para atualizar, baixe a versão nova por cima do `bruno.AppImage`. O atalho abre o Bruno em X11 (`--ozone-platform=x11`): no Wayland, a versão 4.3.0 (Electron 37) não abre a janela.
 
 ## Manutenção
 
@@ -694,4 +712,4 @@ Nunca entram no repositório: `~/.config/gh/` (token do GitHub), `~/.kube/` (cre
 | temas do GTK, OBS, Heroic e Obsidian | gerados pelo Noctalia e nunca estiveram no repositório |
 | plugins do tmux e do Neovim | baixados pelo TPM e pelo lazy.nvim |
 | `/etc`, boot, lista de pacotes | fora do `~`; a lista de pacotes está documentada na [Instalação](#1-pacotes) |
-| AppImages e jogos | grandes e binários; veja a [instalação do Lichii](#6-emulador-lichii-opcional) e a dos [recomps](#7-recomps-opcional). Os jogos dos recomps são gerados da sua cópia e nunca podem ir para um repositório público |
+| AppImages e jogos | grandes e binários; veja a [instalação do Lichii](#6-emulador-lichii-opcional), a dos [recomps](#7-recomps-opcional) e a do [Bruno](#8-bruno-opcional). Os jogos dos recomps são gerados da sua cópia e nunca podem ir para um repositório público |
